@@ -2,9 +2,8 @@
 # Levanta el entorno de desarrollo completo: Postgres + Redis (docker-compose.dev.yml),
 # el backend (Spring Boot) y el frontend (Vite), y abre /registro en el navegador.
 #
-# Ctrl+C detiene el backend y el frontend. Postgres/Redis quedan corriendo
-# (son datos persistentes de desarrollo) — para bajarlos:
-#   docker compose -f docker-compose.dev.yml down
+# Ctrl+C detiene backend, frontend y los contenedores (Postgres/Redis quedan
+# detenidos, no borrados: los datos del volumen se conservan para la próxima vez).
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -50,6 +49,8 @@ cleanup() {
   echo "==> Deteniendo el backend..."
   kill "$BACKEND_PID" 2>/dev/null || true
   wait "$BACKEND_PID" 2>/dev/null || true
+  echo "==> Deteniendo Postgres y Redis..."
+  docker compose -f "$ROOT_DIR/docker-compose.dev.yml" stop postgres redis 2>/dev/null || true
 }
 trap cleanup EXIT
 
