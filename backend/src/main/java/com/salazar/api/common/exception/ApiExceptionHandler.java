@@ -1,5 +1,6 @@
 package com.salazar.api.common.exception;
 
+import java.time.Instant;
 import java.util.List;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -31,6 +32,14 @@ public class ApiExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ApiError.of(
                         HttpStatus.CONFLICT.value(), "Conflicto", "El recurso ya existe o viola una restricción única."));
+    }
+
+    @ExceptionHandler(FieldConflictException.class)
+    public ResponseEntity<ApiError> handleFieldConflict(FieldConflictException ex) {
+        var fieldError = new ApiError.FieldError(ex.getField(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ApiError(
+                        Instant.now(), HttpStatus.CONFLICT.value(), "Conflicto", List.of(fieldError), ex.getMessage()));
     }
 
     @ExceptionHandler(AuthenticationException.class)
