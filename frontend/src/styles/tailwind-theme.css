@@ -1,0 +1,91 @@
+/*
+ * Mapea los tokens de design-system/tokens.json (ya cargados como variables
+ * CSS en tokens.css) al namespace que espera Tailwind v4, para que las
+ * utilities (`bg-action`, `text-ink`, `rounded-lg`, `font-display`, etc.)
+ * usen los mismos valores que el design system, sin duplicarlos.
+ *
+ * El espaciado NO se mapea: la escala de 4px del design system
+ * (space-1=4px … space-16=64px) ya coincide número a número con la escala
+ * por defecto de Tailwind (p-1=4px … p-16=64px).
+ */
+
+@theme {
+  /* Color */
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-celeste: var(--surface-celeste);
+  --color-surface-naranja: var(--surface-naranja);
+  --color-surface-disabled: var(--surface-disabled);
+  --color-scrim: var(--scrim);
+
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-subtle: var(--ink-subtle);
+  --color-ink-disabled: var(--ink-disabled);
+
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+
+  --color-celeste-100: var(--celeste-100);
+  --color-celeste-200: var(--celeste-200);
+  --color-celeste-300: var(--celeste-300);
+  --color-celeste-700: var(--celeste-700);
+  --color-celeste-800: var(--celeste-800);
+
+  --color-naranja-100: var(--naranja-100);
+  --color-naranja-200: var(--naranja-200);
+  --color-naranja-300: var(--naranja-300);
+  --color-naranja-400: var(--naranja-400);
+  --color-naranja-500: var(--naranja-500);
+  --color-naranja-700: var(--naranja-700);
+
+  --color-lima-100: var(--lima-100);
+  --color-lima-300: var(--lima-300);
+  --color-lima-800: var(--lima-800);
+
+  --color-aji-100: var(--aji-100);
+  --color-aji-300: var(--aji-300);
+  --color-aji-800: var(--aji-800);
+
+  --color-coral-100: var(--coral-100);
+  --color-coral-300: var(--coral-300);
+  --color-coral-800: var(--coral-800);
+
+  --color-action: var(--action);
+  --color-action-hover: var(--action-hover);
+  --color-action-pressed: var(--action-pressed);
+  --color-on-action: var(--on-action);
+  --color-action-secondary: var(--action-secondary);
+  --color-action-secondary-hover: var(--action-secondary-hover);
+  --color-focus-ring: var(--focus-ring);
+  --color-link: var(--link);
+
+  --color-success-surface: var(--success-surface);
+  --color-success-text: var(--success-text);
+  --color-warning-surface: var(--warning-surface);
+  --color-warning-text: var(--warning-text);
+  --color-error-surface: var(--error-surface);
+  --color-error-text: var(--error-text);
+  --color-info-surface: var(--info-surface);
+  --color-info-text: var(--info-text);
+  --color-promo-surface: var(--promo-surface);
+  --color-promo-text: var(--promo-text);
+
+  /* Tipografía */
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+
+  /* Radios: radius-pill → rounded-full */
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-full: var(--radius-pill);
+
+  /* Sombras */
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-focus: var(--shadow-focus);
+}

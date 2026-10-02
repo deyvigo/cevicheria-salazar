@@ -1,0 +1,102 @@
+/*
+ * Variables CSS derivadas de design-system/tokens.json (sistema "Cevichería").
+ * Si tokens.json cambia, actualizar este archivo a mano para que coincidan
+ * (ver design-system/ORIGEN.md).
+ */
+
+:root {
+  /* Color */
+  --bg: #fbf8f3;
+  --surface: #ffffff;
+  --surface-celeste: #eef7fb;
+  --surface-naranja: #fff3e8;
+  --surface-disabled: #eef1f3;
+  --scrim: rgba(31, 42, 51, 0.45);
+
+  --ink: #1f2a33;
+  --ink-muted: #455662;
+  --ink-subtle: #5f707c;
+  --ink-disabled: #8a98a2;
+
+  --border: #d8e2e8;
+  --border-strong: #6f8391;
+
+  --celeste-100: #e6f4fa;
+  --celeste-200: #cde9f5;
+  --celeste-300: #a6d6ec;
+  --celeste-700: #1f6f93;
+  --celeste-800: #164f69;
+
+  --naranja-100: #fff0e2;
+  --naranja-200: #ffdfc2;
+  --naranja-300: #ffc89b;
+  --naranja-400: #ffb070;
+  --naranja-500: #f0883a;
+  --naranja-700: #9c4208;
+
+  --lima-100: #eaf5d8;
+  --lima-300: #c8e5a0;
+  --lima-800: #38600f;
+
+  --aji-100: #fff3c4;
+  --aji-300: #fbe08a;
+  --aji-800: #6e4f00;
+
+  --coral-100: #fde4e1;
+  --coral-300: #f8bdb7;
+  --coral-800: #8f241b;
+
+  --action: var(--naranja-300);
+  --action-hover: var(--naranja-400);
+  --action-pressed: var(--naranja-500);
+  --on-action: var(--ink);
+  --action-secondary: var(--celeste-300);
+  --action-secondary-hover: var(--celeste-200);
+  --focus-ring: var(--celeste-700);
+  --link: var(--celeste-700);
+
+  --success-surface: var(--lima-100);
+  --success-text: var(--lima-800);
+  --warning-surface: var(--aji-100);
+  --warning-text: var(--aji-800);
+  --error-surface: var(--coral-100);
+  --error-text: var(--coral-800);
+  --info-surface: var(--celeste-100);
+  --info-text: var(--celeste-800);
+  --promo-surface: var(--naranja-100);
+  --promo-text: var(--naranja-700);
+
+  /* Tipografía */
+  --font-display: 'Fredoka', 'Nunito', system-ui, sans-serif;
+  --font-body: 'Nunito', system-ui, -apple-system, sans-serif;
+
+  /* Espaciado (escala de 4px) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Radios */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-pill: 999px;
+
+  /* Sombras */
+  --shadow-xs: 0 1px 2px rgba(31, 42, 51, 0.08);
+  --shadow-sm: 0 2px 6px rgba(31, 42, 51, 0.08), 0 1px 2px rgba(31, 42, 51, 0.06);
+  --shadow-md: 0 6px 16px rgba(31, 42, 51, 0.1), 0 2px 4px rgba(31, 42, 51, 0.06);
+  --shadow-lg: 0 16px 40px rgba(31, 42, 51, 0.16), 0 4px 10px rgba(31, 42, 51, 0.08);
+  --shadow-focus: 0 0 0 2px #ffffff, 0 0 0 4px #1f6f93;
+
+  /* Anchos de borde */
+  --bw-1: 1px;
+  --bw-2: 2px;
+}
