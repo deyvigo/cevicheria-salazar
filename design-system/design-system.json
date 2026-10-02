@@ -1,0 +1,68 @@
+{
+  "v": 3,
+  "assetGroups": {
+    "Notificaciones": {
+      "files": {
+        "notif-bell.svg": {
+          "name": "notif-bell.svg",
+          "size": 366,
+          "type": "image/svg+xml"
+        },
+        "notif-error.svg": {
+          "name": "notif-error.svg",
+          "size": 281,
+          "type": "image/svg+xml"
+        },
+        "notif-info.svg": {
+          "name": "notif-info.svg",
+          "size": 339,
+          "type": "image/svg+xml"
+        },
+        "notif-order.svg": {
+          "name": "notif-order.svg",
+          "size": 338,
+          "type": "image/svg+xml"
+        },
+        "notif-promo.svg": {
+          "name": "notif-promo.svg",
+          "size": 389,
+          "type": "image/svg+xml"
+        },
+        "notif-success.svg": {
+          "name": "notif-success.svg",
+          "size": 277,
+          "type": "image/svg+xml"
+        },
+        "notif-warning.svg": {
+          "name": "notif-warning.svg",
+          "size": 394,
+          "type": "image/svg+xml"
+        }
+      },
+      "name": "Notificaciones",
+      "order": [
+        "notif-success.svg",
+        "notif-info.svg",
+        "notif-warning.svg",
+        "notif-error.svg",
+        "notif-order.svg",
+        "notif-promo.svg",
+        "notif-bell.svg"
+      ],
+      "tile": "m"
+    }
+  },
+  "groups": [
+    "Notificaciones"
+  ],
+  "lastChange": {
+    "at": "2026-10-02T20:57:53Z",
+    "by": "Deyvi",
+    "note": "Sistema inicial: colores, tipografía, espaciado, radios, sombras, inputs, tarjetas, diálogos y notificaciones",
+    "via": "Claude (Cowork)"
+  },
+  "layout": "files",
+  "libraries": [],
+  "namespace": "Cevicheria",
+  "title": "Cevichería"
+}

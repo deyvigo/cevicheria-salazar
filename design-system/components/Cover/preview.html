@@ -1,0 +1,35 @@
+<!-- @dsCard height=320 -->
+<!doctype html><html lang="es"><head><meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600&family=Nunito:wght@700&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0}
+.cover{position:relative;width:960px;height:320px;background:var(--bg);overflow:hidden}
+.cover svg{position:absolute;inset:0}
+.cover .name{position:absolute;left:40px;bottom:56px;width:440px;margin:0;font:600 72px/0.95 var(--font-display);color:var(--ink)}
+.cover .tag{position:absolute;left:40px;bottom:28px;width:440px;margin:0;font:700 14px/20px var(--font-body);color:var(--ink-muted)}
+.b-celeste{fill:var(--celeste-300)}.b-naranja{fill:var(--naranja-300)}.b-mar{fill:var(--celeste-800)}.b-lima{fill:var(--lima-300)}.b-claro{fill:var(--naranja-100)}
+.r-lg{rx:var(--radius-lg)}
+.wave{fill:none;stroke:var(--naranja-500);stroke-width:3;stroke-linecap:round}
+</style></head><body>
+<div class="cover">
+<svg width="960" height="320" viewBox="0 0 960 320" aria-hidden="true">
+<!-- Blocks: celeste-300 224x176, naranja-300 208x112, celeste-800 112x144, lima-300 80x80, naranja-100 224x80 (radius-lg).
+     Arrangement: staggered stack right of x=480 — a tall celeste slab, naranja block bleeding off the right edge, deep celeste-800 and lima satellites.
+     Pattern: waves (rows of half-circle arcs, 44px pitch) inside the naranja-100 block — the sea of a cevichería; naranja-500 strokes.
+     Scales: spacing 8/16/24/32 steps, radius-lg corners. -->
+<defs><clipPath id="clip"><rect x="496" y="216" width="224" height="80" rx="16"/></clipPath></defs>
+<rect class="b-celeste r-lg" x="496" y="24" width="224" height="176"/>
+<rect class="b-naranja r-lg" x="736" y="24" width="224" height="112"/>
+<rect class="b-mar r-lg" x="736" y="152" width="112" height="144"/>
+<rect class="b-lima r-lg" x="864" y="152" width="80" height="80"/>
+<rect class="b-claro r-lg" x="496" y="216" width="224" height="80"/>
+<g clip-path="url(#clip)">
+<path class="wave" d="M498 246a22 22 0 0 1 44 0a22 22 0 0 1 44 0a22 22 0 0 1 44 0a22 22 0 0 1 44 0a22 22 0 0 1 44 0"/>
+<path class="wave" d="M476 276a22 22 0 0 1 44 0a22 22 0 0 1 44 0a22 22 0 0 1 44 0a22 22 0 0 1 44 0a22 22 0 0 1 44 0a22 22 0 0 1 44 0"/>
+</g>
+</svg>
+<h1 class="name">Cevichería</h1>
+<p class="tag">Frescura del mar, claridad en cada pantalla.</p>
+</div>
+</body></html>

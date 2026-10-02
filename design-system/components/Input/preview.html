@@ -1,0 +1,15 @@
+<!-- @dsCard group="Formularios" height=560 subtitle="Estados: reposo, foco, ícono, error, éxito, deshabilitado" -->
+<!doctype html><html lang="es"><head><meta charset="utf-8"><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@400;700&display=swap" rel="stylesheet"></head><body class="cv-stage" style="margin:0">
+<div class="cv-row">
+ <div class="cv-col" style="flex:1;min-width:300px">
+  <div class="cv-field"><label class="cv-label" for="a">Nombre</label><input id="a" class="cv-input" placeholder="Ej. María Quispe"><p class="cv-hint">Como figurará en tu pedido.</p></div>
+  <div class="cv-field"><label class="cv-label" for="b">Dirección de entrega</label><input id="b" class="cv-input is-focus" value="Av. Costanera 456, Miraflores"><p class="cv-hint">Estado con foco.</p></div>
+  <div class="cv-field"><label class="cv-label" for="c">Buscar platos</label><div class="cv-input-wrap"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.2-4.2"/></svg><input id="c" class="cv-input" placeholder="Ceviche, tiradito, leche de tigre…"></div></div>
+  <div class="cv-field"><label class="cv-label" for="d">Indicaciones para tu pedido</label><textarea id="d" class="cv-input" placeholder="Ej. Sin ají, por favor."></textarea></div>
+ </div>
+ <div class="cv-col" style="flex:1;min-width:300px">
+  <div class="cv-field"><label class="cv-label" for="e">Teléfono</label><input id="e" class="cv-input is-error" value="98765" aria-invalid="true"><p class="cv-hint cv-hint--error"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><circle cx="12" cy="16.2" r="0.6" fill="currentColor"/></svg>Ingresa un número de 9 dígitos.</p></div>
+  <div class="cv-field"><label class="cv-label" for="f">Correo</label><input id="f" class="cv-input is-success" value="maria@correo.com"><p class="cv-hint cv-hint--success"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></svg>Correo verificado.</p></div>
+  <div class="cv-field"><label class="cv-label" for="g">Cupón</label><input id="g" class="cv-input" value="CEVICHE10" disabled><p class="cv-hint">Este campo está deshabilitado.</p></div>
+ </div>
+</div></body></html>
