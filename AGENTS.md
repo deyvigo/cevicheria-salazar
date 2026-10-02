@@ -51,10 +51,12 @@ Build tool: **Maven** con wrapper.
 ### Entorno de desarrollo local
 
 ```
-docker compose -f docker-compose.dev.yml up
+./scripts/dev.sh
 ```
 
-Levanta PostgreSQL, Redis y MinIO para desarrollo local. No confundir con el `docker-compose` de producción del VPS (`docs/diagrama-de-despliegue.md`).
+Levanta Postgres/Redis (`docker-compose.dev.yml`), genera `backend/.env` con un `APP_JWT_SECRET` la primera vez, arranca el backend y el frontend, y abre `/registro` en el navegador. Ctrl+C detiene backend y frontend; Postgres/Redis quedan corriendo (`docker compose -f docker-compose.dev.yml down` para bajarlos).
+
+MinIO no se incluye: su imagen (`minio/minio`) está bloqueada en Docker Hub/quay.io desde que MinIO restringió la distribución de su contenedor (ver `specs/ht-09-entorno/spec.md`, casos borde). No confundir `docker-compose.dev.yml` con el `docker-compose` de producción del VPS (`docs/diagrama-de-despliegue.md`).
 
 ## Convenciones
 
