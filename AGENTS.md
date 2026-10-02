@@ -11,6 +11,7 @@ El contexto funcional completo (actores, casos de uso, épicas e historias de us
 ## Estructura del repositorio
 
 - `docs/` — documentación funcional y técnica: épicas, historias, cronograma y diagramas (casos de uso, arquitectura, despliegue, base de datos), cada uno en su `.md` junto a la imagen en `docs/images/`.
+- `specs/` — especificaciones SDD por historia (spec/plan/tasks), ver [Flujo de trabajo (SDD)](#flujo-de-trabajo-sdd).
 - `design-system/` — design system de la UI (tokens, componentes, assets). Fuente de verdad visual para el frontend.
 - `frontend/` — app React (tienda + `/admin`). Por crear.
 - `backend/` — API Spring Boot. Por crear.
@@ -40,12 +41,20 @@ pnpm test
 
 ### Backend (`backend/`)
 
-Se asume Maven con wrapper; si el proyecto usa Gradle, usar `./gradlew` en su lugar.
+Build tool: **Maven** con wrapper.
 
 ```
 ./mvnw spring-boot:run
 ./mvnw test
 ```
+
+### Entorno de desarrollo local
+
+```
+docker compose -f docker-compose.dev.yml up
+```
+
+Levanta PostgreSQL, Redis y MinIO para desarrollo local. No confundir con el `docker-compose` de producción del VPS (`docs/diagrama-de-despliegue.md`).
 
 ## Convenciones
 
@@ -59,16 +68,33 @@ Se asume Maven con wrapper; si el proyecto usa Gradle, usar `./gradlew` en su lu
 El `design-system/` es la fuente de verdad visual — no inventar colores, tipografías ni espaciados fuera de lo que define:
 
 - `design-system/tokens.json`: tokens de color, tipografía (Fredoka para títulos, Nunito para texto, vía Google Fonts), espaciado, radios y sombras.
-- `design-system/components/bundle.css` + `components/<Componente>/README.md`: estilos y guías de uso de `Button`, `Card`, `Dialog`, `Input`, `Notification`.
+- `design-system/components/<Componente>/README.md` + `preview.html`: guías de uso y referencia visual de `Button`, `Card`, `Dialog`, `Input`, `Notification` — el aspecto a replicar, no el CSS a copiar (ver Frontend).
 - `design-system/assets/Notificaciones/`: íconos SVG de notificación.
 
 Antes de construir una pantalla nueva, revisar si el componente/token necesario ya existe ahí. Ver `design-system/ORIGEN.md` para el enlace al Artifact original si hace falta sincronizar cambios.
 
 ## Backend
 
+- **Paquetes por feature/dominio**, no por capa técnica: `auth`, `catalogo`, `carrito`, `pedidos`, `perfil`, `admin` y `common` (`security`, `config`, `exception`). Cada historia de una épica toca mayormente un solo paquete. Detalle completo en [`specs/ht-09-entorno/plan.md`](specs/ht-09-entorno/plan.md).
+- Migraciones de base de datos con **Flyway** (`src/main/resources/db/migration/`); Hibernate en modo `validate`, nunca autogenera el esquema.
 - Las integraciones con servicios externos (Google OAuth, Izipay, SMTP) van solo en la capa de **Servicios**, nunca en controladores ni se exponen al frontend.
 - Los tokens de sesión y de recuperación de contraseña se almacenan con hash (`token_hash`), nunca en texto plano — ver `docs/diagrama-de-base-de-datos.md`.
 - Redis no es fuente de verdad: solo intentos de login (anti fuerza bruta) y caché de lecturas frecuentes del catálogo. Los datos persistentes van en PostgreSQL o MinIO.
+
+## Frontend
+
+- **Estilos**: **Tailwind CSS** (v4, CSS-first con `@theme`, sin `tailwind.config.js`). Los tokens de `design-system/tokens.json` están expuestos como utilities (`bg-action`, `text-ink`, `rounded-lg`, `font-display`, etc.) vía `src/styles/tailwind-theme.css` — nunca usar un color/radio/sombra fuera de esas utilities. El espaciado usa la escala por defecto de Tailwind (ya coincide con la del design system). No copiar las clases `cv-*` de `design-system/components/bundle.css`: ese archivo es solo referencia visual, no se vendoriza.
+- **Imports**: alias `@/` → `src/` (configurado en `vite.config.ts`, `vitest.config.ts` y `tsconfig.app.json`). Usar `@/...` en vez de rutas relativas (`../../lib/api`) para cualquier import dentro de `src/`.
+- **Estado global**: Context API + hooks (`AuthContext`, `CartContext`) — sin librería externa de estado.
+- Carpetas por feature en `src/features/` (`auth`, `catalogo`, `carrito`, `checkout`, `perfil`, `admin`). Detalle completo en [`specs/ht-09-entorno/plan.md`](specs/ht-09-entorno/plan.md).
+- Formularios con `react-hook-form` + `zod`; llamadas a la API con **axios** (instancia única en `lib/api.ts`, `withCredentials: true`) + `@tanstack/react-query` para el cache.
+
+## Flujo de trabajo (SDD)
+
+Este proyecto usa Spec-Driven Development: ver [`specs/README.md`](specs/README.md) para el flujo completo (especificar → clarificar → planificar → tareas → implementar → verificar).
+
+- No implementar una historia sin que su `specs/<historia>/spec.md` esté en estado Clarificada (sin preguntas abiertas).
+- Si la implementación obliga a desviarse del `plan.md` o descubre un criterio nuevo, actualizar la spec en el mismo cambio, no después.
 
 ## Reglas
 
