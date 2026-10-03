@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.salazar.api.TestcontainersConfiguration;
+import com.salazar.api.WithTestSecrets;
 import com.salazar.api.auth.dto.LoginRequest;
 import com.salazar.api.auth.dto.RegisterRequest;
 import org.junit.jupiter.api.Test;
@@ -16,13 +17,12 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(TestcontainersConfiguration.class)
-@TestPropertySource(properties = "app.jwt.secret=test-only-secret-not-for-production-use-32byte")
+@WithTestSecrets
 class AuthControllerIT {
 
     @Autowired

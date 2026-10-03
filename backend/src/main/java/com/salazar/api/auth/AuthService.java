@@ -6,11 +6,11 @@ import com.salazar.api.auth.dto.UserResponse;
 import com.salazar.api.common.exception.FieldConflictException;
 import com.salazar.api.common.exception.InvalidCredentialsException;
 import com.salazar.api.common.security.JwtService;
+import com.salazar.api.common.security.SessionCookieFactory;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.HexFormat;
@@ -23,9 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-
-    /** Visible para que `AuthController` fije el mismo `maxAge` en la cookie, sin duplicar el valor. */
-    public static final Duration REFRESH_TOKEN_TTL = Duration.ofDays(30);
 
     private static final int USER_AGENT_MAX_LENGTH = 255;
 
@@ -83,6 +80,35 @@ public class AuthService {
         return new AuthResult(UserResponse.from(user), accessToken, refreshToken);
     }
 
+    @Transactional
+    public AuthResult loginWithGoogle(
+            String googleId, String email, String firstName, String lastName, String userAgent) {
+        User user = userRepository.findByGoogleId(googleId).orElse(null);
+
+        if (user == null) {
+            User existingByEmail = userRepository.findByEmail(email).orElse(null);
+            if (existingByEmail != null) {
+                // Chequear antes de vincular: una cuenta inactiva no se vincula ni inicia sesión (spec HU-06).
+                if (!existingByEmail.isActive()) {
+                    throw new InvalidCredentialsException(INVALID_CREDENTIALS_MESSAGE);
+                }
+                existingByEmail.linkGoogleAccount(googleId);
+                user = userRepository.save(existingByEmail);
+            }
+        }
+
+        if (user == null) {
+            user = userRepository.save(User.fromGoogle(email, googleId, firstName, lastName));
+        } else if (!user.isActive()) {
+            throw new InvalidCredentialsException(INVALID_CREDENTIALS_MESSAGE);
+        }
+
+        String accessToken = jwtService.generateAccessToken(user.getId(), user.getEmail(), user.getRole().name());
+        String refreshToken = createRefreshToken(user.getId(), userAgent);
+
+        return new AuthResult(UserResponse.from(user), accessToken, refreshToken);
+    }
+
     private String createRefreshToken(Long userId, String userAgent) {
         byte[] randomBytes = new byte[32];
         secureRandom.nextBytes(randomBytes);
@@ -93,7 +119,7 @@ public class AuthService {
                 : userAgent.substring(0, Math.min(userAgent.length(), USER_AGENT_MAX_LENGTH));
 
         RefreshToken refreshToken = new RefreshToken(
-                userId, hash(rawToken), trimmedUserAgent, Instant.now().plus(REFRESH_TOKEN_TTL));
+                userId, hash(rawToken), trimmedUserAgent, Instant.now().plus(SessionCookieFactory.REFRESH_TOKEN_TTL));
         refreshTokenRepository.save(refreshToken);
 
         return rawToken;

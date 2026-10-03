@@ -3,13 +3,12 @@ package com.salazar.api.auth;
 import com.salazar.api.auth.dto.LoginRequest;
 import com.salazar.api.auth.dto.RegisterRequest;
 import com.salazar.api.auth.dto.UserResponse;
-import com.salazar.api.common.security.JwtService;
+import com.salazar.api.common.security.SessionCookieFactory;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,11 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private static final String ACCESS_TOKEN_COOKIE = "access_token";
-    private static final String REFRESH_TOKEN_COOKIE = "refresh_token";
-
     private final AuthService authService;
-    private final JwtService jwtService;
+    private final SessionCookieFactory sessionCookieFactory;
 
     @PostMapping("/register")
     public ResponseEntity<UserResponse> register(
@@ -41,25 +37,13 @@ public class AuthController {
     }
 
     private ResponseEntity<UserResponse> withSessionCookies(ResponseEntity.BodyBuilder response, AuthResult result) {
-        ResponseCookie accessCookie = ResponseCookie.from(ACCESS_TOKEN_COOKIE, result.accessToken())
-                .httpOnly(true)
-                .secure(true)
-                .sameSite("Strict")
-                .path("/")
-                .maxAge(jwtService.getAccessTokenTtl())
-                .build();
-
-        ResponseCookie refreshCookie = ResponseCookie.from(REFRESH_TOKEN_COOKIE, result.refreshToken())
-                .httpOnly(true)
-                .secure(true)
-                .sameSite("Strict")
-                .path("/")
-                .maxAge(AuthService.REFRESH_TOKEN_TTL)
-                .build();
-
         return response
-                .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
-                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                .header(
+                        HttpHeaders.SET_COOKIE,
+                        sessionCookieFactory.accessTokenCookie(result.accessToken()).toString())
+                .header(
+                        HttpHeaders.SET_COOKIE,
+                        sessionCookieFactory.refreshTokenCookie(result.refreshToken()).toString())
                 .body(result.user());
     }
 }
