@@ -76,7 +76,7 @@ export function RegisterPage() {
   }
 
   return (
-    <AuthShell imageSide="right">
+    <AuthShell imageSide="right" branded>
       <form onSubmit={handleSubmit(onSubmit)} className="flex w-full max-w-[340px] flex-col gap-5" noValidate>
         <h1 className="font-display text-[26px] leading-8 font-semibold text-ink">Crea tu cuenta</h1>
 
