@@ -45,6 +45,7 @@ function apiError(status: number, message: string) {
 
 describe('LoginPage', () => {
   beforeEach(() => {
+    vi.mocked(authApi.me).mockRejectedValue(new Error('sin sesión'));
     vi.clearAllMocks();
   });
 
