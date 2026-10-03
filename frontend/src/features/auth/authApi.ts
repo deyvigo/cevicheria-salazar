@@ -21,6 +21,11 @@ export async function me(): Promise<AuthUser> {
   return data;
 }
 
+/** `POST /api/auth/logout` — revoca la sesión de este dispositivo y borra las cookies. Siempre `204`. */
+export async function logout(): Promise<void> {
+  await api.post('/auth/logout');
+}
+
 export interface LoginPayload {
   email: string;
   password: string;
