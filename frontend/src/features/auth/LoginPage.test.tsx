@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { AxiosError } from 'axios';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import * as authApi from './authApi';
@@ -131,5 +131,28 @@ describe('LoginPage', () => {
     renderPage();
 
     expect(screen.getByRole('link', { name: /continuar con google/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: /continuar con google/i }).compareDocumentPosition(
+        screen.getByRole('separator', { name: 'o inicia con tu correo' }),
+      ) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
+  it('ofrece ir a crear una cuenta cuando no se tiene una', async () => {
+    render(
+      <MemoryRouter initialEntries={['/iniciar-sesion']}>
+        <AuthProvider>
+          <Routes>
+            <Route path="/iniciar-sesion" element={<LoginPage />} />
+            <Route path="/registro" element={<p>Pantalla de registro</p>} />
+          </Routes>
+        </AuthProvider>
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText('¿No tienes cuenta?')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('link', { name: 'Regístrate' }));
+
+    expect(screen.getByText('Pantalla de registro')).toBeInTheDocument();
   });
 });

@@ -2,13 +2,15 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { isAxiosError } from 'axios';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { z } from 'zod';
 import { Button } from '@/components/Button';
+import { Divider } from '@/components/Divider';
 import { Input } from '@/components/Input';
 import { useAuth } from '@/context/AuthContext';
 import type { ApiErrorResponse } from '@/lib/api';
 import { login as loginRequest } from './authApi';
+import { AuthShell } from './AuthShell';
 import { GoogleLoginButton } from './GoogleLoginButton';
 
 // A diferencia de RegisterPage: aquí se verifica una contraseña ya creada, no
@@ -55,11 +57,15 @@ export function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-svh items-center justify-center bg-bg p-6">
+    <AuthShell imageSide="left">
       <form onSubmit={handleSubmit(onSubmit)} className="flex w-full max-w-[340px] flex-col gap-5" noValidate>
         <h1 className="font-display text-[26px] leading-8 font-semibold text-ink">Inicia sesión</h1>
 
         {errors.root ? <p className="text-sm font-bold text-error-text">{errors.root.message}</p> : null}
+
+        <GoogleLoginButton />
+
+        <Divider>o inicia con tu correo</Divider>
 
         <Input
           label="Correo"
@@ -74,8 +80,16 @@ export function LoginPage() {
           {isSubmitting ? 'Ingresando…' : 'Iniciar sesión'}
         </Button>
 
-        <GoogleLoginButton />
+        <p className="text-center text-sm text-ink-muted">
+          ¿No tienes cuenta?{' '}
+          <Link
+            to="/registro"
+            className="font-bold text-link underline-offset-2 hover:underline focus-visible:rounded-sm focus-visible:shadow-focus focus-visible:outline-none"
+          >
+            Regístrate
+          </Link>
+        </p>
       </form>
-    </main>
+    </AuthShell>
   );
 }

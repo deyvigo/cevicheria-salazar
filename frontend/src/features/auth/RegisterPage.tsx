@@ -2,14 +2,16 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { isAxiosError } from 'axios';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { Button } from '@/components/Button';
+import { Divider } from '@/components/Divider';
 import { Input } from '@/components/Input';
 import { Notification } from '@/components/Notification';
 import { useAuth } from '@/context/AuthContext';
 import type { ApiErrorResponse } from '@/lib/api';
 import { register as registerRequest } from './authApi';
+import { AuthShell } from './AuthShell';
 import { GoogleLoginButton } from './GoogleLoginButton';
 
 // Mismas reglas que el backend (RegisterRequest), ver specs/hu-01-registro/plan.md.
@@ -74,9 +76,13 @@ export function RegisterPage() {
   }
 
   return (
-    <main className="flex min-h-svh items-center justify-center bg-bg p-6">
+    <AuthShell imageSide="right">
       <form onSubmit={handleSubmit(onSubmit)} className="flex w-full max-w-[340px] flex-col gap-5" noValidate>
         <h1 className="font-display text-[26px] leading-8 font-semibold text-ink">Crea tu cuenta</h1>
+
+        <GoogleLoginButton />
+
+        <Divider>o regístrate con tu correo</Divider>
 
         <Input label="Nombres" placeholder="Ej. María" error={errors.firstName?.message} {...register('firstName')} />
         <Input label="Apellidos" placeholder="Ej. Quispe" error={errors.lastName?.message} {...register('lastName')} />
@@ -100,7 +106,15 @@ export function RegisterPage() {
           {isSubmitting ? 'Creando cuenta…' : 'Crear cuenta'}
         </Button>
 
-        <GoogleLoginButton />
+        <p className="text-center text-sm text-ink-muted">
+          ¿Ya tienes cuenta?{' '}
+          <Link
+            to="/iniciar-sesion"
+            className="font-bold text-link underline-offset-2 hover:underline focus-visible:rounded-sm focus-visible:shadow-focus focus-visible:outline-none"
+          >
+            Inicia sesión
+          </Link>
+        </p>
       </form>
 
       {registered ? (
@@ -108,6 +122,6 @@ export function RegisterPage() {
           <Notification variant="success" title="Tu cuenta fue creada" message="Ya puedes empezar a pedir." />
         </div>
       ) : null}
-    </main>
+    </AuthShell>
   );
 }
