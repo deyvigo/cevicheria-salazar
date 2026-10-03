@@ -1,6 +1,6 @@
 export interface NotificationProps {
-  /** Solo `success` por ahora (HU-01); se agregan info/warning/error/promo cuando una historia los necesite. */
-  variant: 'success';
+  /** `success` (HU-01) y `error` (HU-05); se agregan info/warning/promo cuando una historia los necesite. */
+  variant: 'success' | 'error';
   title: string;
   message?: string;
   onClose?: () => void;
@@ -8,18 +8,20 @@ export interface NotificationProps {
 
 const VARIANT_CLASSES: Record<NotificationProps['variant'], string> = {
   success: 'bg-success-surface border-lima-300',
+  error: 'bg-error-surface border-coral-300',
 };
 
 const VARIANT_ICON: Record<NotificationProps['variant'], string> = {
   success: '/icons/notif-success.svg',
+  error: '/icons/notif-error.svg',
 };
 
 /** Toast del design-system/components/Notification/README.md: ícono + título + texto, nunca solo color. */
 export function Notification({ variant, title, message, onClose }: NotificationProps) {
   return (
     <div
-      role="status"
-      className={`flex w-full max-w-[380px] items-start gap-3 rounded-lg border p-4 shadow-md ${VARIANT_CLASSES[variant]}`}
+      role={variant === 'error' ? 'alert' : 'status'}
+      className={`flex w-full max-w-[380px] ${message ? 'items-start' : 'items-center'} gap-3 rounded-lg border p-4 shadow-md ${VARIANT_CLASSES[variant]}`}
     >
       <img src={VARIANT_ICON[variant]} alt="" className="h-10 w-10 flex-none" />
       <div className="min-w-0 flex-1">

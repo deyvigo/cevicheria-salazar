@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Levanta el entorno de desarrollo completo: Postgres + Redis (docker-compose.dev.yml),
-# el backend (Spring Boot) y el frontend (Vite), y abre /registro en el navegador.
+# el backend (Spring Boot) y el frontend (Vite), y abre http://localhost:5173/ en el navegador.
 #
 # Ctrl+C detiene backend, frontend y los contenedores (Postgres/Redis quedan
 # detenidos, no borrados: los datos del volumen se conservan para la próxima vez).
@@ -67,7 +67,7 @@ until curl -s -o /dev/null http://localhost:8080/swagger-ui/index.html; do
 done
 echo "==> Backend listo. Logs en vivo: tail -f $BACKEND_LOG"
 
-( sleep 3 && open "http://localhost:5173/registro" ) &
+( sleep 3 && open "http://localhost:5173/" ) &
 
 echo "==> Iniciando el frontend (pnpm dev)..."
 cd "$FRONTEND_DIR"

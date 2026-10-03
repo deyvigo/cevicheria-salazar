@@ -12,7 +12,7 @@ export const api = axios.create({
   withCredentials: true,
 });
 
-const NO_REFRESH_PATHS = ['/auth/login', '/auth/register', '/auth/refresh'];
+const NO_REFRESH_PATHS = ['/auth/login', '/auth/register', '/auth/refresh', '/auth/logout'];
 
 let refreshInFlight: Promise<unknown> | null = null;
 
