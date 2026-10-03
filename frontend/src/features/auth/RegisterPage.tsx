@@ -10,6 +10,7 @@ import { Notification } from '@/components/Notification';
 import { useAuth } from '@/context/AuthContext';
 import type { ApiErrorResponse } from '@/lib/api';
 import { register as registerRequest } from './authApi';
+import { GoogleLoginButton } from './GoogleLoginButton';
 
 // Mismas reglas que el backend (RegisterRequest), ver specs/hu-01-registro/plan.md.
 const registerSchema = z
@@ -98,6 +99,8 @@ export function RegisterPage() {
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? 'Creando cuenta…' : 'Crear cuenta'}
         </Button>
+
+        <GoogleLoginButton />
       </form>
 
       {registered ? (
