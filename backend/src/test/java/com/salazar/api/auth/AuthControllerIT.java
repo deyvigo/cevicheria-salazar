@@ -1,6 +1,8 @@
 package com.salazar.api.auth;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasItem;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -11,6 +13,7 @@ import com.salazar.api.TestcontainersConfiguration;
 import com.salazar.api.WithTestSecrets;
 import com.salazar.api.auth.dto.LoginRequest;
 import com.salazar.api.auth.dto.RegisterRequest;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -18,6 +21,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -151,5 +155,46 @@ class AuthControllerIT {
                         .content(loginBody("login-bloqueo@correo.com", "clave1234")))
                 .andExpect(status().isTooManyRequests())
                 .andExpect(jsonPath("$.message").value("Demasiados intentos. Espera unos minutos e inténtalo de nuevo."));
+    }
+
+    @Test
+    void meReturnsTheProfileAndRefreshRotatesTheTokenOnlyOnce() throws Exception {
+        MvcResult registered = mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(registerBody("sesion@correo.com", "987000010")))
+                .andReturn();
+        Cookie access = registered.getResponse().getCookie("access_token");
+        Cookie refresh = registered.getResponse().getCookie("refresh_token");
+
+        mockMvc.perform(get("/api/auth/me").cookie(access))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value("sesion@correo.com"));
+
+        mockMvc.perform(post("/api/auth/refresh").cookie(refresh))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value("sesion@correo.com"))
+                .andExpect(header().stringValues("Set-Cookie", hasItem(containsString("access_token="))))
+                .andExpect(header().stringValues("Set-Cookie", hasItem(containsString("refresh_token="))));
+
+        mockMvc.perform(post("/api/auth/refresh").cookie(refresh))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("Tu sesión expiró. Inicia sesión de nuevo."));
+    }
+
+    @Test
+    void meWithoutCookieOrWithATamperedOneReturns401() throws Exception {
+        mockMvc.perform(get("/api/auth/me"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("Debes iniciar sesión para continuar."));
+
+        mockMvc.perform(get("/api/auth/me").cookie(new Cookie("access_token", "manipulado")))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void refreshWithoutCookieReturns401() throws Exception {
+        mockMvc.perform(post("/api/auth/refresh"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("Tu sesión expiró. Inicia sesión de nuevo."));
     }
 }

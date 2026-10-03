@@ -5,6 +5,7 @@ import com.salazar.api.auth.dto.RegisterRequest;
 import com.salazar.api.auth.dto.UserResponse;
 import com.salazar.api.common.exception.FieldConflictException;
 import com.salazar.api.common.exception.InvalidCredentialsException;
+import com.salazar.api.common.exception.SessionExpiredException;
 import com.salazar.api.common.security.JwtService;
 import com.salazar.api.common.security.SessionCookieFactory;
 import java.nio.charset.StandardCharsets;
@@ -16,6 +17,7 @@ import java.util.Base64;
 import java.util.HexFormat;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +29,8 @@ public class AuthService {
     private static final int USER_AGENT_MAX_LENGTH = 255;
 
     private static final String INVALID_CREDENTIALS_MESSAGE = "Correo o contraseña incorrectos.";
+
+    private static final String SESSION_EXPIRED_MESSAGE = "Tu sesión expiró. Inicia sesión de nuevo.";
 
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
@@ -107,6 +111,35 @@ public class AuthService {
         String refreshToken = createRefreshToken(user.getId(), userAgent);
 
         return new AuthResult(UserResponse.from(user), accessToken, refreshToken);
+    }
+
+    @Transactional
+    public AuthResult refresh(String rawRefreshToken, String userAgent) {
+        RefreshToken stored = refreshTokenRepository
+                .findByTokenHash(hash(rawRefreshToken))
+                .filter(token -> token.getRevokedAt() == null)
+                .filter(token -> token.getExpiresAt().isAfter(Instant.now()))
+                .orElseThrow(() -> new SessionExpiredException(SESSION_EXPIRED_MESSAGE));
+
+        User user = userRepository
+                .findById(stored.getUserId())
+                .filter(User::isActive)
+                .orElseThrow(() -> new SessionExpiredException(SESSION_EXPIRED_MESSAGE));
+
+        stored.revoke();
+
+        String accessToken = jwtService.generateAccessToken(user.getId(), user.getEmail(), user.getRole().name());
+        String refreshToken = createRefreshToken(user.getId(), userAgent);
+
+        return new AuthResult(UserResponse.from(user), accessToken, refreshToken);
+    }
+
+    @Transactional(readOnly = true)
+    public UserResponse getCurrentUser(Long userId) {
+        return userRepository
+                .findById(userId)
+                .map(UserResponse::from)
+                .orElseThrow(() -> new InsufficientAuthenticationException("Usuario no encontrado."));
     }
 
     private String createRefreshToken(Long userId, String userAgent) {

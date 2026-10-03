@@ -15,6 +15,12 @@ export async function register(payload: RegisterPayload): Promise<AuthUser> {
   return data;
 }
 
+/** `GET /api/auth/me` — `401` si no hay sesión válida. */
+export async function me(): Promise<AuthUser> {
+  const { data } = await api.get<AuthUser>('/auth/me');
+  return data;
+}
+
 export interface LoginPayload {
   email: string;
   password: string;

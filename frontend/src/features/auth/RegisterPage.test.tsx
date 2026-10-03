@@ -36,6 +36,7 @@ async function fillValidFormExcept(user: ReturnType<typeof userEvent.setup>, ski
 
 describe('RegisterPage', () => {
   beforeEach(() => {
+    vi.mocked(authApi.me).mockRejectedValue(new Error('sin sesión'));
     vi.clearAllMocks();
   });
 

@@ -51,6 +51,10 @@ public class RefreshToken {
         this.expiresAt = expiresAt;
     }
 
+    void revoke() {
+        this.revokedAt = Instant.now();
+    }
+
     @PrePersist
     void onCreate() {
         this.createdAt = Instant.now();

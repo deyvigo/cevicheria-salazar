@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { type InternalAxiosRequestConfig } from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8080/api';
 
@@ -10,6 +10,36 @@ const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8080/api'
 export const api = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,
+});
+
+const NO_REFRESH_PATHS = ['/auth/login', '/auth/register', '/auth/refresh'];
+
+let refreshInFlight: Promise<unknown> | null = null;
+
+/**
+ * Ante un `401` intenta renovar la sesión una vez y reintenta la petición original
+ * (HU-04). Las renovaciones simultáneas comparten una sola llamada: el refresh token
+ * rota en cada uso, así que una segunda llamada en paralelo fallaría.
+ */
+api.interceptors.response.use(undefined, async (error: unknown) => {
+  if (!axios.isAxiosError(error) || error.response?.status !== 401 || !error.config) {
+    throw error;
+  }
+  const original = error.config as InternalAxiosRequestConfig & { _retried?: boolean };
+  if (original._retried || NO_REFRESH_PATHS.some((path) => original.url?.startsWith(path))) {
+    throw error;
+  }
+  original._retried = true;
+
+  refreshInFlight ??= api.post('/auth/refresh').finally(() => {
+    refreshInFlight = null;
+  });
+  try {
+    await refreshInFlight;
+  } catch {
+    throw error;
+  }
+  return api(original);
 });
 
 /**
