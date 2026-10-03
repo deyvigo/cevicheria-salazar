@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.salazar.api.TestcontainersConfiguration;
+import com.salazar.api.auth.dto.LoginRequest;
 import com.salazar.api.auth.dto.RegisterRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,9 @@ class AuthControllerIT {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private UserRepository userRepository;
+
     // Instancia propia, no el bean de Spring: la app usa el ObjectMapper de Jackson 3
     // (tools.jackson, autoconfigurado por spring-boot-starter-jackson en Boot 4.1);
     // esta solo serializa el cuerpo de la request, cualquier Jackson compatible sirve.
@@ -34,6 +38,10 @@ class AuthControllerIT {
 
     private String registerBody(String email, String phone) throws Exception {
         return objectMapper.writeValueAsString(new RegisterRequest(email, "clave1234", "María", "Quispe", phone));
+    }
+
+    private String loginBody(String email, String password) throws Exception {
+        return objectMapper.writeValueAsString(new LoginRequest(email, password));
     }
 
     @Test
@@ -69,5 +77,79 @@ class AuthControllerIT {
                         .content(registerBody("telefono-invalido@correo.com", "12345678")))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.fieldErrors[?(@.field == 'phone')]").exists());
+    }
+
+    @Test
+    void successfulLoginReturns200WithCookiesAndUserProfile() throws Exception {
+        mockMvc.perform(post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(registerBody("login-ok@correo.com", "987000001")));
+
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(loginBody("login-ok@correo.com", "clave1234")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value("login-ok@correo.com"))
+                .andExpect(header().string("Set-Cookie", containsString("access_token=")));
+    }
+
+    @Test
+    void wrongPasswordReturns401WithTheGenericMessage() throws Exception {
+        mockMvc.perform(post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(registerBody("login-bad-pass@correo.com", "987000002")));
+
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(loginBody("login-bad-pass@correo.com", "incorrecta123")))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("Correo o contraseña incorrectos."))
+                .andExpect(jsonPath("$.fieldErrors").isEmpty());
+    }
+
+    @Test
+    void nonExistentEmailReturnsTheSameGenericMessage() throws Exception {
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(loginBody("no-existe-login@correo.com", "cualquier-cosa")))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("Correo o contraseña incorrectos."));
+    }
+
+    @Test
+    void inactiveAccountReturnsTheSameGenericMessage() throws Exception {
+        mockMvc.perform(post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(registerBody("login-inactiva@correo.com", "987000003")));
+
+        User user = userRepository.findByEmail("login-inactiva@correo.com").orElseThrow();
+        user.deactivate();
+        userRepository.save(user);
+
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(loginBody("login-inactiva@correo.com", "clave1234")))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("Correo o contraseña incorrectos."));
+    }
+
+    @Test
+    void blocksAfterThreeFailedAttempts() throws Exception {
+        mockMvc.perform(post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(registerBody("login-bloqueo@correo.com", "987000004")));
+
+        for (int i = 0; i < 3; i++) {
+            mockMvc.perform(post("/api/auth/login")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(loginBody("login-bloqueo@correo.com", "incorrecta")))
+                    .andExpect(status().isUnauthorized());
+        }
+
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(loginBody("login-bloqueo@correo.com", "clave1234")))
+                .andExpect(status().isTooManyRequests())
+                .andExpect(jsonPath("$.message").value("Demasiados intentos. Espera unos minutos e inténtalo de nuevo."));
     }
 }

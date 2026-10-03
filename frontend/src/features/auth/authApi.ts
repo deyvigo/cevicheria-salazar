@@ -14,3 +14,14 @@ export async function register(payload: RegisterPayload): Promise<AuthUser> {
   const { data } = await api.post<AuthUser>('/auth/register', payload);
   return data;
 }
+
+export interface LoginPayload {
+  email: string;
+  password: string;
+}
+
+/** `POST /api/auth/login`. */
+export async function login(payload: LoginPayload): Promise<AuthUser> {
+  const { data } = await api.post<AuthUser>('/auth/login', payload);
+  return data;
+}

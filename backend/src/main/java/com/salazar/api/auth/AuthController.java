@@ -1,5 +1,6 @@
 package com.salazar.api.auth;
 
+import com.salazar.api.auth.dto.LoginRequest;
 import com.salazar.api.auth.dto.RegisterRequest;
 import com.salazar.api.auth.dto.UserResponse;
 import com.salazar.api.common.security.JwtService;
@@ -30,7 +31,16 @@ public class AuthController {
     public ResponseEntity<UserResponse> register(
             @Valid @RequestBody RegisterRequest request, HttpServletRequest httpRequest) {
         AuthResult result = authService.register(request, httpRequest.getHeader(HttpHeaders.USER_AGENT));
+        return withSessionCookies(ResponseEntity.status(HttpStatus.CREATED), result);
+    }
 
+    @PostMapping("/login")
+    public ResponseEntity<UserResponse> login(@Valid @RequestBody LoginRequest request, HttpServletRequest httpRequest) {
+        AuthResult result = authService.login(request, httpRequest.getHeader(HttpHeaders.USER_AGENT));
+        return withSessionCookies(ResponseEntity.ok(), result);
+    }
+
+    private ResponseEntity<UserResponse> withSessionCookies(ResponseEntity.BodyBuilder response, AuthResult result) {
         ResponseCookie accessCookie = ResponseCookie.from(ACCESS_TOKEN_COOKIE, result.accessToken())
                 .httpOnly(true)
                 .secure(true)
@@ -47,7 +57,7 @@ public class AuthController {
                 .maxAge(AuthService.REFRESH_TOKEN_TTL)
                 .build();
 
-        return ResponseEntity.status(HttpStatus.CREATED)
+        return response
                 .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
                 .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
                 .body(result.user());

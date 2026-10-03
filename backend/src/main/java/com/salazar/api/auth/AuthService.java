@@ -1,8 +1,10 @@
 package com.salazar.api.auth;
 
+import com.salazar.api.auth.dto.LoginRequest;
 import com.salazar.api.auth.dto.RegisterRequest;
 import com.salazar.api.auth.dto.UserResponse;
 import com.salazar.api.common.exception.FieldConflictException;
+import com.salazar.api.common.exception.InvalidCredentialsException;
 import com.salazar.api.common.security.JwtService;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -27,10 +29,13 @@ public class AuthService {
 
     private static final int USER_AGENT_MAX_LENGTH = 255;
 
+    private static final String INVALID_CREDENTIALS_MESSAGE = "Correo o contraseña incorrectos.";
+
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final LoginAttemptService loginAttemptService;
     private final SecureRandom secureRandom = new SecureRandom();
 
     @Transactional
@@ -48,6 +53,29 @@ public class AuthService {
         } catch (DataIntegrityViolationException ex) {
             throw new FieldConflictException("email", "Este correo ya está registrado.");
         }
+
+        String accessToken = jwtService.generateAccessToken(user.getId(), user.getEmail(), user.getRole().name());
+        String refreshToken = createRefreshToken(user.getId(), userAgent);
+
+        return new AuthResult(UserResponse.from(user), accessToken, refreshToken);
+    }
+
+    @Transactional
+    public AuthResult login(LoginRequest request, String userAgent) {
+        loginAttemptService.checkNotBlocked(request.email());
+
+        User user = userRepository.findByEmail(request.email()).orElse(null);
+        boolean validCredentials = user != null
+                && user.getPasswordHash() != null
+                && passwordEncoder.matches(request.password(), user.getPasswordHash())
+                && user.isActive();
+
+        if (!validCredentials) {
+            loginAttemptService.recordFailure(request.email());
+            throw new InvalidCredentialsException(INVALID_CREDENTIALS_MESSAGE);
+        }
+
+        loginAttemptService.recordSuccess(request.email());
 
         String accessToken = jwtService.generateAccessToken(user.getId(), user.getEmail(), user.getRole().name());
         String refreshToken = createRefreshToken(user.getId(), userAgent);

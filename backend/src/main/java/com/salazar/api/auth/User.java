@@ -78,4 +78,9 @@ public class User {
         this.createdAt = now;
         this.updatedAt = now;
     }
+
+    /** No hay historia todavía que desactive cuentas; esto solo sirve para simular el caso en tests (HU-02). */
+    void deactivate() {
+        this.active = false;
+    }
 }
