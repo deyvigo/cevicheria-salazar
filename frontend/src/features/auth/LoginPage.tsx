@@ -57,7 +57,7 @@ export function LoginPage() {
   }
 
   return (
-    <AuthShell imageSide="left">
+    <AuthShell imageSide="left" branded>
       <form onSubmit={handleSubmit(onSubmit)} className="flex w-full max-w-[340px] flex-col gap-5" noValidate>
         <h1 className="font-display text-[26px] leading-8 font-semibold text-ink">Inicia sesión</h1>
 
