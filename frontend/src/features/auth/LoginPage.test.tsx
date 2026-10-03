@@ -20,9 +20,9 @@ function Harness() {
   );
 }
 
-function renderPage() {
+function renderPage(initialEntries: string[] = ['/iniciar-sesion']) {
   return render(
-    <MemoryRouter>
+    <MemoryRouter initialEntries={initialEntries}>
       <AuthProvider>
         <Harness />
       </AuthProvider>
@@ -117,5 +117,18 @@ describe('LoginPage', () => {
     expect(
       await screen.findByText('Demasiados intentos. Espera unos minutos e inténtalo de nuevo.'),
     ).toBeInTheDocument();
+  });
+
+  it('muestra el error de Google cuando la URL trae ?error=google (HU-06)', async () => {
+    renderPage(['/iniciar-sesion?error=google']);
+
+    expect(await screen.findByText('No pudimos iniciar sesión con Google. Intenta de nuevo.')).toBeInTheDocument();
+    expect(authApi.login).not.toHaveBeenCalled();
+  });
+
+  it('incluye el botón de Google, igual que en RegisterPage', () => {
+    renderPage();
+
+    expect(screen.getByRole('link', { name: /continuar con google/i })).toBeInTheDocument();
   });
 });

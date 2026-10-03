@@ -9,6 +9,14 @@ spring:
     open-in-view: false
   flyway:
     locations: classpath:db/migration
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_OAUTH_CLIENT_ID:}
+            client-secret: ${GOOGLE_OAUTH_CLIENT_SECRET:}
+            scope: email, profile
 
 server:
   port: 8080
@@ -16,6 +24,10 @@ server:
 app:
   cors:
     allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:5173}
+  # A dónde redirige el backend al terminar el login con Google (éxito o error).
+  # Distinta de app.cors.allowed-origins aunque hoy tengan el mismo valor: son
+  # conceptos distintos (orígenes permitidos vs. destino de una redirección).
+  frontend-url: ${APP_FRONTEND_URL:http://localhost:5173}
   jwt:
     secret: ${APP_JWT_SECRET:}
     access-token-expiration-minutes: 15

@@ -72,6 +72,27 @@ public class User {
         this.active = true;
     }
 
+    private User(String email, String googleId, String firstName, String lastName) {
+        this.email = email;
+        this.googleId = googleId;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.role = UserRole.CLIENTE;
+        // Google ya verificó este correo; a diferencia de register(), no queda en false.
+        this.emailVerified = true;
+        this.active = true;
+    }
+
+    /**
+     * Cuenta nueva creada desde HU-06: sin contraseña ni teléfono (Google no los
+     * entrega). Método estático en vez de un constructor más —dos constructores
+     * de puros String con significados distintos son fáciles de confundir en el
+     * sitio de la llamada.
+     */
+    public static User fromGoogle(String email, String googleId, String firstName, String lastName) {
+        return new User(email, googleId, firstName, lastName);
+    }
+
     @PrePersist
     void onCreate() {
         Instant now = Instant.now();
@@ -82,5 +103,10 @@ public class User {
     /** No hay historia todavía que desactive cuentas; esto solo sirve para simular el caso en tests (HU-02). */
     void deactivate() {
         this.active = false;
+    }
+
+    /** Vincula una cuenta ya existente (creada por HU-01) a una cuenta de Google (HU-06). */
+    void linkGoogleAccount(String googleId) {
+        this.googleId = googleId;
     }
 }

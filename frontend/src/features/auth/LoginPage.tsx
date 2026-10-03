@@ -1,13 +1,15 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { isAxiosError } from 'axios';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { z } from 'zod';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
 import { useAuth } from '@/context/AuthContext';
 import type { ApiErrorResponse } from '@/lib/api';
 import { login as loginRequest } from './authApi';
+import { GoogleLoginButton } from './GoogleLoginButton';
 
 // A diferencia de RegisterPage: aquí se verifica una contraseña ya creada, no
 // se crea una nueva, así que no se repite la regla de complejidad.
@@ -21,6 +23,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 export function LoginPage() {
   const { setUser } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const {
     register,
@@ -28,6 +31,15 @@ export function LoginPage() {
     setError,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormValues>({ resolver: zodResolver(loginSchema) });
+
+  // El backend (HU-06) redirige aquí con ?error=google si Google falló o la
+  // persona canceló el acceso. Mismo bloque de error de formulario que el 401/429.
+  useEffect(() => {
+    if (searchParams.get('error') === 'google') {
+      setError('root', { message: 'No pudimos iniciar sesión con Google. Intenta de nuevo.' });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function onSubmit(values: LoginFormValues) {
     try {
@@ -61,6 +73,8 @@ export function LoginPage() {
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? 'Ingresando…' : 'Iniciar sesión'}
         </Button>
+
+        <GoogleLoginButton />
       </form>
     </main>
   );

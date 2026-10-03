@@ -161,4 +161,72 @@ class AuthServiceTest {
 
         verify(userRepository, never()).findByEmail(any());
     }
+
+    @Test
+    void loginWithGoogleCreatesANewAccountWhenNeitherGoogleIdNorEmailExist() {
+        AuthService authService = service();
+        when(userRepository.findByGoogleId("google-123")).thenReturn(Optional.empty());
+        when(userRepository.findByEmail("nueva@correo.com")).thenReturn(Optional.empty());
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(jwtService.generateAccessToken(any(), any(), any())).thenReturn("jwt-token");
+
+        AuthResult result =
+                authService.loginWithGoogle("google-123", "nueva@correo.com", "María", "Quispe", "JUnit-agent");
+
+        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(userCaptor.capture());
+        User savedUser = userCaptor.getValue();
+
+        assertThat(savedUser.getPasswordHash()).isNull();
+        assertThat(savedUser.getPhone()).isNull();
+        assertThat(savedUser.isEmailVerified()).isTrue();
+        assertThat(savedUser.getRole()).isEqualTo(UserRole.CLIENTE);
+        assertThat(result.user().email()).isEqualTo("nueva@correo.com");
+    }
+
+    @Test
+    void loginWithGoogleReusesTheExistingAccountWhenTheGoogleIdIsAlreadyLinked() {
+        AuthService authService = service();
+        User existing = User.fromGoogle("maria@correo.com", "google-123", "María", "Quispe");
+        when(userRepository.findByGoogleId("google-123")).thenReturn(Optional.of(existing));
+        when(jwtService.generateAccessToken(any(), any(), any())).thenReturn("jwt-token");
+
+        authService.loginWithGoogle("google-123", "maria@correo.com", "María", "Quispe", "JUnit-agent");
+
+        verify(userRepository, never()).findByEmail(any());
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void loginWithGoogleLinksAnExistingAccountRegisteredWithHu01ByEmail() {
+        AuthService authService = service();
+        User existing = activeUserWithHash("hashed-password");
+        when(userRepository.findByGoogleId("google-123")).thenReturn(Optional.empty());
+        when(userRepository.findByEmail("maria@correo.com")).thenReturn(Optional.of(existing));
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(jwtService.generateAccessToken(any(), any(), any())).thenReturn("jwt-token");
+
+        authService.loginWithGoogle("google-123", "maria@correo.com", "María", "Quispe", "JUnit-agent");
+
+        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(userCaptor.capture());
+        assertThat(userCaptor.getValue().getGoogleId()).isEqualTo("google-123");
+        // la cuenta vinculada conserva su contraseña: sigue pudiendo entrar con cualquiera de las dos.
+        assertThat(userCaptor.getValue().getPasswordHash()).isEqualTo("hashed-password");
+    }
+
+    @Test
+    void loginWithGoogleOfAnInactiveAccountThrowsInvalidCredentialsWithoutLinking() {
+        AuthService authService = service();
+        User inactive = activeUserWithHash("hashed-password");
+        inactive.deactivate();
+        when(userRepository.findByGoogleId("google-123")).thenReturn(Optional.empty());
+        when(userRepository.findByEmail("maria@correo.com")).thenReturn(Optional.of(inactive));
+
+        assertThatThrownBy(() ->
+                        authService.loginWithGoogle("google-123", "maria@correo.com", "María", "Quispe", "JUnit-agent"))
+                .isInstanceOf(InvalidCredentialsException.class);
+
+        verify(userRepository, never()).save(any());
+    }
 }

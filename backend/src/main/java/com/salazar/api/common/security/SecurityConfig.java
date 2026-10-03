@@ -11,8 +11,9 @@ import org.springframework.security.web.SecurityFilterChain;
 /**
  * Baseline de entorno (HT-09): API sin estado, sin login por formulario ni CSRF
  * (no hay sesión de servidor que proteger). El filtro de validación de JWT y las
- * reglas de autorización por endpoint se agregan en HU-01/HU-02 (autenticación),
- * no aquí.
+ * reglas de autorización por endpoint se agregan en HU-01/HU-02 (autenticación).
+ * `oauth2Login` (HU-06) usa sus propios handlers para terminar en nuestras
+ * cookies de sesión en vez del comportamiento por defecto de Spring Security.
  */
 @Configuration
 public class SecurityConfig {
@@ -23,10 +24,13 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http, OAuth2SuccessHandler oAuth2SuccessHandler, OAuth2FailureHandler oAuth2FailureHandler)
+            throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                .oauth2Login(oauth2 -> oauth2.successHandler(oAuth2SuccessHandler).failureHandler(oAuth2FailureHandler));
         return http.build();
     }
 }

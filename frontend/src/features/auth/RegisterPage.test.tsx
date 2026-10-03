@@ -147,4 +147,10 @@ describe('RegisterPage', () => {
     expect(await screen.findByText('Este correo ya está registrado.')).toBeInTheDocument();
     await waitFor(() => expect(screen.getByLabelText('Correo')).toHaveValue('maria@correo.com'));
   });
+
+  it('incluye el botón de Google, igual que en LoginPage', () => {
+    renderPage();
+
+    expect(screen.getByRole('link', { name: /continuar con google/i })).toBeInTheDocument();
+  });
 });
