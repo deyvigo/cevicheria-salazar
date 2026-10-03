@@ -98,6 +98,20 @@ Este proyecto usa Spec-Driven Development: ver [`specs/README.md`](specs/README.
 - No implementar una historia sin que su `specs/<historia>/spec.md` esté en estado Clarificada (sin preguntas abiertas).
 - Si la implementación obliga a desviarse del `plan.md` o descubre un criterio nuevo, actualizar la spec en el mismo cambio, no después.
 
+## Flujo de Git
+
+Una rama y un PR por historia, integrados en `main`. No hacer commit, push ni abrir PR hasta que el usuario lo pida.
+
+- **Rama**: `HU-XX-nombre-corto` (o `HT-XX-...`), igual que la carpeta en `specs/`, creada desde `main`.
+- **Commits segmentados por contenido**, en este orden, cada uno con su código y sus tests:
+  1. Spec: `specs/<historia>/` completo (spec, plan y tareas, con el estado y las tareas ya actualizados). Mensaje: `Agrega spec, plan y tareas de HU-XX (<título>)`.
+  2. Backend: `Implementa ... en el backend (HU-XX)`.
+  3. Frontend: `Agrega/Recupera/... en el frontend (HU-XX)`.
+     Omitir el segmento que la historia no toque. Mensajes en español, en imperativo, con el ID de la historia al final del título; el detalle va en el cuerpo (`-m` adicional).
+- **Antes de commitear**: `./mvnw test` y `./mvnw test -Dtest='*IT'` (los `*IT` no corren en el build por defecto y necesitan Docker), `pnpm test --run` y `pnpm build`.
+- **Push y PR**: `git push -u origin <rama>` y PR contra `main` con título `<Título> (HU-XX)` y cuerpo con Resumen y Verificación (qué se probó y qué falta ver en navegador). Si `gh` no está instalado, dar el enlace `https://github.com/deyvigo/cevicheria-salazar/pull/new/<rama>` con título y descripción listos para pegar. El merge lo hace el usuario.
+- **Tras el merge**: `git checkout main`, `git pull origin main`, borrar la rama local (`git branch -d`) y la remota (`git push origin --delete <rama>`), solo si el usuario lo confirma.
+
 ## Reglas
 
 - Nunca commitear secretos (`.env`, credenciales, llaves de API).
