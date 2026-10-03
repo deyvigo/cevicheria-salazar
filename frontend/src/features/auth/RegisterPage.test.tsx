@@ -153,5 +153,17 @@ describe('RegisterPage', () => {
     renderPage();
 
     expect(screen.getByRole('link', { name: /continuar con google/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: /continuar con google/i }).compareDocumentPosition(
+        screen.getByRole('separator', { name: 'o regístrate con tu correo' }),
+      ) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
+  it('ofrece ir a iniciar sesión cuando ya se tiene una cuenta', () => {
+    renderPage();
+
+    expect(screen.getByText(/¿Ya tienes cuenta\?/)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Inicia sesión' })).toHaveAttribute('href', '/iniciar-sesion');
   });
 });
