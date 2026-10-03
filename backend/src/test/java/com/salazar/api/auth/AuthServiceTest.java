@@ -13,8 +13,10 @@ import com.salazar.api.auth.dto.LoginRequest;
 import com.salazar.api.auth.dto.RegisterRequest;
 import com.salazar.api.common.exception.FieldConflictException;
 import com.salazar.api.common.exception.InvalidCredentialsException;
+import com.salazar.api.common.exception.SessionExpiredException;
 import com.salazar.api.common.exception.TooManyAttemptsException;
 import com.salazar.api.common.security.JwtService;
+import java.time.Instant;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,6 +24,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
@@ -228,5 +231,62 @@ class AuthServiceTest {
                 .isInstanceOf(InvalidCredentialsException.class);
 
         verify(userRepository, never()).save(any());
+    }
+
+    private RefreshToken storedToken(Instant expiresAt, boolean revoked) {
+        RefreshToken token = new RefreshToken(1L, "hash", "agent", expiresAt);
+        if (revoked) {
+            token.revoke();
+        }
+        return token;
+    }
+
+    @Test
+    void refreshRotatesAValidTokenAndIssuesNewOnes() {
+        AuthService authService = service();
+        RefreshToken stored = storedToken(Instant.now().plusSeconds(3600), false);
+        User user = activeUserWithHash("hashed-password");
+        when(refreshTokenRepository.findByTokenHash(any())).thenReturn(Optional.of(stored));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(jwtService.generateAccessToken(any(), any(), any())).thenReturn("new-jwt");
+
+        AuthResult result = authService.refresh("raw-token", "JUnit-agent");
+
+        assertThat(stored.getRevokedAt()).isNotNull();
+        assertThat(result.accessToken()).isEqualTo("new-jwt");
+        assertThat(result.refreshToken()).isNotBlank().isNotEqualTo("raw-token");
+        verify(refreshTokenRepository).save(any(RefreshToken.class));
+    }
+
+    @Test
+    void refreshFailsTheSameWayForUnknownRevokedExpiredAndInactive() {
+        AuthService authService = service();
+        User inactive = activeUserWithHash("hashed-password");
+        inactive.deactivate();
+
+        when(refreshTokenRepository.findByTokenHash(any()))
+                .thenReturn(Optional.empty())
+                .thenReturn(Optional.of(storedToken(Instant.now().plusSeconds(3600), true)))
+                .thenReturn(Optional.of(storedToken(Instant.now().minusSeconds(1), false)))
+                .thenReturn(Optional.of(storedToken(Instant.now().plusSeconds(3600), false)));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(inactive));
+
+        for (int i = 0; i < 4; i++) {
+            assertThatThrownBy(() -> authService.refresh("raw-token", "agent"))
+                    .isInstanceOf(SessionExpiredException.class)
+                    .hasMessage("Tu sesión expiró. Inicia sesión de nuevo.");
+        }
+        verify(refreshTokenRepository, never()).save(any());
+    }
+
+    @Test
+    void getCurrentUserReturnsTheProfileOrFailsAuthentication() {
+        AuthService authService = service();
+        when(userRepository.findById(1L)).thenReturn(Optional.of(activeUserWithHash("h")));
+        when(userRepository.findById(2L)).thenReturn(Optional.empty());
+
+        assertThat(authService.getCurrentUser(1L).email()).isEqualTo("maria@correo.com");
+        assertThatThrownBy(() -> authService.getCurrentUser(2L))
+                .isInstanceOf(InsufficientAuthenticationException.class);
     }
 }

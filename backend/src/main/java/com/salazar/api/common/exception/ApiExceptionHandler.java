@@ -48,6 +48,12 @@ public class ApiExceptionHandler {
                 .body(ApiError.of(HttpStatus.UNAUTHORIZED.value(), "No autenticado", ex.getMessage()));
     }
 
+    @ExceptionHandler(SessionExpiredException.class)
+    public ResponseEntity<ApiError> handleSessionExpired(SessionExpiredException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ApiError.of(HttpStatus.UNAUTHORIZED.value(), "No autenticado", ex.getMessage()));
+    }
+
     @ExceptionHandler(TooManyAttemptsException.class)
     public ResponseEntity<ApiError> handleTooManyAttempts(TooManyAttemptsException ex) {
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
