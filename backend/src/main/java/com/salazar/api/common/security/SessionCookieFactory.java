@@ -37,6 +37,15 @@ public class SessionCookieFactory {
         return cookie(REFRESH_TOKEN_COOKIE, refreshToken, REFRESH_TOKEN_TTL);
     }
 
+    /** Expira la cookie en el navegador: mismos atributos que la original, o el navegador no la reemplaza. */
+    public ResponseCookie clearAccessTokenCookie() {
+        return cookie(ACCESS_TOKEN_COOKIE, "", Duration.ZERO);
+    }
+
+    public ResponseCookie clearRefreshTokenCookie() {
+        return cookie(REFRESH_TOKEN_COOKIE, "", Duration.ZERO);
+    }
+
     public static Optional<String> readCookie(HttpServletRequest request, String name) {
         Cookie[] cookies = request.getCookies();
         if (cookies == null) {

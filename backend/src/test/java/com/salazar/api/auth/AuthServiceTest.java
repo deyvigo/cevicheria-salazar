@@ -280,6 +280,33 @@ class AuthServiceTest {
     }
 
     @Test
+    void logoutRevokesTheStoredToken() {
+        AuthService authService = service();
+        RefreshToken stored = storedToken(Instant.now().plusSeconds(3600), false);
+        when(refreshTokenRepository.findByTokenHash(any())).thenReturn(Optional.of(stored));
+
+        authService.logout("raw-token");
+
+        assertThat(stored.getRevokedAt()).isNotNull();
+    }
+
+    @Test
+    void logoutIsIdempotentForUnknownAndAlreadyRevokedTokens() {
+        AuthService authService = service();
+        RefreshToken revoked = storedToken(Instant.now().plusSeconds(3600), true);
+        Instant firstRevocation = revoked.getRevokedAt();
+        when(refreshTokenRepository.findByTokenHash(any()))
+                .thenReturn(Optional.empty())
+                .thenReturn(Optional.of(revoked));
+
+        authService.logout("unknown");
+        authService.logout("revoked");
+
+        assertThat(revoked.getRevokedAt()).isEqualTo(firstRevocation);
+        verify(refreshTokenRepository, never()).save(any());
+    }
+
+    @Test
     void getCurrentUserReturnsTheProfileOrFailsAuthentication() {
         AuthService authService = service();
         when(userRepository.findById(1L)).thenReturn(Optional.of(activeUserWithHash("h")));

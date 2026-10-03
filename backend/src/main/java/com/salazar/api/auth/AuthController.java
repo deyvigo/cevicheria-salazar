@@ -48,6 +48,16 @@ public class AuthController {
         return withSessionCookies(ResponseEntity.ok(), result);
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletRequest httpRequest) {
+        SessionCookieFactory.readCookie(httpRequest, SessionCookieFactory.REFRESH_TOKEN_COOKIE)
+                .ifPresent(authService::logout);
+        return ResponseEntity.noContent()
+                .header(HttpHeaders.SET_COOKIE, sessionCookieFactory.clearAccessTokenCookie().toString())
+                .header(HttpHeaders.SET_COOKIE, sessionCookieFactory.clearRefreshTokenCookie().toString())
+                .build();
+    }
+
     @GetMapping("/me")
     public UserResponse me(Authentication authentication) {
         if (authentication == null || !(authentication.getPrincipal() instanceof Long userId)) {

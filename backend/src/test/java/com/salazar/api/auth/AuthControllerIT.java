@@ -192,6 +192,57 @@ class AuthControllerIT {
     }
 
     @Test
+    void logoutRevokesTheRefreshTokenAndExpiresTheCookies() throws Exception {
+        MvcResult registered = mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(registerBody("salir@correo.com", "987000020")))
+                .andReturn();
+        Cookie access = registered.getResponse().getCookie("access_token");
+        Cookie refresh = registered.getResponse().getCookie("refresh_token");
+
+        mockMvc.perform(post("/api/auth/logout").cookie(access, refresh))
+                .andExpect(status().isNoContent())
+                .andExpect(header().stringValues("Set-Cookie", hasItem(containsString("access_token=; Path=/; Max-Age=0"))))
+                .andExpect(header().stringValues("Set-Cookie", hasItem(containsString("refresh_token=; Path=/; Max-Age=0"))));
+
+        mockMvc.perform(post("/api/auth/refresh").cookie(refresh))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("Tu sesión expiró. Inicia sesión de nuevo."));
+
+        // idempotente: repetirlo con el mismo token (ya revocado) también es 204
+        mockMvc.perform(post("/api/auth/logout").cookie(refresh)).andExpect(status().isNoContent());
+    }
+
+    @Test
+    void logoutWithoutCookiesReturns204() throws Exception {
+        mockMvc.perform(post("/api/auth/logout")).andExpect(status().isNoContent());
+    }
+
+    @Test
+    void logoutOnlyClosesTheCurrentDevice() throws Exception {
+        mockMvc.perform(post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(registerBody("dos@correo.com", "987000021")));
+        Cookie deviceA = mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(loginBody("dos@correo.com", "clave1234")))
+                .andReturn()
+                .getResponse()
+                .getCookie("refresh_token");
+        Cookie deviceB = mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(loginBody("dos@correo.com", "clave1234")))
+                .andReturn()
+                .getResponse()
+                .getCookie("refresh_token");
+
+        mockMvc.perform(post("/api/auth/logout").cookie(deviceA)).andExpect(status().isNoContent());
+
+        mockMvc.perform(post("/api/auth/refresh").cookie(deviceA)).andExpect(status().isUnauthorized());
+        mockMvc.perform(post("/api/auth/refresh").cookie(deviceB)).andExpect(status().isOk());
+    }
+
+    @Test
     void refreshWithoutCookieReturns401() throws Exception {
         mockMvc.perform(post("/api/auth/refresh"))
                 .andExpect(status().isUnauthorized())

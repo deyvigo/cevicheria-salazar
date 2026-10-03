@@ -134,6 +134,15 @@ public class AuthService {
         return new AuthResult(UserResponse.from(user), accessToken, refreshToken);
     }
 
+    /** Idempotente: un token desconocido, ya revocado o vencido no es un error (HU-05). */
+    @Transactional
+    public void logout(String rawRefreshToken) {
+        refreshTokenRepository
+                .findByTokenHash(hash(rawRefreshToken))
+                .filter(token -> token.getRevokedAt() == null)
+                .ifPresent(RefreshToken::revoke);
+    }
+
     @Transactional(readOnly = true)
     public UserResponse getCurrentUser(Long userId) {
         return userRepository
