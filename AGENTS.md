@@ -64,6 +64,8 @@ MinIO no se incluye: su imagen (`minio/minio`) está bloqueada en Docker Hub/qua
 - Nombres de archivo en minúsculas separadas por guiones, sin espacios (ej. `diagrama-de-arquitectura.md`, no `diagrama de arquitectura.md`).
 - Cada diagrama en `docs/` vive junto a su imagen en `docs/images/` y su descripción conecta cada componente con las épicas/historias que soporta.
 - Textos de interfaz en español, tuteando al cliente ("Tu pedido está listo"), sin emojis. Precios con formato `S/ 32.00`.
+- **Comentarios en el código** (frontend, backend, scripts, YAML): solo los estrictamente necesarios, es decir, los que explican un porqué que no se ve en el código (restricción, caso borde, decisión no obvia). No comentar lo que el código ya dice, ni encabezados de sección, ni referencias a historias (HU-xx) o `specs/`. Todo comentario va en **inglés**, aunque la documentación y los textos de interfaz estén en español.
+- **Nombres de archivos de código del frontend** (`.ts`, `.tsx`) en minúsculas separadas por guiones (kebab-case): `auth-shell.tsx`, `login-page.tsx`, `auth-api.ts`, `login-page.test.tsx`. Nunca PascalCase ni camelCase en el nombre del archivo (los componentes y funciones dentro sí siguen su convención normal).
 
 ## Frontend y design system
 
@@ -86,6 +88,9 @@ Antes de construir una pantalla nueva, revisar si el componente/token necesario 
 ## Frontend
 
 - **Estilos**: **Tailwind CSS** (v4, CSS-first con `@theme`, sin `tailwind.config.js`). Los tokens de `design-system/tokens.json` están expuestos como utilities (`bg-action`, `text-ink`, `rounded-lg`, `font-display`, etc.) vía `src/styles/tailwind-theme.css` — nunca usar un color/radio/sombra fuera de esas utilities. El espaciado usa la escala por defecto de Tailwind (ya coincide con la del design system). No copiar las clases `cv-*` de `design-system/components/bundle.css`: ese archivo es solo referencia visual, no se vendoriza.
+- **Archivos**: nombres en kebab-case (`auth-shell.tsx`, no `AuthShell.tsx`); ver [Convenciones](#convenciones).
+- **Componentes por feature**: si una feature necesita componentes que solo ella usa, van en `src/features/<feature>/components/` (ej. `features/auth/components/auth-shell.tsx`). Los reutilizables entre features siguen en `src/components/`. Crear la carpeta solo cuando haga falta.
+- **Tests**: en `frontend/tests/`, árbol independiente que replica la estructura de `src/` (`tests/components/header.test.tsx` prueba `src/components/header.tsx`); nunca junto al código fuente. Helpers compartidos en `tests/utils/` y setup global en `tests/setup.ts`. Alias `@tests/` → `tests/`.
 - **Imports**: alias `@/` → `src/` (configurado en `vite.config.ts`, `vitest.config.ts` y `tsconfig.app.json`). Usar `@/...` en vez de rutas relativas (`../../lib/api`) para cualquier import dentro de `src/`.
 - **Estado global**: Context API + hooks (`AuthContext`, `CartContext`) — sin librería externa de estado.
 - Carpetas por feature en `src/features/` (`auth`, `catalogo`, `carrito`, `checkout`, `perfil`, `admin`). Detalle completo en [`specs/ht-09-entorno/plan.md`](specs/ht-09-entorno/plan.md).
@@ -100,17 +105,27 @@ Este proyecto usa Spec-Driven Development: ver [`specs/README.md`](specs/README.
 
 ## Flujo de Git
 
-Una rama y un PR por historia, integrados en `main`. No hacer commit, push ni abrir PR hasta que el usuario lo pida.
+Git flow con ramas creadas a mano (sin la extensión `git-flow`) y commits en formato Conventional Commits. **Leer esta sección antes de crear ramas o hacer cualquier commit.** No hacer commit, push ni abrir PR hasta que el usuario lo pida.
 
-- **Rama**: `HU-XX-nombre-corto` (o `HT-XX-...`), igual que la carpeta en `specs/`, creada desde `main`.
+- **Ramas**:
+  - `main`: solo lo publicado en producción.
+  - `develop`: integración, base de todo el trabajo.
+  - `feature/HU-XX-nombre-corto` (o `feature/HT-XX-...`), igual que la carpeta en `specs/`: se crea desde `develop` y su PR va contra `develop`. Cambios sin historia: `feature/<nombre-corto>`.
+  - `release/x.y.z`: desde `develop`; se integra en `main` con tag `vx.y.z` y vuelve a `develop`.
+  - `hotfix/<nombre-corto>`: desde `main`; se integra en `main` (con tag) y en `develop`.
+- **Mensajes de commit** (Conventional Commits, **en inglés**): `<type>(<scope>): <description>`.
+  - Título y cuerpo en inglés, en imperativo y con minúscula inicial; el ID de la historia va al final del título si aplica. El detalle va en el cuerpo (`-m` adicional).
+  - Tipos: `feat`, `fix`, `refactor`, `test`, `docs`, `style`, `perf`, `build`, `ci`, `chore`.
+  - Scopes: `backend`, `frontend`, `specs`, `docs`, `infra`.
+  - Cambio incompatible: `!` tras el tipo y `BREAKING CHANGE:` en el cuerpo.
 - **Commits segmentados por contenido**, en este orden, cada uno con su código y sus tests:
-  1. Spec: `specs/<historia>/` completo (spec, plan y tareas, con el estado y las tareas ya actualizados). Mensaje: `Agrega spec, plan y tareas de HU-XX (<título>)`.
-  2. Backend: `Implementa ... en el backend (HU-XX)`.
-  3. Frontend: `Agrega/Recupera/... en el frontend (HU-XX)`.
-     Omitir el segmento que la historia no toque. Mensajes en español, en imperativo, con el ID de la historia al final del título; el detalle va en el cuerpo (`-m` adicional).
+  1. Spec: `specs/<historia>/` completo (spec, plan y tareas, con el estado y las tareas ya actualizados). Mensaje: `docs(specs): add spec, plan and tasks for HU-XX`.
+  2. Backend: `feat(backend): implement ... (HU-XX)`.
+  3. Frontend: `feat(frontend): add ... (HU-XX)`.
+     Omitir el segmento que la historia no toque. Usar `fix`, `refactor`, etc. cuando corresponda.
 - **Antes de commitear**: `./mvnw test` y `./mvnw test -Dtest='*IT'` (los `*IT` no corren en el build por defecto y necesitan Docker), `pnpm test --run` y `pnpm build`.
-- **Push y PR**: `git push -u origin <rama>` y PR contra `main` con título `<Título> (HU-XX)` y cuerpo con Resumen y Verificación (qué se probó y qué falta ver en navegador). Si `gh` no está instalado, dar el enlace `https://github.com/deyvigo/cevicheria-salazar/pull/new/<rama>` con título y descripción listos para pegar. El merge lo hace el usuario.
-- **Tras el merge**: `git checkout main`, `git pull origin main`, borrar la rama local (`git branch -d`) y la remota (`git push origin --delete <rama>`), solo si el usuario lo confirma.
+- **Push y PR**: `git push -u origin <rama>` y PR contra `develop`, con título y cuerpo en inglés: título igual al commit principal, cuerpo con Summary y Verification (qué se probó y qué falta ver en navegador). Si `gh` no está instalado, dar el enlace `https://github.com/deyvigo/cevicheria-salazar/compare/develop...<rama>` con título y descripción listos para pegar. El merge lo hace el usuario.
+- **Tras el merge**: `git checkout develop`, `git pull origin develop`, borrar la rama local (`git branch -d`) y la remota (`git push origin --delete <rama>`), solo si el usuario lo confirma.
 
 ## Reglas
 
