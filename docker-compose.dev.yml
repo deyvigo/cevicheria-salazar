@@ -1,6 +1,4 @@
-# Entorno de desarrollo local (PostgreSQL + Redis + MinIO).
-# No confundir con el docker-compose de producción del VPS (docs/diagrama-de-despliegue.md),
-# que además incluye Traefik y la API ya empaquetada.
+# Local development only; production on the VPS uses a separate compose (adds Traefik and the packaged API)
 
 services:
   postgres:

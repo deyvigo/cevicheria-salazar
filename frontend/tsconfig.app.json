@@ -18,7 +18,8 @@
 
     /* Alias de imports (moduleResolution "bundler" no necesita baseUrl) */
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@tests/*": ["./tests/*"]
     },
 
     /* Linting */
@@ -27,5 +28,5 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"]
+  "include": ["src", "tests"]
 }

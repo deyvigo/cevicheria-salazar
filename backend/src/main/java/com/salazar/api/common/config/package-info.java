@@ -1,5 +1,2 @@
-/**
- * Configuración de infraestructura compartida (MinIO, CORS). Redis no tiene una clase
- * propia: Spring Boot lo autoconfigura a partir de {@code spring.data.redis.*}.
- */
+/** Shared infrastructure configuration (MinIO, CORS). Redis is autoconfigured by Spring Boot. */
 package com.salazar.api.common.config;

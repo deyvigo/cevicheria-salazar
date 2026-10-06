@@ -6,12 +6,6 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   hint?: string;
 }
 
-/**
- * Wrapper de Tailwind sobre el token set de design-system/components/Input/README.md:
- * label visible, borde border-strong en reposo, foco con halo celeste-200, error en
- * coral-800 con mensaje bajo el campo. `type="password"` agrega automáticamente el
- * toggle para mostrar/ocultar la contraseña.
- */
 export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   { label, error, hint, id, className, type, ...props },
   ref,

@@ -24,9 +24,7 @@ server:
 app:
   cors:
     allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:5173}
-  # A dónde redirige el backend al terminar el login con Google (éxito o error).
-  # Distinta de app.cors.allowed-origins aunque hoy tengan el mismo valor: son
-  # conceptos distintos (orígenes permitidos vs. destino de una redirección).
+  # Redirect target after Google login; distinct from app.cors.allowed-origins even if equal today
   frontend-url: ${APP_FRONTEND_URL:http://localhost:5173}
   jwt:
     secret: ${APP_JWT_SECRET:}

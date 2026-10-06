@@ -2,11 +2,12 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { Header } from '@/components/Header';
-import { AuthProvider, useAuth, type AuthUser } from '@/context/AuthContext';
-import * as authApi from '@/features/auth/authApi';
+import { Header } from '@/components/header';
+import { AuthProvider, useAuth, type AuthUser } from '@/context/auth-context';
+import { QueryWrapper } from '@tests/utils/query-wrapper';
+import * as authApi from '@/features/auth/auth-api';
 
-vi.mock('@/features/auth/authApi');
+vi.mock('@/features/auth/auth-api');
 
 const maria: AuthUser = {
   id: 1,
@@ -25,13 +26,15 @@ function CurrentUser() {
 function renderHeader() {
   return render(
     <MemoryRouter initialEntries={['/']}>
-      <AuthProvider>
-        <Header />
-        <CurrentUser />
-        <Routes>
-          <Route path="/" element={<p>Inicio</p>} />
-        </Routes>
-      </AuthProvider>
+      <QueryWrapper>
+        <AuthProvider>
+          <Header />
+          <CurrentUser />
+          <Routes>
+            <Route path="/" element={<p>Inicio</p>} />
+          </Routes>
+        </AuthProvider>
+      </QueryWrapper>
     </MemoryRouter>,
   );
 }

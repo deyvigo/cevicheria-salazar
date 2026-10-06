@@ -9,13 +9,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
-/**
- * Permite que el frontend (otro origen en desarrollo, otro dominio en producción)
- * llame a la API con cookies ({@code withCredentials: true} en axios).
- */
 @Configuration
 public class CorsConfig {
-
     @Bean
     public CorsFilter corsFilter(@Value("${app.cors.allowed-origins}") String[] allowedOrigins) {
         CorsConfiguration configuration = new CorsConfiguration();

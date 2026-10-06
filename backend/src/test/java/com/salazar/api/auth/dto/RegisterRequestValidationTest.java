@@ -10,9 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-/** Valida el DTO directamente (sin levantar Spring) — cubre HU-01: campos vacíos, formatos inválidos. */
 class RegisterRequestValidationTest {
-
     private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
     private RegisterRequest validRequest() {
@@ -41,17 +39,17 @@ class RegisterRequestValidationTest {
 
     @ParameterizedTest
     @CsvSource({
-        "'', clave1234, María, Quispe, 987654321", // correo vacío
-        "no-es-un-correo, clave1234, María, Quispe, 987654321", // correo inválido
-        "maria@correo.com, '', María, Quispe, 987654321", // contraseña vacía
-        "maria@correo.com, corta1, María, Quispe, 987654321", // contraseña corta
-        "maria@correo.com, sololetras, María, Quispe, 987654321", // contraseña sin número
-        "maria@correo.com, 12345678, María, Quispe, 987654321", // contraseña sin letra
-        "maria@correo.com, clave1234, '', Quispe, 987654321", // nombre vacío
-        "maria@correo.com, clave1234, María, '', 987654321", // apellido vacío
-        "maria@correo.com, clave1234, María, Quispe, ''", // teléfono vacío
-        "maria@correo.com, clave1234, María, Quispe, 12345678", // teléfono de 8 dígitos
-        "maria@correo.com, clave1234, María, Quispe, 887654321", // teléfono no empieza con 9
+        "'', clave1234, María, Quispe, 987654321",
+        "no-es-un-correo, clave1234, María, Quispe, 987654321",
+        "maria@correo.com, '', María, Quispe, 987654321",
+        "maria@correo.com, corta1, María, Quispe, 987654321",
+        "maria@correo.com, sololetras, María, Quispe, 987654321",
+        "maria@correo.com, 12345678, María, Quispe, 987654321",
+        "maria@correo.com, clave1234, '', Quispe, 987654321",
+        "maria@correo.com, clave1234, María, '', 987654321",
+        "maria@correo.com, clave1234, María, Quispe, ''",
+        "maria@correo.com, clave1234, María, Quispe, 12345678",
+        "maria@correo.com, clave1234, María, Quispe, 887654321",
     })
     void rejectsInvalidCombinations(String email, String password, String firstName, String lastName, String phone) {
         var request = new RegisterRequest(email, password, firstName, lastName, phone);

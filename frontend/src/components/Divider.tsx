@@ -1,4 +1,3 @@
-/** Línea con un texto al centro que separa dos secciones de un formulario (ej. "o inicia con tu correo"). */
 export function Divider({ children }: { children: string }) {
   return (
     <div className="flex items-center gap-3" role="separator" aria-label={children}>

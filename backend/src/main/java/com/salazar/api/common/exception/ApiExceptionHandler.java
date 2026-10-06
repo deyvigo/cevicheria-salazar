@@ -11,13 +11,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-/**
- * Traduce las excepciones comunes a respuestas HTTP consistentes, para que cada
- * historia (empezando por HU-01) no tenga que repetir este mapeo.
- */
 @RestControllerAdvice
 public class ApiExceptionHandler {
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidation(MethodArgumentNotValidException ex) {
         List<ApiError.FieldError> fieldErrors = ex.getBindingResult().getFieldErrors().stream()

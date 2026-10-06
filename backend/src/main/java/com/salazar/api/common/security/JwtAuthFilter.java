@@ -13,14 +13,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-/**
- * Identifica al usuario desde la cookie `access_token`. No bloquea nada: sin
- * cookie o con un JWT inválido la petición sigue como anónima (ver specs/hu-04-mantener-sesion).
- */
 @Component
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
-
     private final JwtService jwtService;
 
     @Override

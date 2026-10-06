@@ -8,7 +8,6 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.BadCredentialsException;
 
 class OAuth2FailureHandlerTest {
-
     @Test
     void redirectsToTheLoginPageWithTheGoogleErrorFlag() throws Exception {
         OAuth2FailureHandler handler = new OAuth2FailureHandler("http://localhost:5173");

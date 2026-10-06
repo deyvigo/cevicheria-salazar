@@ -4,17 +4,15 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
-import { Button } from '@/components/Button';
-import { Divider } from '@/components/Divider';
-import { Input } from '@/components/Input';
-import { Notification } from '@/components/Notification';
-import { useAuth } from '@/context/AuthContext';
+import { Button } from '@/components/button';
+import { Divider } from '@/components/divider';
+import { Input } from '@/components/input';
+import { Notification } from '@/components/notification';
 import type { ApiErrorResponse } from '@/lib/api';
-import { register as registerRequest } from './authApi';
-import { AuthShell } from './AuthShell';
-import { GoogleLoginButton } from './GoogleLoginButton';
+import { AuthShell } from './components/auth-shell';
+import { GoogleLoginButton } from './components/google-login-button';
+import { useRegister } from './use-auth-mutations';
 
-// Mismas reglas que el backend (RegisterRequest), ver specs/hu-01-registro/plan.md.
 const registerSchema = z
   .object({
     firstName: z.string().trim().min(1, 'El nombre es obligatorio.'),
@@ -38,16 +36,10 @@ const registerSchema = z
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
-const BACKEND_FIELDS: ReadonlyArray<keyof RegisterFormValues> = [
-  'email',
-  'password',
-  'firstName',
-  'lastName',
-  'phone',
-];
+const BACKEND_FIELDS: ReadonlyArray<keyof RegisterFormValues> = ['email', 'password', 'firstName', 'lastName', 'phone'];
 
 export function RegisterPage() {
-  const { setUser } = useAuth();
+  const registerMutation = useRegister();
   const navigate = useNavigate();
   const [registered, setRegistered] = useState(false);
 
@@ -60,15 +52,16 @@ export function RegisterPage() {
 
   async function onSubmit(values: RegisterFormValues) {
     try {
-      const user = await registerRequest(values);
-      setUser(user);
+      await registerMutation.mutateAsync(values);
       setRegistered(true);
       setTimeout(() => navigate('/'), 1200);
     } catch (error) {
       if (isAxiosError<ApiErrorResponse>(error) && error.response?.data.fieldErrors) {
         for (const fieldError of error.response.data.fieldErrors) {
           if ((BACKEND_FIELDS as string[]).includes(fieldError.field)) {
-            setError(fieldError.field as keyof RegisterFormValues, { message: fieldError.message });
+            setError(fieldError.field as keyof RegisterFormValues, {
+              message: fieldError.message,
+            });
           }
         }
       }

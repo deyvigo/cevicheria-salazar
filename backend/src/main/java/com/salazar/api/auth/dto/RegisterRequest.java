@@ -5,11 +5,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-/**
- * El constructor compacto normaliza (recorta espacios, correo en minúsculas)
- * antes de que corran las validaciones — ver specs/hu-01-registro/spec.md
- * (casos borde) y plan.md.
- */
 public record RegisterRequest(
         @NotBlank(message = "El correo es obligatorio.") @Email(message = "Ingresa un correo válido.") String email,
         @NotBlank(message = "La contraseña es obligatoria.")
@@ -23,7 +18,6 @@ public record RegisterRequest(
         @NotBlank(message = "El teléfono es obligatorio.")
                 @Pattern(regexp = "^9[0-9]{8}$", message = "Ingresa un teléfono de 9 dígitos que empiece con 9.")
                 String phone) {
-
     public RegisterRequest {
         email = email == null ? null : email.trim().toLowerCase();
         firstName = firstName == null ? null : firstName.trim();

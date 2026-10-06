@@ -1,16 +1,5 @@
-/*
- * Mapea los tokens de design-system/tokens.json (ya cargados como variables
- * CSS en tokens.css) al namespace que espera Tailwind v4, para que las
- * utilities (`bg-action`, `text-ink`, `rounded-lg`, `font-display`, etc.)
- * usen los mismos valores que el design system, sin duplicarlos.
- *
- * El espaciado NO se mapea: la escala de 4px del design system
- * (space-1=4px … space-16=64px) ya coincide número a número con la escala
- * por defecto de Tailwind (p-1=4px … p-16=64px).
- */
-
+/* Spacing is not mapped: the design system scale already matches Tailwind's default */
 @theme {
-  /* Color */
   --color-bg: var(--bg);
   --color-surface: var(--surface);
   --color-surface-celeste: var(--surface-celeste);
@@ -71,18 +60,15 @@
   --color-promo-surface: var(--promo-surface);
   --color-promo-text: var(--promo-text);
 
-  /* Tipografía */
   --font-display: var(--font-display);
   --font-body: var(--font-body);
 
-  /* Radios: radius-pill → rounded-full */
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);
   --radius-lg: var(--radius-lg);
   --radius-xl: var(--radius-xl);
   --radius-full: var(--radius-pill);
 
-  /* Sombras */
   --shadow-xs: var(--shadow-xs);
   --shadow-sm: var(--shadow-sm);
   --shadow-md: var(--shadow-md);

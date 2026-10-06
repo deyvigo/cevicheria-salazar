@@ -3,13 +3,13 @@ import userEvent from '@testing-library/user-event';
 import { AxiosError } from 'axios';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { AuthProvider, useAuth } from '@/context/AuthContext';
-import * as authApi from './authApi';
-import { LoginPage } from './LoginPage';
+import { AuthProvider, useAuth } from '@/context/auth-context';
+import { QueryWrapper } from '@tests/utils/query-wrapper';
+import * as authApi from '@/features/auth/auth-api';
+import { LoginPage } from '@/features/auth/login-page';
 
-vi.mock('./authApi');
+vi.mock('@/features/auth/auth-api');
 
-/** Expone el usuario de la sesión para comprobar que setUser(...) se llamó con los datos correctos. */
 function Harness() {
   const { user } = useAuth();
   return (
@@ -23,9 +23,11 @@ function Harness() {
 function renderPage(initialEntries: string[] = ['/iniciar-sesion']) {
   return render(
     <MemoryRouter initialEntries={initialEntries}>
-      <AuthProvider>
-        <Harness />
-      </AuthProvider>
+      <QueryWrapper>
+        <AuthProvider>
+          <Harness />
+        </AuthProvider>
+      </QueryWrapper>
     </MemoryRouter>,
   );
 }
@@ -100,7 +102,6 @@ describe('LoginPage', () => {
     await user.click(screen.getByRole('button', { name: /iniciar sesión/i }));
 
     expect(await screen.findByText('Correo o contraseña incorrectos.')).toBeInTheDocument();
-    // no queda asociado a un campo: sigue en "sin sesión".
     expect(screen.getByTestId('current-user')).toHaveTextContent('sin sesión');
   });
 
@@ -132,21 +133,24 @@ describe('LoginPage', () => {
 
     expect(screen.getByRole('link', { name: /continuar con google/i })).toBeInTheDocument();
     expect(
-      screen.getByRole('link', { name: /continuar con google/i }).compareDocumentPosition(
-        screen.getByRole('separator', { name: 'o inicia con tu correo' }),
-      ) & Node.DOCUMENT_POSITION_FOLLOWING,
+      screen
+        .getByRole('link', { name: /continuar con google/i })
+        .compareDocumentPosition(screen.getByRole('separator', { name: 'o inicia con tu correo' })) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
   });
 
   it('ofrece ir a crear una cuenta cuando no se tiene una', async () => {
     render(
       <MemoryRouter initialEntries={['/iniciar-sesion']}>
-        <AuthProvider>
-          <Routes>
-            <Route path="/iniciar-sesion" element={<LoginPage />} />
-            <Route path="/registro" element={<p>Pantalla de registro</p>} />
-          </Routes>
-        </AuthProvider>
+        <QueryWrapper>
+          <AuthProvider>
+            <Routes>
+              <Route path="/iniciar-sesion" element={<LoginPage />} />
+              <Route path="/registro" element={<p>Pantalla de registro</p>} />
+            </Routes>
+          </AuthProvider>
+        </QueryWrapper>
       </MemoryRouter>,
     );
 

@@ -1,5 +1,4 @@
 export interface NotificationProps {
-  /** `success` (HU-01) y `error` (HU-05); se agregan info/warning/promo cuando una historia los necesite. */
   variant: 'success' | 'error';
   title: string;
   message?: string;
@@ -16,7 +15,6 @@ const VARIANT_ICON: Record<NotificationProps['variant'], string> = {
   error: '/icons/notif-error.svg',
 };
 
-/** Toast del design-system/components/Notification/README.md: ícono + título + texto, nunca solo color. */
 export function Notification({ variant, title, message, onClose }: NotificationProps) {
   return (
     <div

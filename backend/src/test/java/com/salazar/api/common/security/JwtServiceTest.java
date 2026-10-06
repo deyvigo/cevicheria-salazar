@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 
 class JwtServiceTest {
-
     private static final String SECRET = "test-only-secret-not-for-production-use-32byte";
 
     private final JwtService jwtService = new JwtService(SECRET, 15);

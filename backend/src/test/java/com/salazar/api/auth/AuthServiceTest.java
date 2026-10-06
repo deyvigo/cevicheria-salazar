@@ -29,7 +29,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
-
     @Mock
     private UserRepository userRepository;
 
@@ -63,7 +62,6 @@ class AuthServiceTest {
         when(passwordEncoder.encode("clave1234")).thenReturn("hashed-password");
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
             User user = invocation.getArgument(0);
-            // simula lo que Postgres asignaría al insertar
             return user;
         });
         when(jwtService.generateAccessToken(any(), any(), any())).thenReturn("jwt-token");
@@ -214,7 +212,6 @@ class AuthServiceTest {
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(userCaptor.capture());
         assertThat(userCaptor.getValue().getGoogleId()).isEqualTo("google-123");
-        // la cuenta vinculada conserva su contraseña: sigue pudiendo entrar con cualquiera de las dos.
         assertThat(userCaptor.getValue().getPasswordHash()).isEqualTo("hashed-password");
     }
 

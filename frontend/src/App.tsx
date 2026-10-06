@@ -1,15 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Notification } from '@/components/Notification';
+import { Notification } from '@/components/notification';
 
 const TOAST_DURATION_MS = 4000;
 
 function App() {
   const location = useLocation();
   const navigate = useNavigate();
-  // El aviso llega por el estado de navegación (HU-05) y puede llegar con `App` ya montada
-  // (cerrar sesión estando en `/`), así que se reacciona a cada navegación nueva. Luego el
-  // estado se limpia para que recargar la página no repita el aviso.
   const [loggedOut, setLoggedOut] = useState(false);
   const [seenKey, setSeenKey] = useState<string | null>(null);
   const arrivedLoggedOut = (location.state as { loggedOut?: boolean } | null)?.loggedOut === true;
@@ -19,6 +16,7 @@ function App() {
   }
 
   useEffect(() => {
+    // Clear the state so reloading the page doesn't repeat the notice
     if (arrivedLoggedOut) navigate('.', { replace: true, state: null });
   }, [arrivedLoggedOut, navigate]);
 

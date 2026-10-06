@@ -28,16 +28,13 @@ import org.springframework.test.web.servlet.MvcResult;
 @Import(TestcontainersConfiguration.class)
 @WithTestSecrets
 class AuthControllerIT {
-
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
     private UserRepository userRepository;
 
-    // Instancia propia, no el bean de Spring: la app usa el ObjectMapper de Jackson 3
-    // (tools.jackson, autoconfigurado por spring-boot-starter-jackson en Boot 4.1);
-    // esta solo serializa el cuerpo de la request, cualquier Jackson compatible sirve.
+    // Own instance: the app uses Jackson 3, this one only serializes the request body
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private String registerBody(String email, String phone) throws Exception {
@@ -209,7 +206,6 @@ class AuthControllerIT {
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message").value("Tu sesión expiró. Inicia sesión de nuevo."));
 
-        // idempotente: repetirlo con el mismo token (ya revocado) también es 204
         mockMvc.perform(post("/api/auth/logout").cookie(refresh)).andExpect(status().isNoContent());
     }
 

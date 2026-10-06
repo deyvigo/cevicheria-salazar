@@ -3,18 +3,20 @@ import { fileURLToPath } from 'node:url';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vitest/config';
 
-const srcDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), './src');
+const rootDir = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@': srcDir,
+      '@': path.resolve(rootDir, './src'),
+      '@tests': path.resolve(rootDir, './tests'),
     },
   },
   test: {
     environment: 'jsdom',
-    setupFiles: ['./vitest.setup.ts'],
+    include: ['tests/**/*.test.{ts,tsx}'],
+    setupFiles: ['./tests/setup.ts'],
     globals: true,
   },
 });
