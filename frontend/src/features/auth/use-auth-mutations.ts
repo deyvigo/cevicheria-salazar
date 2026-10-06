@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { AuthUser } from '@/context/auth-context';
-import { ME_QUERY_KEY, login, logout, register } from './auth-api';
+import { ME_QUERY_KEY, forgotPassword, login, logout, register, resetPassword } from './auth-api';
 
 export function useLogin() {
   const queryClient = useQueryClient();
@@ -24,4 +24,12 @@ export function useLogout() {
     mutationFn: logout,
     onSuccess: () => queryClient.setQueryData<AuthUser | null>(ME_QUERY_KEY, null),
   });
+}
+
+export function useForgotPassword() {
+  return useMutation({ mutationFn: (email: string) => forgotPassword(email) });
+}
+
+export function useResetPassword() {
+  return useMutation({ mutationFn: (payload: { token: string; password: string }) => resetPassword(payload) });
 }

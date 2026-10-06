@@ -20,7 +20,7 @@ function Harness() {
   );
 }
 
-function renderPage(initialEntries: string[] = ['/iniciar-sesion']) {
+function renderPage(initialEntries: Parameters<typeof MemoryRouter>[0]['initialEntries'] = ['/iniciar-sesion']) {
   return render(
     <MemoryRouter initialEntries={initialEntries}>
       <QueryWrapper>
@@ -158,5 +158,26 @@ describe('LoginPage', () => {
     await userEvent.click(screen.getByRole('link', { name: 'Regístrate' }));
 
     expect(screen.getByText('Pantalla de registro')).toBeInTheDocument();
+  });
+
+  it('ofrece ir a recuperar la contraseña', () => {
+    renderPage();
+
+    expect(screen.getByRole('link', { name: '¿Olvidaste tu contraseña?' })).toHaveAttribute(
+      'href',
+      '/olvide-contrasena',
+    );
+  });
+
+  it('muestra el aviso de éxito cuando viene de restablecer la contraseña', () => {
+    renderPage([{ pathname: '/iniciar-sesion', state: { passwordReset: true } }]);
+
+    expect(screen.getByText('Tu contraseña fue actualizada. Inicia sesión.')).toBeInTheDocument();
+  });
+
+  it('no muestra el aviso de éxito en una visita normal', () => {
+    renderPage();
+
+    expect(screen.queryByText('Tu contraseña fue actualizada. Inicia sesión.')).not.toBeInTheDocument();
   });
 });

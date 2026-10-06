@@ -34,3 +34,16 @@ export async function login(payload: LoginPayload): Promise<AuthUser> {
   const { data } = await api.post<AuthUser>('/auth/login', payload);
   return data;
 }
+
+export async function forgotPassword(email: string): Promise<string> {
+  const { data } = await api.post<{ message: string }>('/auth/forgot-password', { email });
+  return data.message;
+}
+
+export async function validateResetToken(token: string): Promise<void> {
+  await api.get('/auth/reset-password/validate', { params: { token } });
+}
+
+export async function resetPassword(payload: { token: string; password: string }): Promise<void> {
+  await api.post('/auth/reset-password', payload);
+}

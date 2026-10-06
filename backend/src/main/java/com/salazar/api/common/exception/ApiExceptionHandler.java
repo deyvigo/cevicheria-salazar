@@ -43,6 +43,12 @@ public class ApiExceptionHandler {
                 .body(ApiError.of(HttpStatus.UNAUTHORIZED.value(), "No autenticado", ex.getMessage()));
     }
 
+    @ExceptionHandler(InvalidResetTokenException.class)
+    public ResponseEntity<ApiError> handleInvalidResetToken(InvalidResetTokenException ex) {
+        return ResponseEntity.badRequest()
+                .body(ApiError.of(HttpStatus.BAD_REQUEST.value(), "Enlace no válido", ex.getMessage()));
+    }
+
     @ExceptionHandler(SessionExpiredException.class)
     public ResponseEntity<ApiError> handleSessionExpired(SessionExpiredException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)

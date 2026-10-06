@@ -11,6 +11,7 @@ import { Notification } from '@/components/notification';
 import type { ApiErrorResponse } from '@/lib/api';
 import { AuthShell } from './components/auth-shell';
 import { GoogleLoginButton } from './components/google-login-button';
+import { passwordSchema } from './password-schema';
 import { useRegister } from './use-auth-mutations';
 
 const registerSchema = z
@@ -23,10 +24,7 @@ const registerSchema = z
       .trim()
       .min(1, 'El teléfono es obligatorio.')
       .regex(/^9[0-9]{8}$/, 'Ingresa un teléfono de 9 dígitos que empiece con 9.'),
-    password: z
-      .string()
-      .min(1, 'La contraseña es obligatoria.')
-      .regex(/^(?=.*[A-Za-z])(?=.*\d).{8,}$/, 'La contraseña debe tener al menos 8 caracteres, con letras y números.'),
+    password: passwordSchema,
     confirmPassword: z.string().min(1, 'Confirma tu contraseña.'),
   })
   .refine((data) => data.password === data.confirmPassword, {
