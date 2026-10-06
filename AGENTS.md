@@ -54,7 +54,7 @@ Build tool: **Maven** con wrapper.
 ./scripts/dev.sh
 ```
 
-Levanta Postgres/Redis (`docker-compose.dev.yml`), genera `backend/.env` con un `APP_JWT_SECRET` la primera vez, arranca el backend y el frontend, y abre `/` en el navegador. Ctrl+C detiene backend y frontend; Postgres/Redis quedan corriendo (`docker compose -f docker-compose.dev.yml down` para bajarlos).
+Levanta Postgres/Redis (`docker-compose.dev.yml`), genera `backend/.env` con un `APP_JWT_SECRET` la primera vez, arranca el backend y el frontend, y abre `/` en el navegador. Con `./scripts/dev.sh --lan` el frontend escucha en `0.0.0.0`, ajusta CORS y `VITE_API_URL` a la IP de la red local e imprime la URL para abrirla desde un celular en la misma red (Google OAuth no funciona así: exige `localhost` o dominio). Ctrl+C detiene backend y frontend; Postgres/Redis quedan corriendo (`docker compose -f docker-compose.dev.yml down` para bajarlos).
 
 MinIO no se incluye: su imagen (`minio/minio`) está bloqueada en Docker Hub/quay.io desde que MinIO restringió la distribución de su contenedor (ver `specs/ht-09-entorno/spec.md`, casos borde). No confundir `docker-compose.dev.yml` con el `docker-compose` de producción del VPS (`docs/diagrama-de-despliegue.md`).
 
