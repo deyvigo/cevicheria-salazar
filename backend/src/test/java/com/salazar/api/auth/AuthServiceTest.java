@@ -16,6 +16,7 @@ import com.salazar.api.common.exception.InvalidCredentialsException;
 import com.salazar.api.common.exception.SessionExpiredException;
 import com.salazar.api.common.exception.TooManyAttemptsException;
 import com.salazar.api.common.security.JwtService;
+import com.salazar.api.common.security.TokenHasher;
 import java.time.Instant;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -45,7 +46,7 @@ class AuthServiceTest {
     private LoginAttemptService loginAttemptService;
 
     private AuthService service() {
-        return new AuthService(userRepository, refreshTokenRepository, passwordEncoder, jwtService, loginAttemptService);
+        return new AuthService(userRepository, refreshTokenRepository, passwordEncoder, jwtService, loginAttemptService, new TokenHasher());
     }
 
     private RegisterRequest registerRequest() {

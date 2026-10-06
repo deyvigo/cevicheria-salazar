@@ -8,13 +8,10 @@ import com.salazar.api.common.exception.InvalidCredentialsException;
 import com.salazar.api.common.exception.SessionExpiredException;
 import com.salazar.api.common.security.JwtService;
 import com.salazar.api.common.security.SessionCookieFactory;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import com.salazar.api.common.security.TokenHasher;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.Base64;
-import java.util.HexFormat;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
@@ -36,6 +33,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final LoginAttemptService loginAttemptService;
+    private final TokenHasher tokenHasher;
     private final SecureRandom secureRandom = new SecureRandom();
 
     @Transactional
@@ -114,7 +112,7 @@ public class AuthService {
     @Transactional
     public AuthResult refresh(String rawRefreshToken, String userAgent) {
         RefreshToken stored = refreshTokenRepository
-                .findByTokenHash(hash(rawRefreshToken))
+                .findByTokenHash(tokenHasher.hash(rawRefreshToken))
                 .filter(token -> token.getRevokedAt() == null)
                 .filter(token -> token.getExpiresAt().isAfter(Instant.now()))
                 .orElseThrow(() -> new SessionExpiredException(SESSION_EXPIRED_MESSAGE));
@@ -135,7 +133,7 @@ public class AuthService {
     @Transactional
     public void logout(String rawRefreshToken) {
         refreshTokenRepository
-                .findByTokenHash(hash(rawRefreshToken))
+                .findByTokenHash(tokenHasher.hash(rawRefreshToken))
                 .filter(token -> token.getRevokedAt() == null)
                 .ifPresent(RefreshToken::revoke);
     }
@@ -158,18 +156,9 @@ public class AuthService {
                 : userAgent.substring(0, Math.min(userAgent.length(), USER_AGENT_MAX_LENGTH));
 
         RefreshToken refreshToken = new RefreshToken(
-                userId, hash(rawToken), trimmedUserAgent, Instant.now().plus(SessionCookieFactory.REFRESH_TOKEN_TTL));
+                userId, tokenHasher.hash(rawToken), trimmedUserAgent, Instant.now().plus(SessionCookieFactory.REFRESH_TOKEN_TTL));
         refreshTokenRepository.save(refreshToken);
 
         return rawToken;
-    }
-
-    private String hash(String value) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            return HexFormat.of().formatHex(digest.digest(value.getBytes(StandardCharsets.UTF_8)));
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("SHA-256 no disponible", e);
-        }
     }
 }

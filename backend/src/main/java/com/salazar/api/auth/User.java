@@ -96,6 +96,11 @@ public class User {
         this.active = false;
     }
 
+    void changePassword(String passwordHash) {
+        this.passwordHash = passwordHash;
+        this.updatedAt = Instant.now();
+    }
+
     void linkGoogleAccount(String googleId) {
         this.googleId = googleId;
     }
