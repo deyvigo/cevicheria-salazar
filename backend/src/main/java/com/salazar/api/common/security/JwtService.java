@@ -14,10 +14,8 @@ import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-/** Emite el JWT de acceso que viaja en la cookie httpOnly (ver docs/diagrama-de-arquitectura.md). */
 @Component
 public class JwtService {
-
     private final SecretKey key;
     private final long accessTokenExpirationMinutes;
 
@@ -40,7 +38,6 @@ public class JwtService {
                 .compact();
     }
 
-    /** Devuelve los claims si la firma y la expiración son válidas; {@code empty} ante cualquier token inválido. */
     public Optional<Claims> parse(String token) {
         try {
             return Optional.of(Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload());

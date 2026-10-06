@@ -6,8 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 
 public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long> {
-
-    /** Con bloqueo de escritura: dos renovaciones simultáneas del mismo token se serializan y la segunda lo ve revocado. */
+    // Write lock: concurrent refreshes of the same token serialize and the second sees it revoked
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<RefreshToken> findByTokenHash(String tokenHash);
 }

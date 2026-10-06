@@ -25,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-
     private static final int USER_AGENT_MAX_LENGTH = 255;
 
     private static final String INVALID_CREDENTIALS_MESSAGE = "Correo o contraseña incorrectos.";
@@ -92,7 +91,6 @@ public class AuthService {
         if (user == null) {
             User existingByEmail = userRepository.findByEmail(email).orElse(null);
             if (existingByEmail != null) {
-                // Chequear antes de vincular: una cuenta inactiva no se vincula ni inicia sesión (spec HU-06).
                 if (!existingByEmail.isActive()) {
                     throw new InvalidCredentialsException(INVALID_CREDENTIALS_MESSAGE);
                 }
@@ -134,7 +132,6 @@ public class AuthService {
         return new AuthResult(UserResponse.from(user), accessToken, refreshToken);
     }
 
-    /** Idempotente: un token desconocido, ya revocado o vencido no es un error (HU-05). */
     @Transactional
     public void logout(String rawRefreshToken) {
         refreshTokenRepository

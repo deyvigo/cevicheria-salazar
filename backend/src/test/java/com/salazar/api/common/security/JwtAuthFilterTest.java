@@ -11,7 +11,6 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 class JwtAuthFilterTest {
-
     private final JwtService jwtService = new JwtService("test-only-secret-not-for-production-use-32byte", 15);
     private final JwtAuthFilter filter = new JwtAuthFilter(jwtService);
 

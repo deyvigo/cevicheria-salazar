@@ -9,7 +9,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 class LoginRequestValidationTest {
-
     private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
     @Test
@@ -26,7 +25,6 @@ class LoginRequestValidationTest {
 
     @Test
     void doesNotEnforceThePasswordComplexityRuleOfRegister() {
-        // a diferencia de RegisterRequest: aquí se verifica, no se crea una contraseña.
         assertThat(validator.validate(new LoginRequest("maria@correo.com", "abc"))).isEmpty();
     }
 

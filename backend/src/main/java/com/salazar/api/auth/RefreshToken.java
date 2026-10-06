@@ -12,16 +12,11 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/**
- * Guarda solo el id del usuario (sin relación JPA a {@link User}): nada en esta
- * historia necesita navegar de la sesión al usuario en memoria, solo escribir la fila.
- */
 @Entity
 @Table(name = "refresh_tokens")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RefreshToken {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

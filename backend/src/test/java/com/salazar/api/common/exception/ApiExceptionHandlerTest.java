@@ -14,9 +14,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
-/** Test unitario del handler: construye cada excepción y verifica el código y el cuerpo. */
 class ApiExceptionHandlerTest {
-
     private final ApiExceptionHandler handler = new ApiExceptionHandler();
 
     @Test

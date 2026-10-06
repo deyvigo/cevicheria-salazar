@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseCookie;
 
 class SessionCookieFactoryTest {
-
     private final JwtService jwtService = mock(JwtService.class);
 
     @Test

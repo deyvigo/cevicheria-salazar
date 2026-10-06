@@ -25,7 +25,6 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 
 @ExtendWith(MockitoExtension.class)
 class OAuth2SuccessHandlerTest {
-
     @Mock
     private AuthService authService;
 

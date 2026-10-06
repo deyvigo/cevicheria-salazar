@@ -12,12 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 
-/** Contra el Redis real de Testcontainers — el comportamiento de INCR/EXPIRE no se presta a mocks. */
 @SpringBootTest
 @Import(TestcontainersConfiguration.class)
 @WithTestSecrets
 class LoginAttemptServiceIT {
-
     @Autowired
     private LoginAttemptService loginAttemptService;
 

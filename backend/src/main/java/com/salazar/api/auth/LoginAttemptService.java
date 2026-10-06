@@ -6,16 +6,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-/**
- * Anti fuerza bruta del login (ver specs/hu-02-iniciar-sesion): 3 intentos
- * fallidos por correo, bloqueo de 15 minutos. La clave es por correo, no por
- * IP — no protege contra un atacante que rota de correo en correo; eso
- * quedaría para una historia aparte si hiciera falta.
- */
 @Service
 @RequiredArgsConstructor
 public class LoginAttemptService {
-
     private static final int MAX_ATTEMPTS = 3;
     private static final Duration BLOCK_DURATION = Duration.ofMinutes(15);
     private static final String KEY_PREFIX = "login:attempts:";
@@ -31,6 +24,7 @@ public class LoginAttemptService {
     }
 
     public void recordFailure(String email) {
+        // Keyed by email, not IP
         String key = KEY_PREFIX + email;
         Long attempts = redisTemplate.opsForValue().increment(key);
         if (attempts != null && attempts == 1L) {

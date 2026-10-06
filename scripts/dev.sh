@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
-# Levanta el entorno de desarrollo completo: Postgres + Redis (docker-compose.dev.yml),
-# el backend (Spring Boot) y el frontend (Vite), y abre http://localhost:5173/ en el navegador.
-#
-# Ctrl+C detiene backend, frontend y los contenedores (Postgres/Redis quedan
-# detenidos, no borrados: los datos del volumen se conservan para la próxima vez).
+# Starts the full dev environment: Postgres/Redis, backend, frontend. Ctrl+C stops backend and frontend; containers keep running.
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

@@ -9,17 +9,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-/**
- * Baseline de entorno (HT-09): API sin estado, sin login por formulario ni CSRF
- * (no hay sesión de servidor que proteger). {@link JwtAuthFilter} (HU-04) identifica
- * al usuario desde la cookie pero no bloquea nada; las reglas de autorización por
- * endpoint son de otra historia.
- * `oauth2Login` (HU-06) usa sus propios handlers para terminar en nuestras
- * cookies de sesión en vez del comportamiento por defecto de Spring Security.
- */
 @Configuration
 public class SecurityConfig {
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

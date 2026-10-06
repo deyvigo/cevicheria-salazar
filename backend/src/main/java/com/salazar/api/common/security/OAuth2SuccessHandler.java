@@ -16,13 +16,8 @@ import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
-/**
- * Completa el login/registro con Google (HU-06): busca por googleId, o por
- * correo para vincular una cuenta ya creada por HU-01, o crea una nueva.
- */
 @Component
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
-
     private final AuthService authService;
     private final SessionCookieFactory sessionCookieFactory;
     private final String frontendUrl;
@@ -48,9 +43,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String givenName = oAuth2User.getAttribute("given_name");
         String familyName = oAuth2User.getAttribute("family_name");
 
+        // first_name/last_name are NOT NULL, so never leave them null
         if (givenName == null) {
-            // Caso borde: perfil de Google sin given_name/family_name. first_name/last_name
-            // son NOT NULL en la tabla, así que nunca se les asigna null (ver plan.md).
             givenName = oAuth2User.getAttribute("name");
             familyName = "";
         }
