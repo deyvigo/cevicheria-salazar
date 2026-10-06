@@ -3,18 +3,21 @@ import userEvent from '@testing-library/user-event';
 import { AxiosError } from 'axios';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { AuthProvider } from '@/context/AuthContext';
-import * as authApi from './authApi';
-import { RegisterPage } from './RegisterPage';
+import { AuthProvider } from '@/context/auth-context';
+import { QueryWrapper } from '@tests/utils/query-wrapper';
+import * as authApi from '@/features/auth/auth-api';
+import { RegisterPage } from '@/features/auth/register-page';
 
-vi.mock('./authApi');
+vi.mock('@/features/auth/auth-api');
 
 function renderPage() {
   return render(
     <MemoryRouter>
-      <AuthProvider>
-        <RegisterPage />
-      </AuthProvider>
+      <QueryWrapper>
+        <AuthProvider>
+          <RegisterPage />
+        </AuthProvider>
+      </QueryWrapper>
     </MemoryRouter>,
   );
 }
@@ -122,22 +125,16 @@ describe('RegisterPage', () => {
 
   it('en correo duplicado muestra el error devuelto por la API bajo el campo de correo', async () => {
     vi.mocked(authApi.register).mockRejectedValue(
-      new AxiosError(
-        'Conflict',
-        '409',
-        undefined,
-        undefined,
-        {
+      new AxiosError('Conflict', '409', undefined, undefined, {
+        status: 409,
+        data: {
+          timestamp: new Date().toISOString(),
           status: 409,
-          data: {
-            timestamp: new Date().toISOString(),
-            status: 409,
-            error: 'Conflicto',
-            fieldErrors: [{ field: 'email', message: 'Este correo ya está registrado.' }],
-            message: 'Este correo ya está registrado.',
-          },
-        } as never,
-      ),
+          error: 'Conflicto',
+          fieldErrors: [{ field: 'email', message: 'Este correo ya está registrado.' }],
+          message: 'Este correo ya está registrado.',
+        },
+      } as never),
     );
     const user = userEvent.setup();
     renderPage();
@@ -154,9 +151,10 @@ describe('RegisterPage', () => {
 
     expect(screen.getByRole('link', { name: /continuar con google/i })).toBeInTheDocument();
     expect(
-      screen.getByRole('link', { name: /continuar con google/i }).compareDocumentPosition(
-        screen.getByRole('separator', { name: 'o regístrate con tu correo' }),
-      ) & Node.DOCUMENT_POSITION_FOLLOWING,
+      screen
+        .getByRole('link', { name: /continuar con google/i })
+        .compareDocumentPosition(screen.getByRole('separator', { name: 'o regístrate con tu correo' })) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
   });
 

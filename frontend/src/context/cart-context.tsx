@@ -19,11 +19,6 @@ const STORAGE_KEY = 'salazar.carrito';
 
 const CartContext = createContext<CartContextValue | undefined>(undefined);
 
-/**
- * Carrito persistido en localStorage: no requiere cuenta (HU-16) y se conserva
- * al iniciar sesión o registrarse (HU-35). La lógica de cantidades, notas y
- * totales se completa en la épica E3 (carrito); esto es la forma base del estado.
- */
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>(() => {
     try {
@@ -38,7 +33,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
     } catch {
-      // localStorage no disponible (modo privado, etc.): el carrito sigue funcionando en memoria.
+      // localStorage unavailable (private mode): the cart keeps working in memory
     }
   }, [items]);
 

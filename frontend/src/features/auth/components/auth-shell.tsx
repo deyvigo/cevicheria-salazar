@@ -1,24 +1,17 @@
 import type { ReactNode } from 'react';
 
 interface AuthShellProps {
-  /** Lado donde va la imagen en pantallas grandes. Login y registro usan lados opuestos. */
   imageSide: 'left' | 'right';
-  /** Difumina la foto y muestra el logo arriba a la izquierda de la pantalla (solo login). */
   branded?: boolean;
   children: ReactNode;
 }
 
-// Diagonal curva sobre el borde interno de la imagen. `objectBoundingBox` hace que la
-// forma escale con el panel; la versión derecha es el espejo exacto de la izquierda.
+// objectBoundingBox makes the diagonal scale with the panel; right is the mirror of left
 const CLIP_PATHS = {
   left: { id: 'auth-image-clip-left', d: 'M0,0 H1 Q0.9,0.5 0.78,1 H0 Z' },
   right: { id: 'auth-image-clip-right', d: 'M1,0 H0 Q0.1,0.5 0.22,1 H1 Z' },
 } as const;
 
-/**
- * Marco de las pantallas de acceso (login y registro): foto grande con borde diagonal a un
- * lado y el formulario centrado en el otro. En móvil la foto se oculta y queda solo el formulario.
- */
 export function AuthShell({ imageSide, branded = false, children }: AuthShellProps) {
   const clip = CLIP_PATHS[imageSide];
 
@@ -34,11 +27,7 @@ export function AuthShell({ imageSide, branded = false, children }: AuthShellPro
 
       <div className="sticky top-0 hidden h-svh w-[55%] flex-none lg:block">
         <div className="h-full w-full overflow-hidden" style={{ clipPath: `url(#${clip.id})` }}>
-          <img
-            src="/background.jpg"
-            alt=""
-            className={`h-full w-full object-cover ${branded ? 'scale-105' : ''}`}
-          />
+          <img src="/background.jpg" alt="" className={`h-full w-full object-cover ${branded ? 'scale-105' : ''}`} />
         </div>
       </div>
 

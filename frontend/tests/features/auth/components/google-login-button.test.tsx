@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { GoogleLoginButton } from './GoogleLoginButton';
+import { GoogleLoginButton } from '@/features/auth/components/google-login-button';
 
 describe('GoogleLoginButton', () => {
   it('enlaza a /oauth2/authorization/google, fuera del prefijo /api', () => {

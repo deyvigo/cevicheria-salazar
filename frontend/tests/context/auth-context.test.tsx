@@ -1,9 +1,10 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { AuthProvider, useAuth } from '@/context/AuthContext';
-import * as authApi from '@/features/auth/authApi';
+import { AuthProvider, useAuth } from '@/context/auth-context';
+import { QueryWrapper } from '@tests/utils/query-wrapper';
+import * as authApi from '@/features/auth/auth-api';
 
-vi.mock('@/features/auth/authApi');
+vi.mock('@/features/auth/auth-api');
 
 function Probe() {
   const { user, isLoading } = useAuth();
@@ -17,9 +18,11 @@ function Probe() {
 
 function renderProbe() {
   return render(
-    <AuthProvider>
-      <Probe />
-    </AuthProvider>,
+    <QueryWrapper>
+      <AuthProvider>
+        <Probe />
+      </AuthProvider>
+    </QueryWrapper>,
   );
 }
 

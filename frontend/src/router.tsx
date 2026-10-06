@@ -1,13 +1,9 @@
 import { createBrowserRouter } from 'react-router-dom';
-import App from '@/App';
-import { Layout } from '@/components/Layout';
-import { LoginPage } from '@/features/auth/LoginPage';
-import { RegisterPage } from '@/features/auth/RegisterPage';
+import App from '@/app';
+import { Layout } from '@/components/layout';
+import { LoginPage } from '@/features/auth/login-page';
+import { RegisterPage } from '@/features/auth/register-page';
 
-/**
- * Rutas base. Cada épica agrega las suyas aquí a medida que se implementa
- * (ver src/features/*): catalogo, carrito, checkout, perfil, admin (/admin/*).
- */
 export const router = createBrowserRouter([
   {
     element: <Layout />,

@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { Divider } from '@/components/Divider';
+import { Divider } from '@/components/divider';
 
 describe('Divider', () => {
   it('muestra el texto al centro y se expone como separador accesible', () => {

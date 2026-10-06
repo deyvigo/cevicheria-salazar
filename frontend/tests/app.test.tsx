@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, useNavigate } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
-import App from '@/App';
+import App from '@/app';
 
 describe('App', () => {
   it('muestra el nombre del negocio', () => {

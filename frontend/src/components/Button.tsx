@@ -1,7 +1,6 @@
 import { forwardRef, type ButtonHTMLAttributes } from 'react';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  /** Variantes del design-system/components/Button/README.md. Se agregan `ghost`/`danger` cuando una pantalla los necesite. */
   variant?: 'primary' | 'secondary';
 }
 

@@ -1,16 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/Button';
-import { Notification } from '@/components/Notification';
-import { useAuth } from '@/context/AuthContext';
-import { logout } from '@/features/auth/authApi';
+import { Button } from '@/components/button';
+import { Notification } from '@/components/notification';
+import { useAuth } from '@/context/auth-context';
+import { useLogout } from '@/features/auth/use-auth-mutations';
 
-/**
- * Header básico de la tienda (HU-05): "Iniciar sesión" para un Visitante, o el nombre
- * del cliente con un menú para cerrar sesión. La navegación completa llega con el catálogo.
- */
 export function Header() {
-  const { user, setUser, isLoading } = useAuth();
+  const { user, isLoading } = useAuth();
+  const logoutMutation = useLogout();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [logoutError, setLogoutError] = useState(false);
@@ -39,14 +36,13 @@ export function Header() {
   async function handleLogout() {
     setMenuOpen(false);
     try {
-      await logout();
+      await logoutMutation.mutateAsync();
     } catch {
-      // Sin respuesta del servidor la sesión sigue viva: no se muestra al cliente como deslogueado.
+      // No server response: the session is still alive, so don't show the user as logged out
       setLogoutError(true);
       return;
     }
     setLogoutError(false);
-    setUser(null);
     navigate('/', { state: { loggedOut: true } });
   }
 
