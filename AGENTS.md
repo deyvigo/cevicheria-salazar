@@ -110,9 +110,9 @@ Git flow con ramas creadas a mano (sin la extensión `git-flow`) y commits en fo
 - **Ramas**:
   - `main`: solo lo publicado en producción.
   - `develop`: integración, base de todo el trabajo.
-  - `feature/HU-XX-nombre-corto` (o `feature/HT-XX-...`), igual que la carpeta en `specs/`: se crea desde `develop` y su PR va contra `develop`. Cambios sin historia: `feature/<nombre-corto>`.
+  - `feature/HU-XX-short-name` (o `feature/HT-XX-...`), igual que la carpeta en `specs/`: se crea desde `develop` y su PR va contra `develop`. Cambios sin historia: `feature/<short-name>`. El nombre de la rama va en inglés (ej. `feature/code-conventions`); solo el ID de la historia (`HU-XX`) se conserva tal cual, y si lleva descripción corta también va en inglés (ej. `feature/HU-05-sign-out`).
   - `release/x.y.z`: desde `develop`; se integra en `main` con tag `vx.y.z` y vuelve a `develop`.
-  - `hotfix/<nombre-corto>`: desde `main`; se integra en `main` (con tag) y en `develop`.
+  - `hotfix/<short-name>`: desde `main`; se integra en `main` (con tag) y en `develop`.
 - **Mensajes de commit** (Conventional Commits, **en inglés**): `<type>(<scope>): <description>`.
   - Título y cuerpo en inglés, en imperativo y con minúscula inicial; el ID de la historia va al final del título si aplica. El detalle va en el cuerpo (`-m` adicional).
   - Tipos: `feat`, `fix`, `refactor`, `test`, `docs`, `style`, `perf`, `build`, `ci`, `chore`.
