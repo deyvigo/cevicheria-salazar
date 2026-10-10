@@ -56,3 +56,5 @@ Por ahora modela el dominio de **autenticación y registro** (épica [E1](epicas
 - `users (1) — (N) password_reset_tokens`: un usuario puede generar varias solicitudes de recuperación a lo largo del tiempo (por ejemplo, si no completa una anterior).
 - `categories (1) — (N) products`: una categoría agrupa varios platos; cada plato pertenece a una sola categoría.
 - `products (1) — (N) product_images`: un plato tiene una o más imágenes; la de menor `position` es la principal.
+
+La búsqueda de platos por nombre (HU-09) usa la extensión `unaccent` de PostgreSQL (migración `V4__product_search.sql`) para no distinguir tildes; no agrega tablas ni columnas.

@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,18 +24,24 @@ public class CatalogService {
     private final CatalogProperties properties;
 
     @Transactional(readOnly = true)
-    public List<CategoryResponse> listCategories() {
-        return categoryRepository.findAllByOrderByIdAsc().stream()
+    public List<CategoryResponse> listCategories(String query) {
+        String pattern = NamePattern.from(query);
+        List<Category> categories = pattern == null
+                ? categoryRepository.findAllByOrderByIdAsc()
+                : categoryRepository.findAllWithActiveMatch(pattern);
+        return categories.stream()
                 .map(CategoryResponse::from)
                 .toList();
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<ProductResponse> listProducts(String categorySlug, int page, ProductSort sort) {
+    public PageResponse<ProductResponse> listProducts(
+            String categorySlug, String query, int page, ProductSort sort) {
         int requested = Math.max(page, 1);
-        Page<Product> result = fetch(categorySlug, requested, sort);
+        Specification<Product> filter = filter(categorySlug, query);
+        Page<Product> result = fetch(filter, requested, sort);
         if (result.getTotalPages() > 0 && requested > result.getTotalPages()) {
-            result = fetch(categorySlug, result.getTotalPages(), sort);
+            result = fetch(filter, result.getTotalPages(), sort);
         }
         List<ProductResponse> items = result.getContent().stream().map(this::toResponse).toList();
         return new PageResponse<>(
@@ -58,9 +65,20 @@ public class CatalogService {
                 images);
     }
 
-    private Page<Product> fetch(String categorySlug, int page, ProductSort sort) {
-        return productRepository.findByActiveTrueAndCategorySlug(
-                categorySlug, PageRequest.of(page - 1, properties.pageSize(), sort.toSort()));
+    private Specification<Product> filter(String categorySlug, String query) {
+        Specification<Product> filter = ProductSpecifications.active();
+        if (categorySlug != null && !categorySlug.isBlank()) {
+            filter = filter.and(ProductSpecifications.inCategory(categorySlug));
+        }
+        String pattern = NamePattern.from(query);
+        if (pattern != null) {
+            filter = filter.and(ProductSpecifications.nameMatches(pattern));
+        }
+        return filter;
+    }
+
+    private Page<Product> fetch(Specification<Product> filter, int page, ProductSort sort) {
+        return productRepository.findAll(filter, PageRequest.of(page - 1, properties.pageSize(), sort.toSort()));
     }
 
     private ProductResponse toResponse(Product product) {
