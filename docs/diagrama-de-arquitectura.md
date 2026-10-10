@@ -22,7 +22,7 @@ Backend único que atiende a la app web, organizado en capas:
 ### Almacenamiento
 
 - **PostgreSQL (base de datos)**: persiste usuarios, catálogo, carritos, pedidos y direcciones; es el modelo entidad-relación de la historia técnica HT-06. Soporta el historial de pedidos (HU-25) y el seguimiento de su estado (HU-26).
-- **MinIO (imágenes de platos)**: almacena las fotos de los platos que se muestran en el detalle del catálogo (HU-08) y que el administrador sube o reemplaza al crear/editar un plato (HU-29). La API accede a él mediante una API compatible con S3.
+- **Garage (imágenes de platos)**: almacenamiento de objetos compatible con S3 que guarda las fotos de los platos que se muestran en el catálogo (HU-07, HU-08) y que el administrador sube o reemplaza al crear/editar un plato (HU-29). La API accede a él con el SDK de AWS S3 (HT-10); los navegadores leen las imágenes directamente de su endpoint web público.
 - **Redis (intentos y caché)**: almacén en memoria de dos usos — registrar intentos de login para mitigar ataques de fuerza bruta (seguridad de HU-02) y cachear resultados de la capa de servicios para acelerar las lecturas más frecuentes del catálogo.
 
 ### Servicios externos
@@ -36,4 +36,4 @@ Backend único que atiende a la app web, organizado en capas:
 1. El Cliente/Visitante y el Administrador acceden únicamente a través de la misma app web React, nunca directamente a la API.
 2. Toda petición pasa por la capa de seguridad antes de llegar a los controladores, servicios y repositorios.
 3. Los servicios externos (Google, Izipay, SMTP) se integran solo desde la capa de servicios de la API, nunca desde el frontend, manteniendo las credenciales y la lógica de integración en el backend.
-4. Redis actúa como componente de soporte transversal: la capa de seguridad lo usa para intentos de login y la capa de servicios para caché, pero ningún dato persistente vive ahí — PostgreSQL y MinIO siguen siendo las únicas fuentes de verdad.
+4. Redis actúa como componente de soporte transversal: la capa de seguridad lo usa para intentos de login y la capa de servicios para caché, pero ningún dato persistente vive ahí — PostgreSQL y Garage siguen siendo las únicas fuentes de verdad.

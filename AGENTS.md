@@ -22,7 +22,7 @@ Definido en `docs/diagrama-de-arquitectura.md` y `docs/diagrama-de-despliegue.md
 
 - **Frontend**: React (responsive), una sola app que sirve la tienda y el panel `/admin` según el rol del usuario autenticado. Gestor de paquetes: **pnpm**. Se despliega en Cloudflare Pages.
 - **Backend**: **Spring Boot** (Java). Capas: Seguridad (Spring Security, JWT en cookies + OAuth2) → Controladores REST → Servicios (lógica de negocio) → Repositorios (Spring Data JPA).
-- **Datos**: PostgreSQL (base de datos principal, ver `docs/diagrama-de-base-de-datos.md`), Redis (intentos de login y caché, en memoria, sin persistencia), MinIO (imágenes de platos, vía API S3).
+- **Datos**: PostgreSQL (base de datos principal, ver `docs/diagrama-de-base-de-datos.md`), Redis (intentos de login y caché, en memoria, sin persistencia), Garage (almacenamiento de objetos compatible con S3 para las imágenes de platos; el backend lo usa con el SDK de AWS S3, ver `specs/ht-10-almacenamiento/`).
 - **Servicios externos**: Google OAuth 2.0 (login social), Izipay (pasarela de pagos), servidor SMTP (correos y confirmaciones).
 - **Infraestructura**: VPS con Docker Compose, Traefik como proxy inverso (TLS con Let's Encrypt).
 
@@ -54,9 +54,9 @@ Build tool: **Maven** con wrapper.
 ./scripts/dev.sh
 ```
 
-Levanta Postgres/Redis (`docker-compose.dev.yml`), genera `backend/.env` con un `APP_JWT_SECRET` la primera vez, arranca el backend y el frontend, y abre `/` en el navegador. Con `./scripts/dev.sh --lan` el frontend escucha en `0.0.0.0`, ajusta CORS y `VITE_API_URL` a la IP de la red local e imprime la URL para abrirla desde un celular en la misma red (Google OAuth no funciona así: exige `localhost` o dominio). Ctrl+C detiene backend y frontend; Postgres/Redis quedan corriendo (`docker compose -f docker-compose.dev.yml down` para bajarlos).
+Levanta Postgres, Redis y Garage (`docker-compose.dev.yml`), genera `backend/.env` con `APP_JWT_SECRET` y las credenciales de Garage (`GARAGE_RPC_SECRET`, `STORAGE_ACCESS_KEY`, `STORAGE_SECRET_KEY`) la primera vez, inicializa Garage (`scripts/garage-init.sh`: nodo, clave, bucket `platos` e imágenes de ejemplo), arranca el backend y el frontend, y abre `/` en el navegador. Con `./scripts/dev.sh --lan` el frontend escucha en `0.0.0.0`, ajusta CORS y `VITE_API_URL` a la IP de la red local e imprime la URL para abrirla desde un celular en la misma red (Google OAuth no funciona así: exige `localhost` o dominio). Ctrl+C detiene backend y frontend; Postgres/Redis/Garage quedan corriendo (`docker compose -f docker-compose.dev.yml down` para bajarlos).
 
-MinIO no se incluye: su imagen (`minio/minio`) está bloqueada en Docker Hub/quay.io desde que MinIO restringió la distribución de su contenedor (ver `specs/ht-09-entorno/spec.md`, casos borde). No confundir `docker-compose.dev.yml` con el `docker-compose` de producción del VPS (`docs/diagrama-de-despliegue.md`).
+Las imágenes de los platos se sirven desde Garage en `http://platos.web.garage.localhost:3902/` (`*.localhost` resuelve a la máquina local sin tocar `/etc/hosts`); la API S3 está en `:3900`. No se usa MinIO: su imagen dejó de poder descargarse (ver `specs/ht-10-almacenamiento/spec.md`). No confundir `docker-compose.dev.yml` con el `docker-compose` de producción del VPS (`docs/diagrama-de-despliegue.md`).
 
 ## Convenciones
 
@@ -83,7 +83,7 @@ Antes de construir una pantalla nueva, revisar si el componente/token necesario 
 - Migraciones de base de datos con **Flyway** (`src/main/resources/db/migration/`); Hibernate en modo `validate`, nunca autogenera el esquema.
 - Las integraciones con servicios externos (Google OAuth, Izipay, SMTP) van solo en la capa de **Servicios**, nunca en controladores ni se exponen al frontend.
 - Los tokens de sesión y de recuperación de contraseña se almacenan con hash (`token_hash`), nunca en texto plano — ver `docs/diagrama-de-base-de-datos.md`.
-- Redis no es fuente de verdad: solo intentos de login (anti fuerza bruta) y caché de lecturas frecuentes del catálogo. Los datos persistentes van en PostgreSQL o MinIO.
+- Redis no es fuente de verdad: solo intentos de login (anti fuerza bruta) y caché de lecturas frecuentes del catálogo. Los datos persistentes van en PostgreSQL o en el almacenamiento de objetos (Garage).
 
 ## Frontend
 
