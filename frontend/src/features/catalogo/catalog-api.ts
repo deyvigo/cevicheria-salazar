@@ -16,6 +16,16 @@ export interface Product {
   imageUrl: string | null;
 }
 
+export interface ProductDetail {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  rating: number | null;
+  category: Category | null;
+  images: string[];
+}
+
 export interface Page<T> {
   items: T[];
   page: number;
@@ -35,5 +45,10 @@ export async function getProducts(params: {
   sort: CatalogSort;
 }): Promise<Page<Product>> {
   const { data } = await api.get<Page<Product>>('/products', { params });
+  return data;
+}
+
+export async function getProduct(id: number): Promise<ProductDetail> {
+  const { data } = await api.get<ProductDetail>(`/products/${id}`);
   return data;
 }
