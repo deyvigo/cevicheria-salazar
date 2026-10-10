@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800">
+  <rect width="800" height="800" fill="#a6d6ec"/>
+  <circle cx="400" cy="400" r="260" fill="none" stroke="#164f69" stroke-width="24"/>
+  <text x="400" y="440" font-family="Fredoka, Arial, sans-serif" font-size="120" font-weight="600" text-anchor="middle" fill="#164f69">Foto 2</text>
+</svg>
