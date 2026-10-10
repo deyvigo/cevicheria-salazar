@@ -11,7 +11,7 @@ function LocationProbe() {
 
 function renderBox(initialValue?: string) {
   return render(
-    <MemoryRouter initialEntries={['/ceviches?page=2&sort=price_desc']}>
+    <MemoryRouter initialEntries={['/menu/ceviches?page=2&sort=price_desc']}>
       <SearchBox initialValue={initialValue} />
       <Routes>
         <Route path="*" element={<LocationProbe />} />
@@ -27,7 +27,7 @@ describe('SearchBox', () => {
 
     await user.type(screen.getByRole('searchbox', { name: 'Buscar platos' }), 'ceviche');
 
-    expect(screen.getByTestId('location')).toHaveTextContent('/ceviches?page=2&sort=price_desc');
+    expect(screen.getByTestId('location')).toHaveTextContent('/menu/ceviches?page=2&sort=price_desc');
   });
 
   it('Enter busca y descarta categoría, página y orden', async () => {
@@ -36,7 +36,7 @@ describe('SearchBox', () => {
 
     await user.type(screen.getByRole('searchbox', { name: 'Buscar platos' }), 'ceviche{Enter}');
 
-    expect(screen.getByTestId('location')).toHaveTextContent(/^\/\?q=ceviche$/);
+    expect(screen.getByTestId('location')).toHaveTextContent(/^\/menu\?q=ceviche$/);
   });
 
   it('el clic en la lupa busca', async () => {
@@ -46,7 +46,7 @@ describe('SearchBox', () => {
     await user.type(screen.getByRole('searchbox', { name: 'Buscar platos' }), 'ceviche mixto');
     await user.click(screen.getByRole('button', { name: 'Buscar' }));
 
-    expect(screen.getByTestId('location')).toHaveTextContent(/^\/\?q=ceviche\+mixto$/);
+    expect(screen.getByTestId('location')).toHaveTextContent(/^\/menu\?q=ceviche\+mixto$/);
   });
 
   it('recorta los espacios del término', async () => {
@@ -55,10 +55,10 @@ describe('SearchBox', () => {
 
     await user.type(screen.getByRole('searchbox', { name: 'Buscar platos' }), '  ceviche  {Enter}');
 
-    expect(screen.getByTestId('location')).toHaveTextContent(/^\/\?q=ceviche$/);
+    expect(screen.getByTestId('location')).toHaveTextContent(/^\/menu\?q=ceviche$/);
   });
 
-  it('enviar vacío quita el filtro y va a /', async () => {
+  it('enviar vacío quita el filtro y va a /menu', async () => {
     const user = userEvent.setup();
     renderBox('ceviche');
 
@@ -67,7 +67,7 @@ describe('SearchBox', () => {
     await user.clear(input);
     await user.type(input, '   {Enter}');
 
-    expect(screen.getByTestId('location')).toHaveTextContent(/^\/$/);
+    expect(screen.getByTestId('location')).toHaveTextContent(/^\/menu$/);
   });
 
   it('limita el término a 100 caracteres', () => {

@@ -20,7 +20,7 @@ describe('CategoryList', () => {
   it('enlaza cada categoría a su slug', () => {
     renderList('entradas');
 
-    expect(screen.getByRole('link', { name: 'Ceviches' })).toHaveAttribute('href', '/ceviches');
+    expect(screen.getByRole('link', { name: 'Ceviches' })).toHaveAttribute('href', '/menu/ceviches');
   });
 
   it('resalta solo la categoría activa', () => {
@@ -41,7 +41,7 @@ describe('CategoryList', () => {
 
     const links = screen.getAllByRole('link');
     expect(links[0]).toHaveTextContent('Todos');
-    expect(links[0]).toHaveAttribute('href', '/');
+    expect(links[0]).toHaveAttribute('href', '/menu');
     expect(links[0]).toHaveAttribute('aria-current', 'page');
   });
 
@@ -60,7 +60,7 @@ describe('CategoryList', () => {
   it('conserva el término de búsqueda en todos los enlaces', () => {
     renderList(undefined, 'ceviche mixto');
 
-    expect(screen.getByRole('link', { name: 'Todos' })).toHaveAttribute('href', '/?q=ceviche+mixto');
-    expect(screen.getByRole('link', { name: 'Ceviches' })).toHaveAttribute('href', '/ceviches?q=ceviche+mixto');
+    expect(screen.getByRole('link', { name: 'Todos' })).toHaveAttribute('href', '/menu?q=ceviche+mixto');
+    expect(screen.getByRole('link', { name: 'Ceviches' })).toHaveAttribute('href', '/menu/ceviches?q=ceviche+mixto');
   });
 });

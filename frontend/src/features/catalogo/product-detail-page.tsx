@@ -24,7 +24,7 @@ export function ProductDetailPage() {
   }, []);
 
   const from = (location.state as { from?: string } | null)?.from;
-  const backTo = from ?? (product?.category ? `/${product.category.slug}` : '/');
+  const backTo = from ?? (product?.category ? `/menu/${product.category.slug}` : '/menu');
   const notFound = id === null || (axios.isAxiosError(query.error) && query.error.response?.status === 404);
 
   if (notFound) {
@@ -34,7 +34,7 @@ export function ProductDetailPage() {
           No encontramos este plato.
         </p>
         <Link
-          to="/"
+          to="/menu"
           className="text-base font-bold text-ink underline focus-visible:shadow-focus focus-visible:outline-none"
         >
           Volver al catálogo
@@ -57,6 +57,7 @@ export function ProductDetailPage() {
     <main className="mx-auto w-full max-w-6xl px-6 py-6">
       <Link
         to={backTo}
+        state={{ restoreScroll: true }}
         viewTransition
         className="mb-4 inline-flex min-h-12 items-center gap-1 rounded-md text-base font-bold text-ink focus-visible:shadow-focus focus-visible:outline-none"
       >

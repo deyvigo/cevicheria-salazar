@@ -100,7 +100,7 @@ describe('ProductDetailPage', () => {
     renderAt('/products/7');
 
     await screen.findByRole('heading', { name: 'Ceviche clásico' });
-    expect(screen.getByRole('link', { name: 'Volver' })).toHaveAttribute('href', '/ceviches');
+    expect(screen.getByRole('link', { name: 'Volver' })).toHaveAttribute('href', '/menu/ceviches');
   });
 
   it('muestra "No encontramos este plato" ante un 404', async () => {
@@ -110,7 +110,7 @@ describe('ProductDetailPage', () => {
     renderAt('/products/999');
 
     expect(await screen.findByText('No encontramos este plato.')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Volver al catálogo' })).toHaveAttribute('href', '/');
+    expect(screen.getByRole('link', { name: 'Volver al catálogo' })).toHaveAttribute('href', '/menu');
   });
 
   it('con un id no numérico muestra el mismo mensaje sin llamar a la API', () => {

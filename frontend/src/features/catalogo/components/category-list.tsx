@@ -14,13 +14,13 @@ export function CategoryList({ categories, activeSlug, searchTerm }: CategoryLis
     {
       key: 'todos',
       name: 'Todos',
-      to: `/${suffix}`,
+      to: `/menu${suffix}`,
       active: activeSlug === undefined,
     },
     ...categories.map((category) => ({
       key: String(category.id),
       name: category.name,
-      to: `/${category.slug}${suffix}`,
+      to: `/menu/${category.slug}${suffix}`,
       active: category.slug === activeSlug,
     })),
   ];
