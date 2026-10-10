@@ -6,6 +6,8 @@ spring:
     url: jdbc:postgresql://localhost:5432/salazar_dev
     username: ${DB_USERNAME:salazar}
     password: ${DB_PASSWORD:salazar}
+  flyway:
+    locations: classpath:db/migration,classpath:db/dev
   data:
     redis:
       host: localhost

@@ -52,6 +52,10 @@ app:
     access-key: ${MINIO_ACCESS_KEY:minioadmin}
     secret-key: ${MINIO_SECRET_KEY:minioadmin}
     bucket: ${MINIO_BUCKET:platos}
+    # Browser-facing base of the bucket (Traefik's media subdomain in production); distinct from the internal endpoint
+    public-url: ${MINIO_PUBLIC_URL:http://localhost:9000}
+  catalog:
+    page-size: 20
 
 springdoc:
   swagger-ui:
