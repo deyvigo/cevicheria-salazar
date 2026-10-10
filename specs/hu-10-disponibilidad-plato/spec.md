@@ -1,7 +1,7 @@
 # Spec: HU-10 — Saber si un plato está agotado o no disponible
 
 **Épica**: [E2. Catálogo de productos](../../docs/epicas.md#e2)
-**Estado**: En implementación
+**Estado**: Hecha
 
 ## Objetivo
 
