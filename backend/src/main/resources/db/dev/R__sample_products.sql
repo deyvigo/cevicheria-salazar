@@ -61,5 +61,15 @@ FROM products p
 WHERE p.name <> 'Plato sin foto'
   AND NOT EXISTS (SELECT 1 FROM product_images i WHERE i.product_id = p.id);
 
--- Older sample rows pointed at one file per dish or category; every dish now shares a single sample photo
-UPDATE product_images SET path = 'seed/dish.jpg' WHERE path <> 'seed/dish.jpg';
+-- Extra photos (2 to 4 per dish, varying by id) to exercise the detail gallery; the single-photo and no-photo cases stay
+INSERT INTO product_images (product_id, path, position)
+SELECT p.id, 'seed/dish-' || (n.position + 1) || '.svg', n.position
+FROM products p
+CROSS JOIN generate_series(1, 3) AS n (position)
+WHERE p.name NOT IN ('Plato sin foto', 'Ceviche de pota')
+  AND n.position <= 1 + p.id % 3
+  AND NOT EXISTS (SELECT 1 FROM product_images i WHERE i.product_id = p.id AND i.position = n.position);
+
+-- Older sample rows pointed at one file per dish or category; the main photo of every dish is the shared sample
+UPDATE product_images SET path = 'seed/dish.jpg' WHERE position = 0 AND path <> 'seed/dish.jpg';
+UPDATE product_images SET path = 'seed/dish-' || (position + 1) || '.svg' WHERE position > 0 AND path = 'seed/dish.jpg';

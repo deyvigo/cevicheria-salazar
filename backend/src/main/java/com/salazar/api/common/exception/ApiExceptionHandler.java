@@ -31,6 +31,12 @@ public class ApiExceptionHandler {
                         HttpStatus.BAD_REQUEST.value(), "Solicitud no válida", "Hay parámetros inválidos o faltantes."));
     }
 
+    @ExceptionHandler(ProductNotFoundException.class)
+    public ResponseEntity<ApiError> handleProductNotFound(ProductNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiError.of(HttpStatus.NOT_FOUND.value(), "No encontrado", ex.getMessage()));
+    }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiError> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
