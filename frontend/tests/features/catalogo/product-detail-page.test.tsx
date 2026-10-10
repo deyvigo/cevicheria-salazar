@@ -15,6 +15,7 @@ const DETAIL: ProductDetail = {
   description: 'Pescado fresco con limón.',
   price: 32,
   rating: 4.5,
+  available: true,
   category: { id: 2, name: 'Ceviches', slug: 'ceviches' },
   images: ['http://m/a.jpg', 'http://m/b.jpg'],
 };
@@ -46,6 +47,34 @@ describe('ProductDetailPage', () => {
     expect(screen.getByLabelText('Calificación 4.5 de 5')).toBeInTheDocument();
     expect(screen.getByText('Pescado fresco con limón.')).toBeInTheDocument();
     expect(screen.getByRole('img', { name: 'Ceviche clásico' })).toHaveAttribute('src', 'http://m/a.jpg');
+  });
+
+  it('muestra "Disponible" y conserva el resto de datos cuando el plato está disponible', async () => {
+    vi.mocked(catalogApi.getProduct).mockResolvedValue(DETAIL);
+    renderAt('/products/7');
+
+    expect(await screen.findByText('Disponible')).toBeInTheDocument();
+    expect(screen.queryByText('Agotado')).not.toBeInTheDocument();
+  });
+
+  it('muestra "Agotado" sin ocultar nombre, precio ni descripción', async () => {
+    vi.mocked(catalogApi.getProduct).mockResolvedValue({ ...DETAIL, available: false });
+    renderAt('/products/7');
+
+    expect(await screen.findByText('Agotado')).toBeInTheDocument();
+    expect(screen.queryByText('Disponible')).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Ceviche clásico' })).toBeInTheDocument();
+    expect(screen.getByText('S/ 32.00')).toBeInTheDocument();
+    expect(screen.getByText('Pescado fresco con limón.')).toBeInTheDocument();
+  });
+
+  it('no muestra ningún estado mientras la disponibilidad no está confirmada', async () => {
+    vi.mocked(catalogApi.getProduct).mockResolvedValue({ ...DETAIL, available: null });
+    renderAt('/products/7');
+
+    await screen.findByRole('heading', { name: 'Ceviche clásico' });
+    expect(screen.queryByText('Disponible')).not.toBeInTheDocument();
+    expect(screen.queryByText('Agotado')).not.toBeInTheDocument();
   });
 
   it('no muestra calificación cuando el plato no tiene', async () => {

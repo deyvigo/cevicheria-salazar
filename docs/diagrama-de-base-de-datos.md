@@ -41,6 +41,7 @@ Por ahora modela el dominio de **autenticación y registro** (épica [E1](epicas
   - `category_id`: referencia a `categories`; un plato pertenece a una sola categoría.
   - `rating`: calificación promedio de 0.0 a 5.0 (un decimal); `NULL` si aún no tiene.
   - `is_active`: un plato inactivo no aparece en el catálogo.
+  - `is_available`: si el plato se puede pedir hoy (por defecto `true`). Un plato agotado sigue visible en el catálogo y su detalle lo indica (HU-10); el administrador lo cambia en HU-30.
   - `created_at`: fecha de creación.
 
 - **product_images**: imágenes de un plato, guardadas en el almacenamiento de objetos S3 (Garage; HU-07, HU-08).

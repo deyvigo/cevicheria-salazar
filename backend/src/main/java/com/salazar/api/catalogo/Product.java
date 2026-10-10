@@ -55,6 +55,9 @@ public class Product {
     @Column(name = "is_active", nullable = false)
     private boolean active;
 
+    @Column(name = "is_available", nullable = false)
+    private boolean available;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -65,6 +68,7 @@ public class Product {
         this.category = category;
         this.rating = rating;
         this.active = true;
+        this.available = true;
     }
 
     public void addImage(String path, int position) {
@@ -73,6 +77,10 @@ public class Product {
 
     public void deactivate() {
         this.active = false;
+    }
+
+    public void markUnavailable() {
+        this.available = false;
     }
 
     @PrePersist

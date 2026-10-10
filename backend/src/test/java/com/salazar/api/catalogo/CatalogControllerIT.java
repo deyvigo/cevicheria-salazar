@@ -154,6 +154,32 @@ class CatalogControllerIT {
     }
 
     @Test
+    @Transactional
+    void soldOutProductStillShowsInTheCatalogAndItsDetailSaysItIsUnavailable() throws Exception {
+        Product soldOut = new Product("Ceviche agotado", "d", new BigDecimal("30.00"), category("fondos"), null);
+        soldOut.markUnavailable();
+        Product saved = productRepository.save(soldOut);
+
+        mockMvc.perform(get("/api/products/{id}", saved.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.available").value(false))
+                .andExpect(jsonPath("$.name").value("Ceviche agotado"));
+        mockMvc.perform(get("/api/products").param("category", "fondos"))
+                .andExpect(jsonPath("$.totalItems").value(1))
+                .andExpect(jsonPath("$.items[0].name").value("Ceviche agotado"));
+    }
+
+    @Test
+    @Transactional
+    void availableProductDetailSaysAvailable() throws Exception {
+        Product saved = productRepository.save(
+                new Product("Ceviche disponible", "d", new BigDecimal("30.00"), category("fondos"), null));
+
+        mockMvc.perform(get("/api/products/{id}", saved.getId()))
+                .andExpect(jsonPath("$.available").value(true));
+    }
+
+    @Test
     void detailOfInactiveAndMissingProductsRespondTheSame404() throws Exception {
         Long inactiveId = findByName("Ceviche retirado").getId();
 

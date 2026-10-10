@@ -46,6 +46,7 @@ export function useProduct(id: number | null) {
             description: found.description,
             price: found.price,
             rating: found.rating,
+            available: null,
             category: null,
             images: found.imageUrl ? [found.imageUrl] : [],
           };

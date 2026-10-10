@@ -53,6 +53,7 @@ public class CatalogService {
                 product.getDescription(),
                 product.getPrice(),
                 product.getRating(),
+                product.isAvailable(),
                 CategoryResponse.from(product.getCategory()),
                 images);
     }

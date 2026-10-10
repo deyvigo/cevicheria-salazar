@@ -22,6 +22,8 @@ export interface ProductDetail {
   description: string;
   price: number;
   rating: number | null;
+  // null until the server confirms it: the list placeholder doesn't carry availability
+  available: boolean | null;
   category: Category | null;
   images: string[];
 }

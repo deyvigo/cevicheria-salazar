@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { useCallback } from 'react';
 import { Link, useLocation, useParams, useViewTransitionState } from 'react-router-dom';
+import { AvailabilityBadge } from '@/features/catalogo/components/availability-badge';
 import { StarIcon } from '@/features/catalogo/components/star-icon';
 import { ProductGallery } from '@/features/catalogo/components/product-gallery';
 import { formatPrice } from '@/features/catalogo/format';
@@ -80,8 +81,11 @@ export function ProductDetailPage() {
         <div className="grid grid-cols-2 items-start gap-8">
           <ProductGallery images={product.images} name={product.name} transitioning={transitioning} />
           <div className="flex flex-col gap-3">
-            {/* Always reserve the line: the list placeholder has no category, and it arriving late would push the title down */}
-            <p className="h-6 text-base leading-6 text-ink-muted">{product.category?.name}</p>
+            <div className="flex items-center justify-between gap-3">
+              {/* Always reserve the line: the list placeholder has no category, and it arriving late would push the title down */}
+              <p className="h-6 text-base leading-6 text-ink-muted">{product.category?.name}</p>
+              <AvailabilityBadge available={product.available} />
+            </div>
             <h1
               ref={focusHeading}
               tabIndex={-1}

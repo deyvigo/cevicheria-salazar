@@ -70,4 +70,20 @@ class CatalogSchemaIT {
         assertThat(jdbc.queryForObject("SELECT count(*) FROM product_images WHERE product_id = ?", Integer.class, productId))
                 .isZero();
     }
+
+    @Test
+    void productsAreAvailableByDefaultAndAvailabilityIsNotNullable() {
+        long category = categoryId("fondos");
+
+        Boolean available = jdbc.queryForObject(
+                "INSERT INTO products (name, description, price, category_id) VALUES ('Por defecto', 'd', 1, ?) RETURNING is_available",
+                Boolean.class,
+                category);
+
+        assertThat(available).isTrue();
+        assertThatThrownBy(() -> jdbc.update(
+                        "INSERT INTO products (name, description, price, category_id, is_available) VALUES ('Nulo', 'd', 1, ?, NULL)",
+                        category))
+                .isInstanceOf(DataIntegrityViolationException.class);
+    }
 }
