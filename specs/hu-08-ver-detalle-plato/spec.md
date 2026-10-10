@@ -1,7 +1,7 @@
 # Spec: HU-08 — Ver el detalle de un plato
 
 **Épica**: [E2. Catálogo de productos](../../docs/epicas.md#e2)
-**Estado**: En implementación
+**Estado**: Hecha
 
 ## Objetivo
 

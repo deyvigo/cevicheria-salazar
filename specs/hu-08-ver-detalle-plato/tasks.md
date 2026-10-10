@@ -19,7 +19,7 @@ Requiere `plan.md`. Cada tarea indica qué criterio(s) de `spec.md` cubre y cóm
 
 ## Verificación en navegador y cierre
 
-- [ ] Recorrer en navegador con soporte: clic en tarjeta → la imagen viaja al detalle; "Volver" → regresa a la misma tarjeta con página y orden conservados; atrás del navegador (ver riesgo en `plan.md`; si no anima, actualizar `spec.md`) — cubre: criterios de la view transition.
-- [ ] Recorrer sin animación: movimiento reducido activado y navegador sin soporte (o `document.startViewTransition = undefined` desde la consola) navegan normal; acceso directo y recarga en `/products/{id}` sin animación — cubre: degradación.
-- [ ] Probar `/products/abc`, `/products/999999` y el detalle de un plato inactivo — cubre: casos borde de plato inexistente.
-- [ ] Repasar cada criterio de `spec.md`, correr `./mvnw test`, `./mvnw test -Dtest='*IT'`, `pnpm test --run` y `pnpm build`, y pasar la spec a **Hecha** — cubre: cierre.
+- [x] Recorrer en navegador con soporte: clic en tarjeta → la imagen viaja al detalle; "Volver" → regresa a la misma tarjeta con página y orden conservados; atrás del navegador (ver riesgo en `plan.md`; si no anima, actualizar `spec.md`) — cubre: criterios de la view transition.
+- [x] Recorrer sin animación: movimiento reducido activado y navegador sin soporte (o `document.startViewTransition = undefined` desde la consola) navegan normal; acceso directo y recarga en `/products/{id}` sin animación — cubre: degradación.
+- [x] Probar `/products/abc`, `/products/999999` y el detalle de un plato inactivo — cubre: casos borde de plato inexistente.
+- [x] Repasar cada criterio de `spec.md`, correr `./mvnw test`, `./mvnw test -Dtest='*IT'`, `pnpm test --run` y `pnpm build`, y pasar la spec a **Hecha** — cubre: cierre.
