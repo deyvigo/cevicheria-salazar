@@ -56,7 +56,7 @@ app:
     # Browser-facing prefix, distinct from the internal endpoint; Garage's web mode puts the bucket in the host, not the path
     public-base-url: ${STORAGE_PUBLIC_BASE_URL:http://platos.web.garage.localhost:3902}
   catalog:
-    page-size: 20
+    page-size: 18
 
 springdoc:
   swagger-ui:
