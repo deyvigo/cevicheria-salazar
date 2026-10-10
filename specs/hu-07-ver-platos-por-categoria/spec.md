@@ -70,7 +70,7 @@ La URL pública se arma en el backend con la base de `media.cevicheria-salazar.c
 
 Layout (de izquierda a derecha, bajo el header de la app):
 
-- **Columna izquierda**: lista de categorías; la categoría activa se distingue visualmente. Cada categoría es un enlace a `/{category}`, donde `category` es su `slug`.
+- **Columna izquierda**: lista de categorías, con "Todos" como primera opción (HU-09); la categoría activa se distingue visualmente. Cada categoría es un enlace a `/{category}`, donde `category` es su `slug`.
 - **Área principal**: encabezado con "Mostrando 1-18 de 40 elementos" a la izquierda y, a la derecha, un selector "Ordenar por"; debajo una grilla de tarjetas de plato (3 por fila en escritorio), con los controles de paginación al pie.
 - **Tarjeta de plato**: imagen principal, nombre, precio (`S/ 32.00`) y calificación.
 
@@ -89,7 +89,7 @@ Layout (de izquierda a derecha, bajo el header de la app):
 - **Dado** que un plato no tiene imágenes, **cuando** aparece en la grilla, **entonces** se muestra con una imagen de reemplazo en lugar de un recuadro roto.
 - **Dado** que la categoría no tiene platos activos, **cuando** la abro, **entonces** veo el mensaje "No se encontraron productos" (las categorías se siguen listando a la izquierda).
 - **Dado** que abro `/{category}` con un valor que no corresponde a ninguna categoría (por ejemplo `/pizzas`), **cuando** carga, **entonces** veo el mismo mensaje "No se encontraron productos", sin categoría resaltada. No hay pantalla de error ni redirección.
-- **Dado** que abro `/`, **cuando** carga, **entonces** me lleva a la primera categoría de la lista.
+- **Dado** que abro `/`, **cuando** carga, **entonces** veo la opción "Todos" resaltada y los platos activos de todas las categorías (cambiado por HU-09: antes redirigía a la primera categoría).
 - **Dado** que no he iniciado sesión, **cuando** abro cualquier categoría, **entonces** la veo igual (endpoint público).
 
 ## Casos borde
@@ -121,10 +121,10 @@ Layout (de izquierda a derecha, bajo el header de la app):
 - **Categorías iniciales**: Entradas, Ceviches, Chicharrones, Fondos, Bebidas.
 - **Convención de `active`**: `is_active` en BD, consistente con `users`.
 - **Paginación**: de 18 en 18 (múltiplo de las 3 columnas de la grilla, para que no queden filas incompletas salvo en la última página), una categoría a la vez (no se agrupa todo el catálogo en una sola pantalla). Inicialmente eran 20; se cambió a 18 al verlo en pantalla.
-- **Ruta**: `/{category}` en el frontend (el valor es el `slug`); `/` redirige a la primera categoría. Los paths y parámetros de URL van en inglés.
+- **Ruta**: `/{category}` en el frontend (el valor es el `slug`); `/` muestra "Todos" (HU-09; antes redirigía a la primera categoría). Los paths y parámetros de URL van en inglés.
 - **Categoría inexistente**: solo el frontend lo trata; muestra el mismo mensaje que una categoría sin platos ("No se encontraron productos").
 - **`slug`**: columna propia de `categories`, no se deriva del nombre en cada petición.
-- **Endpoints**: `GET /api/categories` (lista) y `GET /api/products?category={slug}&page={n}` (platos paginados); el detalle, la búsqueda y los destacados de HU-08/09/11 extenderán `/api/products`.
+- **Endpoints**: `GET /api/categories` (lista) y `GET /api/products?category={slug}&page={n}` (platos paginados; `category` pasó a ser opcional en HU-09); el detalle, la búsqueda y los destacados de HU-08/09/11 extenderán `/api/products`.
 - **Orden de platos**: opciones `name_asc` (por defecto), `name_desc`, `price_asc`, `price_desc`, `rating_asc` y `rating_desc`, enviadas como `sort` y mantenidas en la URL. "Popularidad" se mide con el `rating`.
 - **Orden de la lista de categorías**: por `id` (orden de la semilla: Entradas, Ceviches, Chicharrones, Fondos, Bebidas).
 - **Imagen**: el modelo admite varias por plato (`position`); la tarjeta solo muestra la primera, la galería es de HU-08.
