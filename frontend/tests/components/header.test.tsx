@@ -23,15 +23,16 @@ function CurrentUser() {
   return <p data-testid="current-user">{user ? user.email : 'sin sesión'}</p>;
 }
 
-function renderHeader() {
+function renderHeader(initialEntry = '/') {
   return render(
-    <MemoryRouter initialEntries={['/']}>
+    <MemoryRouter initialEntries={[initialEntry]}>
       <QueryWrapper>
         <AuthProvider>
           <Header />
           <CurrentUser />
           <Routes>
             <Route path="/" element={<p>Inicio</p>} />
+            <Route path="/products/:id" element={<p>Detalle</p>} />
           </Routes>
         </AuthProvider>
       </QueryWrapper>
@@ -115,5 +116,32 @@ describe('Header', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('No pudimos cerrar tu sesión');
     expect(screen.getByTestId('current-user')).toHaveTextContent('maria@correo.com');
     expect(screen.getByRole('button', { name: /María/ })).toBeInTheDocument();
+  });
+
+  it('muestra el buscador con sesión, sin sesión y mientras se confirma', async () => {
+    vi.mocked(authApi.me).mockReturnValue(new Promise(() => {}));
+    renderHeader();
+
+    expect(screen.getByRole('search')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Buscar' })).toBeInTheDocument();
+  });
+
+  it('el campo muestra el término de la URL', () => {
+    vi.mocked(authApi.me).mockReturnValue(new Promise(() => {}));
+    renderHeader('/?q=ceviche');
+
+    expect(screen.getByRole('searchbox', { name: 'Buscar platos' })).toHaveValue('ceviche');
+  });
+
+  it('buscar desde el detalle de un plato lleva a los resultados', async () => {
+    vi.mocked(authApi.me).mockRejectedValue(new Error('401'));
+    const user = userEvent.setup();
+    renderHeader('/products/5');
+    expect(screen.getByText('Detalle')).toBeInTheDocument();
+
+    await user.type(screen.getByRole('searchbox', { name: 'Buscar platos' }), 'mixto{Enter}');
+
+    expect(await screen.findByText('Inicio')).toBeInTheDocument();
+    expect(screen.getByRole('searchbox', { name: 'Buscar platos' })).toHaveValue('mixto');
   });
 });

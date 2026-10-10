@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/button';
 import { Notification } from '@/components/notification';
+import { SearchBox } from '@/components/search-box';
 import { useAuth } from '@/context/auth-context';
 import { useLogout } from '@/features/auth/use-auth-mutations';
 
@@ -9,6 +10,8 @@ export function Header() {
   const { user, isLoading } = useAuth();
   const logoutMutation = useLogout();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const searchTerm = searchParams.get('q') ?? '';
   const [menuOpen, setMenuOpen] = useState(false);
   const [logoutError, setLogoutError] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -47,13 +50,18 @@ export function Header() {
   }
 
   return (
-    <header className="flex items-center justify-between border-b border-border bg-surface px-6 py-3">
-      <Link to="/" className="font-display text-ink text-[24px] leading-[30px] font-semibold">
+    <header className="grid grid-cols-[1fr_minmax(0,32rem)_1fr] items-center gap-6 border-b border-border bg-surface px-6 py-3">
+      <Link to="/" className="font-display text-ink text-[24px] leading-[30px] font-semibold justify-self-start">
         Salazar SAC
       </Link>
 
-      {isLoading ? null : user ? (
-        <div ref={containerRef} className="relative">
+      {/* Keyed by the term so the field follows the URL (back button, cleared search) */}
+      <SearchBox key={searchTerm} initialValue={searchTerm} />
+
+      {isLoading ? (
+        <div />
+      ) : user ? (
+        <div ref={containerRef} className="relative justify-self-end">
           <button
             ref={triggerRef}
             type="button"
@@ -82,9 +90,11 @@ export function Header() {
           ) : null}
         </div>
       ) : (
-        <Button variant="secondary" onClick={() => navigate('/iniciar-sesion')}>
-          Iniciar sesión
-        </Button>
+        <div className="justify-self-end">
+          <Button variant="secondary" onClick={() => navigate('/iniciar-sesion')}>
+            Iniciar sesión
+          </Button>
+        </div>
       )}
 
       {logoutError ? (

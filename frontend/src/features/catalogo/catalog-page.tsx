@@ -12,12 +12,13 @@ function parsePage(raw: string | null): number {
 }
 
 export function CatalogPage() {
-  const { category = '' } = useParams();
+  const { category } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedPage = parsePage(searchParams.get('page'));
   const sort = parseSort(searchParams.get('sort'));
-  const categories = useCategories();
-  const products = useProducts(category, requestedPage, sort);
+  const query = searchParams.get('q')?.trim() || undefined;
+  const categories = useCategories(query);
+  const products = useProducts(category, query, requestedPage, sort);
 
   const data = products.data;
   const from = data && data.totalItems > 0 ? (data.page - 1) * data.pageSize + 1 : 0;
@@ -25,6 +26,7 @@ export function CatalogPage() {
 
   function updateParams(page: number, nextSort: CatalogSort) {
     const next = new URLSearchParams();
+    if (query) next.set('q', query);
     if (nextSort !== DEFAULT_SORT) next.set('sort', nextSort);
     if (page > 1) next.set('page', String(page));
     setSearchParams(next);
@@ -38,7 +40,7 @@ export function CatalogPage() {
   return (
     <main className="mx-auto flex w-full max-w-6xl items-start gap-6 px-6 py-6">
       <aside className="w-56 flex-none">
-        <CategoryList categories={categories.data ?? []} activeSlug={category} />
+        <CategoryList categories={categories.data ?? []} activeSlug={category} searchTerm={query} />
       </aside>
       <section className="min-w-0 flex-1">
         {products.isError ? (

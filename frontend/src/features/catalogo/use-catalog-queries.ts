@@ -9,18 +9,20 @@ import {
   type ProductDetail,
 } from '@/features/catalogo/catalog-api';
 
-export function useCategories() {
+export function useCategories(q?: string) {
   return useQuery({
-    queryKey: ['catalog', 'categories'],
-    queryFn: getCategories,
+    queryKey: ['catalog', 'categories', q ?? null],
+    queryFn: () => getCategories(q),
     staleTime: 5 * 60_000,
+    // Keep the list on screen while a new search loads so it doesn't flicker
+    placeholderData: keepPreviousData,
   });
 }
 
-export function useProducts(category: string, page: number, sort: CatalogSort) {
+export function useProducts(category: string | undefined, q: string | undefined, page: number, sort: CatalogSort) {
   return useQuery({
-    queryKey: ['catalog', 'products', category, page, sort],
-    queryFn: () => getProducts({ category, page, sort }),
+    queryKey: ['catalog', 'products', category ?? null, q ?? null, page, sort],
+    queryFn: () => getProducts({ category, q, page, sort }),
     placeholderData: keepPreviousData,
   });
 }

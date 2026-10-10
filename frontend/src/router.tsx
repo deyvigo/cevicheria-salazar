@@ -5,14 +5,13 @@ import { LoginPage } from '@/features/auth/login-page';
 import { RegisterPage } from '@/features/auth/register-page';
 import { ResetPasswordPage } from '@/features/auth/reset-password-page';
 import { CatalogPage } from '@/features/catalogo/catalog-page';
-import { HomeRedirect } from '@/features/catalogo/home-redirect';
 import { ProductDetailPage } from '@/features/catalogo/product-detail-page';
 
 export const router = createBrowserRouter([
   {
     element: <Layout />,
     children: [
-      { path: '/', element: <HomeRedirect /> },
+      { path: '/', element: <CatalogPage /> },
       { path: '/:category', element: <CatalogPage /> },
       { path: '/products/:id', element: <ProductDetailPage /> },
     ],
