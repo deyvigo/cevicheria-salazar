@@ -56,9 +56,10 @@ JOIN categories c ON c.slug = v.category_slug
 WHERE NOT EXISTS (SELECT 1 FROM products p WHERE p.name = v.name);
 
 INSERT INTO product_images (product_id, path, position)
-SELECT p.id, 'seed/' || regexp_replace(lower(p.name), '[^a-z0-9]+', '-', 'g') || '.jpg', 0
+SELECT p.id, 'seed/dish.jpg', 0
 FROM products p
 WHERE p.name <> 'Plato sin foto'
   AND NOT EXISTS (SELECT 1 FROM product_images i WHERE i.product_id = p.id);
 
-UPDATE product_images SET path = replace(path, 'platos/', 'seed/') WHERE path LIKE 'platos/%';
+-- Older sample rows pointed at one file per dish or category; every dish now shares a single sample photo
+UPDATE product_images SET path = 'seed/dish.jpg' WHERE path <> 'seed/dish.jpg';

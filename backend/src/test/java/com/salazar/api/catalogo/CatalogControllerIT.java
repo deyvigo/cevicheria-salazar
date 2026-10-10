@@ -75,7 +75,7 @@ class CatalogControllerIT {
                 .andExpect(jsonPath("$.items", hasSize(20)))
                 .andExpect(jsonPath("$.items[0].name").value("Ceviche 01"))
                 .andExpect(jsonPath("$.items[0].imageUrl").value(nullValue()))
-                .andExpect(jsonPath("$.items[1].imageUrl").value("http://localhost:9000/platos/platos/ceviche-02.jpg"))
+                .andExpect(jsonPath("$.items[1].imageUrl").value("http://platos.web.garage.localhost:3902/platos/ceviche-02.jpg"))
                 .andExpect(jsonPath("$.page").value(1))
                 .andExpect(jsonPath("$.pageSize").value(20))
                 .andExpect(jsonPath("$.totalItems").value(40))
