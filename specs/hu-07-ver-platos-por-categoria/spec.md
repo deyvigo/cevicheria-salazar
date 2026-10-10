@@ -71,13 +71,13 @@ La URL pública se arma en el backend con la base de `media.cevicheria-salazar.c
 Layout (de izquierda a derecha, bajo el header de la app):
 
 - **Columna izquierda**: lista de categorías; la categoría activa se distingue visualmente. Cada categoría es un enlace a `/{category}`, donde `category` es su `slug`.
-- **Área principal**: encabezado con "Mostrando 1-20 de 40 elementos" a la izquierda y, a la derecha, un selector "Ordenar por"; debajo una grilla de tarjetas de plato (3 por fila en escritorio), con los controles de paginación al pie.
+- **Área principal**: encabezado con "Mostrando 1-18 de 40 elementos" a la izquierda y, a la derecha, un selector "Ordenar por"; debajo una grilla de tarjetas de plato (3 por fila en escritorio), con los controles de paginación al pie.
 - **Tarjeta de plato**: imagen principal, nombre, precio (`S/ 32.00`) y calificación.
 
 ## Criterios de aceptación
 
 - **Dado** que abro `/{category}` (por ejemplo `/ceviches`), **cuando** carga la pantalla, **entonces** veo las categorías a la izquierda con esa resaltada y, a la derecha, los platos activos de esa categoría.
-- **Dado** que la categoría tiene más de 20 platos, **cuando** abro la pantalla, **entonces** veo los primeros 20 y el encabezado dice "Mostrando 1-20 de N elementos"; **y cuando** paso a la página siguiente, veo los siguientes 20 con el encabezado actualizado (por ejemplo "Mostrando 21-40 de 40 elementos").
+- **Dado** que la categoría tiene más de 18 platos, **cuando** abro la pantalla, **entonces** veo los primeros 18 y el encabezado dice "Mostrando 1-18 de N elementos"; **y cuando** paso a la página siguiente, veo los siguientes 18 con el encabezado actualizado (por ejemplo "Mostrando 19-36 de 40 elementos").
 - **Dado** que estoy en la página 2 de una categoría, **cuando** recargo la página o comparto el enlace, **entonces** vuelvo a ver esa misma página (la página va en la URL, `?page=2`).
 - **Dado** que elijo otra categoría en la lista de la izquierda, **cuando** hago clic, **entonces** la URL cambia a `/{slug-de-la-otra}`, se muestra desde la página 1 y la categoría resaltada cambia.
 - **Dado** que veo los platos de una categoría, **cuando** abro el selector de orden, **entonces** puedo elegir entre: "Nombre: ascendente", "Nombre: descendente", "Precio: ascendente", "Precio: descendente", "Popularidad: ascendente" y "Popularidad: descendente"; por defecto está "Nombre: ascendente".
@@ -120,7 +120,7 @@ Layout (de izquierda a derecha, bajo el header de la app):
 - **Categoría**: solo `id` y `name`; sin `position` ni `active`.
 - **Categorías iniciales**: Entradas, Ceviches, Chicharrones, Fondos, Bebidas.
 - **Convención de `active`**: `is_active` en BD, consistente con `users`.
-- **Paginación**: de 20 en 20, una categoría a la vez (no se agrupa todo el catálogo en una sola pantalla).
+- **Paginación**: de 18 en 18 (múltiplo de las 3 columnas de la grilla, para que no queden filas incompletas salvo en la última página), una categoría a la vez (no se agrupa todo el catálogo en una sola pantalla). Inicialmente eran 20; se cambió a 18 al verlo en pantalla.
 - **Ruta**: `/{category}` en el frontend (el valor es el `slug`); `/` redirige a la primera categoría. Los paths y parámetros de URL van en inglés.
 - **Categoría inexistente**: solo el frontend lo trata; muestra el mismo mensaje que una categoría sin platos ("No se encontraron productos").
 - **`slug`**: columna propia de `categories`, no se deriva del nombre en cada petición.
