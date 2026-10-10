@@ -12,6 +12,8 @@ import org.springframework.test.context.TestPropertySource;
         properties = {
             "app.jwt.secret=test-only-secret-not-for-production-use-32byte",
             "spring.security.oauth2.client.registration.google.client-id=test-client-id",
-            "spring.security.oauth2.client.registration.google.client-secret=test-client-secret"
+            "spring.security.oauth2.client.registration.google.client-secret=test-client-secret",
+            "app.storage.access-key=GKtestaccesskey",
+            "app.storage.secret-key=test-storage-secret"
         })
 public @interface WithTestSecrets {}

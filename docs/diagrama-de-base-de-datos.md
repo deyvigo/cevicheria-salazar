@@ -43,9 +43,9 @@ Por ahora modela el dominio de **autenticación y registro** (épica [E1](epicas
   - `is_active`: un plato inactivo no aparece en el catálogo.
   - `created_at`: fecha de creación.
 
-- **product_images**: imágenes de un plato, guardadas en MinIO (HU-07, HU-08).
+- **product_images**: imágenes de un plato, guardadas en el almacenamiento de objetos S3 (Garage; HU-07, HU-08).
   - `product_id`: plato al que pertenece; se borran en cascada con el plato.
-  - `path`: clave del objeto dentro del bucket de MinIO, no la URL completa (la URL pública la arma el backend).
+  - `path`: clave del objeto dentro del bucket de imágenes, no la URL completa (la URL pública la arma el backend).
   - `position`: orden dentro del plato; la de menor posición es la imagen principal.
   - `created_at`: fecha en que se registró la imagen.
 

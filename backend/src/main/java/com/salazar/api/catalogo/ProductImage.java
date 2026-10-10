@@ -28,7 +28,7 @@ public class ProductImage {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    // MinIO object key inside the bucket, never a full URL
+    // Object key inside the storage bucket, never a full URL
     @Column(nullable = false, length = 255)
     private String path;
 

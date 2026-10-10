@@ -1,7 +1,7 @@
 # Spec: HT-09 — Configurar el entorno del proyecto
 
 **Épica**: [E0. Fundamentos del proyecto](../../docs/epicas.md#e0)
-**Estado**: Hecha (con una excepción anotada: MinIO no se pudo levantar en `docker-compose.dev.yml`, ver Casos borde)
+**Estado**: Hecha (la excepción de MinIO quedó cerrada por HT-10: el almacenamiento pasó a Garage, ver Casos borde)
 
 ## Objetivo
 
@@ -21,7 +21,7 @@ Equipo de desarrollo (historia técnica, sin usuario final).
 
 ## Casos borde
 
-- Un desarrollador sin Postgres/Redis/MinIO instalados localmente — `docker-compose.dev.yml` debe levantar los tres sin configuración adicional. **Verificado con una excepción**: Postgres y Redis levantan y el backend arranca y migra contra ellos sin problema (ni Flyway ni el arranque de la API tocan MinIO). El servicio `minio` del compose no pudo levantarse: Docker Hub y quay.io devuelven `pull access denied` para `minio/minio` — MinIO restringió la distribución de su imagen de contenedor (requiere cuenta/login). Queda pendiente decidirlo antes de implementar algo que dependa de MinIO (HU-08, HU-29): usar una cuenta de MinIO, construir la imagen desde fuente, o una alternativa (ej. un bucket S3 real en desarrollo).
+- Un desarrollador sin Postgres/Redis/MinIO instalados localmente — `docker-compose.dev.yml` debe levantar los tres sin configuración adicional. **Verificado con una excepción**: Postgres y Redis levantan y el backend arranca y migra contra ellos sin problema (ni Flyway ni el arranque de la API tocan MinIO). El servicio `minio` del compose no pudo levantarse: Docker Hub y quay.io devuelven `pull access denied` para `minio/minio` — MinIO restringió la distribución de su imagen de contenedor (requiere cuenta/login). Queda pendiente decidirlo antes de implementar algo que dependa de MinIO (HU-08, HU-29): usar una cuenta de MinIO, construir la imagen desde fuente, o una alternativa (ej. un bucket S3 real en desarrollo). **Resuelto en [HT-10](../ht-10-almacenamiento/spec.md)**: el servicio `minio` se reemplazó por `garage` (`dxflrs/garage`, descargable sin login) en `docker-compose.dev.yml`, con inicialización automática desde `./scripts/dev.sh`.
 - Variables de entorno sensibles (credenciales de BD, secreto JWT, llaves de Izipay/Google/SMTP) — nunca hardcodeadas; se cargan desde `.env` (ignorado por git) con un `.env.example` como referencia.
 
 ## Fuera de alcance

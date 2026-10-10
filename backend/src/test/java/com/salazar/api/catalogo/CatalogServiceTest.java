@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.salazar.api.catalogo.dto.PageResponse;
+import com.salazar.api.common.config.StorageProperties;
 import com.salazar.api.catalogo.dto.ProductResponse;
 import java.math.BigDecimal;
 import java.util.List;
@@ -34,7 +35,8 @@ class CatalogServiceTest {
         return new CatalogService(
                 categoryRepository,
                 productRepository,
-                new ImageUrlResolver("http://media.test", "platos"),
+                new ImageUrlResolver(
+                        new StorageProperties("http://s3.test", "garage", "key", "secret", "platos", "http://media.test")),
                 new CatalogProperties(20));
     }
 
@@ -98,7 +100,7 @@ class CatalogServiceTest {
 
         List<ProductResponse> items = service().listProducts("ceviches", 1, ProductSort.NAME_ASC).items();
 
-        assertThat(items.get(0).imageUrl()).isEqualTo("http://media.test/platos/platos/principal.jpg");
+        assertThat(items.get(0).imageUrl()).isEqualTo("http://media.test/platos/principal.jpg");
         assertThat(items.get(1).imageUrl()).isNull();
         assertThat(items.get(1).rating()).isNull();
     }

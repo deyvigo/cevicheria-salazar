@@ -1,22 +1,17 @@
 package com.salazar.api.catalogo;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.salazar.api.common.config.StorageProperties;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ImageUrlResolver {
     private final String baseUrl;
 
-    public ImageUrlResolver(
-            @Value("${app.minio.public-url}") String publicUrl, @Value("${app.minio.bucket}") String bucket) {
-        this.baseUrl = stripTrailingSlashes(publicUrl) + "/" + stripTrailingSlashes(bucket) + "/";
+    public ImageUrlResolver(StorageProperties properties) {
+        this.baseUrl = properties.publicBaseUrl().replaceFirst("/+$", "") + "/";
     }
 
     public String resolve(String path) {
         return baseUrl + path.replaceFirst("^/+", "");
-    }
-
-    private static String stripTrailingSlashes(String value) {
-        return value.replaceFirst("/+$", "");
     }
 }

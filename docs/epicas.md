@@ -2,7 +2,7 @@
 
 | ID        | Épica                    | Descripción                                                                             | Historias            |
 | --------- | ------------------------ | --------------------------------------------------------------------------------------- | -------------------- |
-| [E0](#e0) | Fundamentos del proyecto | Documentación inicial, diagramas y configuración técnica que habilitan el desarrollo.   | HT-01 a HT-09        |
+| [E0](#e0) | Fundamentos del proyecto | Documentación inicial, diagramas y configuración técnica que habilitan el desarrollo.   | HT-01 a HT-10        |
 | [E1](#e1) | Autenticación y registro | Permite a los clientes crear una cuenta, iniciar y cerrar sesión de forma segura.       | HU-01 a HU-06        |
 | [E2](#e2) | Catálogo de productos    | Muestra la carta organizada por categorías, con detalle y disponibilidad de cada plato. | HU-07 a HU-11        |
 | [E3](#e3) | Carrito de compras       | Permite armar y ajustar el pedido antes de pagar, sin necesidad de tener cuenta.        | HU-12 a HU-16, HU-35 |

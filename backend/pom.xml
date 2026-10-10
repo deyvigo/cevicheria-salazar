@@ -29,9 +29,20 @@
 	<properties>
 		<java.version>21</java.version>
 		<springdoc.version>2.6.0</springdoc.version>
-		<minio.version>8.5.12</minio.version>
+		<aws-sdk.version>2.55.14</aws-sdk.version>
 		<jjwt.version>0.12.6</jjwt.version>
 	</properties>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>software.amazon.awssdk</groupId>
+				<artifactId>bom</artifactId>
+				<version>${aws-sdk.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -94,10 +105,9 @@
 			<version>${springdoc.version}</version>
 		</dependency>
 		<dependency>
-			<!-- Cliente para MinIO (imágenes de platos vía API S3, ver docs/diagrama-de-arquitectura.md) -->
-			<groupId>io.minio</groupId>
-			<artifactId>minio</artifactId>
-			<version>${minio.version}</version>
+			<!-- Cliente S3 para el almacenamiento de imágenes de platos (Garage; ver specs/ht-10-almacenamiento/plan.md) -->
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>s3</artifactId>
 		</dependency>
 		<dependency>
 			<!-- Emisión/firma del JWT de acceso (ver specs/hu-01-registro/plan.md) -->
