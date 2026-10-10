@@ -1,6 +1,7 @@
 import { Link, useLocation, useViewTransitionState } from 'react-router-dom';
 import { Card } from '@/components/card';
 import type { Product } from '@/features/catalogo/catalog-api';
+import { StarIcon } from '@/features/catalogo/components/star-icon';
 import { DishImage } from '@/features/catalogo/components/dish-image';
 import { formatPrice } from '@/features/catalogo/format';
 import { sharedName } from '@/features/catalogo/transition-names';
@@ -41,9 +42,7 @@ export function ProductCard({ product }: { product: Product }) {
             </span>
             {product.rating !== null ? (
               <span className="flex items-center gap-1 text-[13px] leading-none text-ink-muted">
-                <svg viewBox="1.5 0.6 17 17" aria-hidden="true" className="h-4 w-4 flex-none fill-naranja-500">
-                  <path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.1l-4.94 2.6.94-5.5-4-3.9 5.53-.8z" />
-                </svg>
+                <StarIcon className="h-4 w-4" />
                 {/* Trim to cap height so the digits are optically centered against the star, not the line box */}
                 <span
                   aria-label={`Calificación ${product.rating.toFixed(1)} de 5`}
