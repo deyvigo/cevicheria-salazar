@@ -32,6 +32,7 @@ function renderHeader(initialEntry = '/') {
           <CurrentUser />
           <Routes>
             <Route path="/" element={<p>Inicio</p>} />
+            <Route path="/menu" element={<p>Menu</p>} />
             <Route path="/products/:id" element={<p>Detalle</p>} />
           </Routes>
         </AuthProvider>
@@ -128,7 +129,7 @@ describe('Header', () => {
 
   it('el campo muestra el término de la URL', () => {
     vi.mocked(authApi.me).mockReturnValue(new Promise(() => {}));
-    renderHeader('/?q=ceviche');
+    renderHeader('/menu?q=ceviche');
 
     expect(screen.getByRole('searchbox', { name: 'Buscar platos' })).toHaveValue('ceviche');
   });
@@ -141,7 +142,7 @@ describe('Header', () => {
 
     await user.type(screen.getByRole('searchbox', { name: 'Buscar platos' }), 'mixto{Enter}');
 
-    expect(await screen.findByText('Inicio')).toBeInTheDocument();
+    expect(await screen.findByText('Menu')).toBeInTheDocument();
     expect(screen.getByRole('searchbox', { name: 'Buscar platos' })).toHaveValue('mixto');
   });
 });

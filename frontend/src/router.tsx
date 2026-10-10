@@ -6,13 +6,15 @@ import { RegisterPage } from '@/features/auth/register-page';
 import { ResetPasswordPage } from '@/features/auth/reset-password-page';
 import { CatalogPage } from '@/features/catalogo/catalog-page';
 import { ProductDetailPage } from '@/features/catalogo/product-detail-page';
+import { HomePage } from '@/features/home/home-page';
 
 export const router = createBrowserRouter([
   {
     element: <Layout />,
     children: [
-      { path: '/', element: <CatalogPage /> },
-      { path: '/:category', element: <CatalogPage /> },
+      { path: '/', element: <HomePage /> },
+      { path: '/menu', element: <CatalogPage /> },
+      { path: '/menu/:category', element: <CatalogPage /> },
       { path: '/products/:id', element: <ProductDetailPage /> },
     ],
   },

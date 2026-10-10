@@ -10,7 +10,7 @@ export function SearchBox({ initialValue = '' }: { initialValue?: string }) {
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
     const term = value.trim();
-    navigate(term ? `/?${new URLSearchParams({ q: term }).toString()}` : '/');
+    navigate(term ? `/menu?${new URLSearchParams({ q: term }).toString()}` : '/menu');
   }
 
   return (
