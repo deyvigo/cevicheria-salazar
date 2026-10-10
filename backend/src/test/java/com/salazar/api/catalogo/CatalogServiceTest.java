@@ -1,12 +1,16 @@
 package com.salazar.api.catalogo;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.salazar.api.catalogo.dto.PageResponse;
+import com.salazar.api.catalogo.dto.ProductDetailResponse;
+import com.salazar.api.common.exception.ProductNotFoundException;
+import java.util.Optional;
 import com.salazar.api.common.config.StorageProperties;
 import com.salazar.api.catalogo.dto.ProductResponse;
 import java.math.BigDecimal;
@@ -115,5 +119,37 @@ class CatalogServiceTest {
         ArgumentCaptor<Pageable> captor = ArgumentCaptor.forClass(Pageable.class);
         verify(productRepository).findByActiveTrueAndCategorySlug(eq("ceviches"), captor.capture());
         assertThat(captor.getValue().getSort().getOrderFor("price").isDescending()).isTrue();
+    }
+
+    @Test
+    void detailReturnsAllImagesInPositionOrderWithFullUrlsAndCategory() {
+        Product dish = product("Con fotos", new BigDecimal("4.5"));
+        dish.addImage("platos/principal.jpg", 0);
+        dish.addImage("platos/secundaria.jpg", 1);
+        when(productRepository.findByIdAndActiveTrue(7L)).thenReturn(Optional.of(dish));
+
+        ProductDetailResponse detail = service().getProduct(7L);
+
+        assertThat(detail.images())
+                .containsExactly("http://media.test/platos/principal.jpg", "http://media.test/platos/secundaria.jpg");
+        assertThat(detail.category().slug()).isEqualTo("ceviches");
+        assertThat(detail.rating()).isEqualByComparingTo("4.5");
+    }
+
+    @Test
+    void detailOfProductWithoutImagesOrRatingHasEmptyImagesAndNullRating() {
+        when(productRepository.findByIdAndActiveTrue(8L)).thenReturn(Optional.of(product("Sin foto", null)));
+
+        ProductDetailResponse detail = service().getProduct(8L);
+
+        assertThat(detail.images()).isEmpty();
+        assertThat(detail.rating()).isNull();
+    }
+
+    @Test
+    void detailOfMissingOrInactiveProductThrowsNotFound() {
+        when(productRepository.findByIdAndActiveTrue(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service().getProduct(99L)).isInstanceOf(ProductNotFoundException.class);
     }
 }

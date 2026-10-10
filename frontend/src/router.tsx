@@ -6,6 +6,7 @@ import { RegisterPage } from '@/features/auth/register-page';
 import { ResetPasswordPage } from '@/features/auth/reset-password-page';
 import { CatalogPage } from '@/features/catalogo/catalog-page';
 import { HomeRedirect } from '@/features/catalogo/home-redirect';
+import { ProductDetailPage } from '@/features/catalogo/product-detail-page';
 
 export const router = createBrowserRouter([
   {
@@ -13,6 +14,7 @@ export const router = createBrowserRouter([
     children: [
       { path: '/', element: <HomeRedirect /> },
       { path: '/:category', element: <CatalogPage /> },
+      { path: '/products/:id', element: <ProductDetailPage /> },
     ],
   },
   {

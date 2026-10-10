@@ -2,10 +2,12 @@ package com.salazar.api.catalogo;
 
 import com.salazar.api.catalogo.dto.CategoryResponse;
 import com.salazar.api.catalogo.dto.PageResponse;
+import com.salazar.api.catalogo.dto.ProductDetailResponse;
 import com.salazar.api.catalogo.dto.ProductResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,5 +29,10 @@ public class CatalogController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(required = false) String sort) {
         return catalogService.listProducts(category, page, ProductSort.from(sort));
+    }
+
+    @GetMapping("/products/{id}")
+    public ProductDetailResponse product(@PathVariable Long id) {
+        return catalogService.getProduct(id);
     }
 }

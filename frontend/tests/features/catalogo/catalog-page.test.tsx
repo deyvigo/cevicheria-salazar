@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
+import { Outlet, RouterProvider, createMemoryRouter, useLocation } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { QueryWrapper } from '@tests/utils/query-wrapper';
 import * as catalogApi from '@/features/catalogo/catalog-api';
@@ -37,15 +37,24 @@ function LocationProbe() {
 }
 
 function renderAt(url: string) {
+  const router = createMemoryRouter(
+    [
+      {
+        element: (
+          <>
+            <Outlet />
+            <LocationProbe />
+          </>
+        ),
+        children: [{ path: '/:category', element: <CatalogPage /> }],
+      },
+    ],
+    { initialEntries: [url] },
+  );
   return render(
-    <MemoryRouter initialEntries={[url]}>
-      <QueryWrapper>
-        <Routes>
-          <Route path="/:category" element={<CatalogPage />} />
-        </Routes>
-        <LocationProbe />
-      </QueryWrapper>
-    </MemoryRouter>,
+    <QueryWrapper>
+      <RouterProvider router={router} />
+    </QueryWrapper>,
   );
 }
 

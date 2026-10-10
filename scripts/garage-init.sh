@@ -47,4 +47,10 @@ garage bucket website --allow "$BUCKET" > /dev/null
 curl -sf --aws-sigv4 "aws:amz:garage:s3" --user "$STORAGE_ACCESS_KEY:$STORAGE_SECRET_KEY" \
   -H "Content-Type: image/jpeg" -T "$ROOT_DIR/frontend/public/background.jpg" \
   "$S3_ENDPOINT/$BUCKET/seed/dish.jpg" > /dev/null
-echo "==> Garage listo (imagen de ejemplo en $BUCKET/seed/dish.jpg)"
+# Extra labeled images so the detail gallery shows visibly different pictures
+for IMAGE in "$ROOT_DIR"/scripts/seed-images/*.svg; do
+  curl -sf --aws-sigv4 "aws:amz:garage:s3" --user "$STORAGE_ACCESS_KEY:$STORAGE_SECRET_KEY" \
+    -H "Content-Type: image/svg+xml" -T "$IMAGE" \
+    "$S3_ENDPOINT/$BUCKET/seed/$(basename "$IMAGE")" > /dev/null
+done
+echo "==> Garage listo (imágenes de ejemplo en $BUCKET/seed/)"

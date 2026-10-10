@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.jayway.jsonpath.JsonPath;
 import com.salazar.api.TestcontainersConfiguration;
 import com.salazar.api.WithTestSecrets;
 import java.math.BigDecimal;
@@ -17,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -123,6 +125,51 @@ class CatalogControllerIT {
     void nonNumericPageReturns400() throws Exception {
         mockMvc.perform(get("/api/products").param("category", "ceviches").param("page", "abc"))
                 .andExpect(status().isBadRequest());
+    }
+
+    private Product findByName(String name) {
+        return productRepository.findAll().stream()
+                .filter(p -> p.getName().equals(name))
+                .findFirst()
+                .orElseThrow();
+    }
+
+    @Test
+    @Transactional
+    void detailReturnsProductWithImagesAndCategoryWithoutSession() throws Exception {
+        Product dish = new Product(
+                "Ceviche galería", "Descripción larga", new BigDecimal("32.00"), category("ceviches"), new BigDecimal("4.5"));
+        dish.addImage("platos/a.jpg", 0);
+        dish.addImage("platos/b.jpg", 1);
+        Product saved = productRepository.save(dish);
+
+        mockMvc.perform(get("/api/products/{id}", saved.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Ceviche galería"))
+                .andExpect(jsonPath("$.description").value("Descripción larga"))
+                .andExpect(jsonPath("$.price").value(32.00))
+                .andExpect(jsonPath("$.category.slug").value("ceviches"))
+                .andExpect(jsonPath("$.images", hasSize(2)))
+                .andExpect(jsonPath("$.images[0]").value("http://platos.web.garage.localhost:3902/platos/a.jpg"));
+    }
+
+    @Test
+    void detailOfInactiveAndMissingProductsRespondTheSame404() throws Exception {
+        Long inactiveId = findByName("Ceviche retirado").getId();
+
+        String inactiveBody = mockMvc.perform(get("/api/products/{id}", inactiveId))
+                .andExpect(status().isNotFound())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        mockMvc.perform(get("/api/products/{id}", 999_999))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value(JsonPath.read(inactiveBody, "$.message").toString()));
+    }
+
+    @Test
+    void detailWithNonNumericIdReturns400() throws Exception {
+        mockMvc.perform(get("/api/products/abc")).andExpect(status().isBadRequest());
     }
 
     private Category category(String slug) {

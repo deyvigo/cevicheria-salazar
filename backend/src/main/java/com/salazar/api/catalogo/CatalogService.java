@@ -2,7 +2,9 @@ package com.salazar.api.catalogo;
 
 import com.salazar.api.catalogo.dto.CategoryResponse;
 import com.salazar.api.catalogo.dto.PageResponse;
+import com.salazar.api.catalogo.dto.ProductDetailResponse;
 import com.salazar.api.catalogo.dto.ProductResponse;
+import com.salazar.api.common.exception.ProductNotFoundException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -37,6 +39,22 @@ public class CatalogService {
         List<ProductResponse> items = result.getContent().stream().map(this::toResponse).toList();
         return new PageResponse<>(
                 items, result.getNumber() + 1, properties.pageSize(), result.getTotalElements(), result.getTotalPages());
+    }
+
+    @Transactional(readOnly = true)
+    public ProductDetailResponse getProduct(Long id) {
+        Product product = productRepository.findByIdAndActiveTrue(id).orElseThrow(ProductNotFoundException::new);
+        List<String> images = product.getImages().stream()
+                .map(image -> imageUrlResolver.resolve(image.getPath()))
+                .toList();
+        return new ProductDetailResponse(
+                product.getId(),
+                product.getName(),
+                product.getDescription(),
+                product.getPrice(),
+                product.getRating(),
+                CategoryResponse.from(product.getCategory()),
+                images);
     }
 
     private Page<Product> fetch(String categorySlug, int page, ProductSort sort) {
