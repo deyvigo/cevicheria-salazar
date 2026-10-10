@@ -57,6 +57,7 @@ export function ProductDetailPage() {
     <main className="mx-auto w-full max-w-6xl px-6 py-6">
       <Link
         to={backTo}
+        state={{ restoreScroll: true }}
         viewTransition
         className="mb-4 inline-flex min-h-12 items-center gap-1 rounded-md text-base font-bold text-ink focus-visible:shadow-focus focus-visible:outline-none"
       >

@@ -4,6 +4,7 @@ import type { Product } from '@/features/catalogo/catalog-api';
 import { StarIcon } from '@/features/catalogo/components/star-icon';
 import { DishImage } from '@/features/catalogo/components/dish-image';
 import { formatPrice } from '@/features/catalogo/format';
+import { rememberScroll } from '@/features/catalogo/scroll-memory';
 import { sharedName } from '@/features/catalogo/transition-names';
 
 export function ProductCard({ product }: { product: Product }) {
@@ -17,6 +18,7 @@ export function ProductCard({ product }: { product: Product }) {
       to={to}
       state={{ from: location.pathname + location.search }}
       viewTransition
+      onClick={() => rememberScroll(location.pathname + location.search, window.scrollY)}
       className="block rounded-lg focus-visible:shadow-focus focus-visible:outline-none"
     >
       <Card className="flex flex-col gap-3">

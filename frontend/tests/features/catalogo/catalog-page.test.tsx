@@ -6,6 +6,7 @@ import { QueryWrapper } from '@tests/utils/query-wrapper';
 import * as catalogApi from '@/features/catalogo/catalog-api';
 import type { Page, Product } from '@/features/catalogo/catalog-api';
 import { CatalogPage } from '@/features/catalogo/catalog-page';
+import { rememberScroll, takeScroll } from '@/features/catalogo/scroll-memory';
 
 vi.mock('@/features/catalogo/catalog-api');
 
@@ -74,6 +75,23 @@ describe('CatalogPage', () => {
     vi.mocked(catalogApi.getCategories).mockResolvedValue(CATEGORIES);
     vi.mocked(catalogApi.getProducts).mockImplementation(async ({ page: n }) => page(n, 40));
     window.scrollTo = vi.fn();
+    takeScroll('');
+  });
+
+  it('restaura el scroll guardado al volver a la misma lista', async () => {
+    rememberScroll('/menu/ceviches', 640);
+    renderAt('/menu/ceviches');
+    await screen.findByText('Mostrando 1-18 de 40 elementos');
+
+    expect(window.scrollTo).toHaveBeenCalledWith({ top: 640 });
+  });
+
+  it('no restaura el scroll guardado de otra lista', async () => {
+    rememberScroll('/menu/entradas', 640);
+    renderAt('/menu/ceviches');
+    await screen.findByText('Mostrando 1-18 de 40 elementos');
+
+    expect(window.scrollTo).not.toHaveBeenCalled();
   });
 
   it('muestra las categorías con la actual resaltada y el rango de elementos', async () => {
@@ -108,6 +126,7 @@ describe('CatalogPage', () => {
 
     expect(await screen.findByText('Mostrando 19-36 de 40 elementos')).toBeInTheDocument();
     expect(screen.getByTestId('location')).toHaveTextContent('/menu/ceviches?page=2');
+    expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
   });
 
   it('vuelve a la página 1 al elegir otra categoría', async () => {
@@ -120,6 +139,17 @@ describe('CatalogPage', () => {
     expect(await screen.findByText('Mostrando 1-18 de 40 elementos')).toBeInTheDocument();
     expect(screen.getByTestId('location')).toHaveTextContent('/menu/entradas');
     expect(screen.getByTestId('location')).not.toHaveTextContent('page=');
+  });
+
+  it('sube al inicio al cambiar de categoría', async () => {
+    const user = userEvent.setup();
+    renderAt('/menu/ceviches');
+    await screen.findByText('Mostrando 1-18 de 40 elementos');
+    expect(window.scrollTo).not.toHaveBeenCalled();
+
+    await user.click(await screen.findByRole('link', { name: 'Entradas' }));
+
+    expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
   });
 
   it('trata una página no numérica como la primera', async () => {
