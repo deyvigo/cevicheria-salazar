@@ -18,6 +18,6 @@ Requiere `plan.md`. Cada tarea indica qué criterio(s) de `spec.md` cubre y cóm
 
 ## Verificación en navegador y cierre
 
-- [ ] Recorrer en navegador un plato disponible y uno agotado de la semilla: punto de color centrado y texto correctos; al entrar por primera vez, el título no se mueve al aparecer el estado — cubre: estado provisional, reserva de espacio.
-- [ ] Marcar un plato como agotado directamente en la base de datos, recargar el detalle y ver el cambio; comprobar que en el catálogo sigue apareciendo — cubre: estado actual, agotado no es inactivo.
-- [ ] Repasar cada criterio de `spec.md`, correr `./mvnw test`, `./mvnw test -Dtest='*IT'`, `pnpm test --run` y `pnpm build`, y pasar la spec a **Hecha** — cubre: cierre.
+- [x] Recorrer en navegador un plato disponible y uno agotado de la semilla: punto de color centrado y texto correctos; al entrar por primera vez, el título no se mueve al aparecer el estado — cubre: estado provisional, reserva de espacio.
+- [x] Marcar un plato como agotado directamente en la base de datos, recargar el detalle y ver el cambio; comprobar que en el catálogo sigue apareciendo — cubre: estado actual, agotado no es inactivo.
+- [x] Repasar cada criterio de `spec.md`, correr `./mvnw test`, `./mvnw test -Dtest='*IT'`, `pnpm test --run` y `pnpm build`, y pasar la spec a **Hecha** — cubre: cierre.
