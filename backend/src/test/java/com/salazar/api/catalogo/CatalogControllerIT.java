@@ -74,22 +74,22 @@ class CatalogControllerIT {
     void firstPageHasTwentyOrderedProductsAndTotals() throws Exception {
         mockMvc.perform(get("/api/products").param("category", "ceviches"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.items", hasSize(20)))
+                .andExpect(jsonPath("$.items", hasSize(18)))
                 .andExpect(jsonPath("$.items[0].name").value("Ceviche 01"))
                 .andExpect(jsonPath("$.items[0].imageUrl").value(nullValue()))
                 .andExpect(jsonPath("$.items[1].imageUrl").value("http://platos.web.garage.localhost:3902/platos/ceviche-02.jpg"))
                 .andExpect(jsonPath("$.page").value(1))
-                .andExpect(jsonPath("$.pageSize").value(20))
+                .andExpect(jsonPath("$.pageSize").value(18))
                 .andExpect(jsonPath("$.totalItems").value(40))
-                .andExpect(jsonPath("$.totalPages").value(2));
+                .andExpect(jsonPath("$.totalPages").value(3));
     }
 
     @Test
     void secondPageHasTheRest() throws Exception {
         mockMvc.perform(get("/api/products").param("category", "ceviches").param("page", "2"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.items", hasSize(20)))
-                .andExpect(jsonPath("$.items[0].name").value("Ceviche 21"))
+                .andExpect(jsonPath("$.items", hasSize(18)))
+                .andExpect(jsonPath("$.items[0].name").value("Ceviche 19"))
                 .andExpect(jsonPath("$.page").value(2));
     }
 
@@ -104,8 +104,8 @@ class CatalogControllerIT {
     void pageBeyondTotalReturnsLastPage() throws Exception {
         mockMvc.perform(get("/api/products").param("category", "ceviches").param("page", "99"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.page").value(2))
-                .andExpect(jsonPath("$.items[0].name").value("Ceviche 21"));
+                .andExpect(jsonPath("$.page").value(3))
+                .andExpect(jsonPath("$.items[0].name").value("Ceviche 37"));
     }
 
     @Test
@@ -236,7 +236,7 @@ class CatalogControllerIT {
                         .param("category", "ceviches")
                         .param("sort", "name_desc")
                         .param("page", "2"))
-                .andExpect(jsonPath("$.items[0].name").value("Ceviche 20"))
-                .andExpect(jsonPath("$.items[19].name").value("Ceviche 01"));
+                .andExpect(jsonPath("$.items[0].name").value("Ceviche 22"))
+                .andExpect(jsonPath("$.items[17].name").value("Ceviche 05"));
     }
 }

@@ -10,8 +10,8 @@
   ```json
   [{ "id": 1, "name": "Entradas", "slug": "entradas" }, ...]
   ```
-- **`GET /api/products?category={slug}&page={n}&sort={criterio}`**: platos activos de una categoría, paginados de 20 en 20.
-  - `category` es obligatorio (si falta, `400`). `page` es 1-based y opcional (por defecto `1`); no hay parámetro `size`, el tamaño es fijo (`app.catalog.page-size: 20`).
+- **`GET /api/products?category={slug}&page={n}&sort={criterio}`**: platos activos de una categoría, paginados de 18 en 18.
+  - `category` es obligatorio (si falta, `400`). `page` es 1-based y opcional (por defecto `1`); no hay parámetro `size`, el tamaño es fijo (`app.catalog.page-size: 18`).
   - `sort` opcional: `name_asc` (por defecto), `name_desc`, `price_asc`, `price_desc`, `rating_asc` o `rating_desc` (en ambos de rating los `null` van al final). Un valor desconocido se trata como el por defecto. El orden siempre se completa con `name` e `id` como desempate, para que la paginación sea estable.
   - `page < 1` se trata como `1`; `page` mayor al total se trata como la última página (con `totalItems = 0`, `page` es `1`).
   - Categoría inexistente: `200` con la página vacía, igual que una categoría sin platos. El frontend no distingue los dos casos (ver spec).
@@ -22,7 +22,7 @@
         "imageUrl": "https://media.cevicheria-salazar.com/platos/ceviche-clasico-1.jpg" }
     ],
     "page": 1,
-    "pageSize": 20,
+    "pageSize": 18,
     "totalItems": 40,
     "totalPages": 2
   }
@@ -77,7 +77,7 @@ CREATE INDEX idx_product_images_product_id ON product_images (product_id, positi
 
 - La misma migración inserta las cinco categorías con su `slug`.
 - **Datos de ejemplo**: migración repetible `db/dev/R__sample_products.sql`, solo cargada en el perfil `dev` (`spring.flyway.locations: classpath:db/migration,classpath:db/dev` en `application-dev.yml`), idempotente (`INSERT ... WHERE NOT EXISTS`). Crea unos 45 platos repartidos entre categorías (más de 20 en una, para poder ver la paginación) con `path` de imagen. No llegan a producción.
-- **Configuración**: nueva propiedad `app.minio.public-url` (`${MINIO_PUBLIC_URL:http://localhost:9000}`) junto a las de MinIO en `application.yml`, y `app.catalog.page-size: 20`. Agregar `MINIO_PUBLIC_URL` a `.env.example`.
+- **Configuración**: nueva propiedad `app.minio.public-url` (`${MINIO_PUBLIC_URL:http://localhost:9000}`) junto a las de MinIO en `application.yml`, y `app.catalog.page-size: 18`. Agregar `MINIO_PUBLIC_URL` a `.env.example`.
 
 ## Frontend
 

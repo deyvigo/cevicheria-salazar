@@ -41,7 +41,7 @@ class CatalogServiceTest {
                 productRepository,
                 new ImageUrlResolver(
                         new StorageProperties("http://s3.test", "garage", "key", "secret", "platos", "http://media.test")),
-                new CatalogProperties(20));
+                new CatalogProperties(18));
     }
 
     private static Product product(String name, BigDecimal rating) {
@@ -49,7 +49,7 @@ class CatalogServiceTest {
     }
 
     private static Page<Product> page(int pageNumber, long total, List<Product> content) {
-        return new PageImpl<>(content, org.springframework.data.domain.PageRequest.of(pageNumber, 20), total);
+        return new PageImpl<>(content, org.springframework.data.domain.PageRequest.of(pageNumber, 18), total);
     }
 
     @Test
@@ -62,22 +62,22 @@ class CatalogServiceTest {
         ArgumentCaptor<Pageable> captor = ArgumentCaptor.forClass(Pageable.class);
         verify(productRepository).findByActiveTrueAndCategorySlug(eq("ceviches"), captor.capture());
         assertThat(captor.getValue().getPageNumber()).isZero();
-        assertThat(captor.getValue().getPageSize()).isEqualTo(20);
+        assertThat(captor.getValue().getPageSize()).isEqualTo(18);
         assertThat(result.page()).isEqualTo(1);
-        assertThat(result.totalPages()).isEqualTo(2);
+        assertThat(result.totalPages()).isEqualTo(3);
     }
 
     @Test
     void pageBeyondTotalReturnsLastPage() {
-        List<Product> lastPage = IntStream.range(0, 20).mapToObj(i -> product("P" + i, null)).toList();
+        List<Product> lastPage = IntStream.range(0, 4).mapToObj(i -> product("P" + i, null)).toList();
         when(productRepository.findByActiveTrueAndCategorySlug(eq("ceviches"), any(Pageable.class)))
                 .thenReturn(page(98, 40, List.of()))
-                .thenReturn(page(1, 40, lastPage));
+                .thenReturn(page(2, 40, lastPage));
 
         PageResponse<ProductResponse> result = service().listProducts("ceviches", 99, ProductSort.NAME_ASC);
 
-        assertThat(result.page()).isEqualTo(2);
-        assertThat(result.items()).hasSize(20);
+        assertThat(result.page()).isEqualTo(3);
+        assertThat(result.items()).hasSize(4);
         assertThat(result.totalItems()).isEqualTo(40);
     }
 

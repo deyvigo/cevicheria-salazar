@@ -19,7 +19,7 @@ function product(id: number): Product {
 }
 
 function page(pageNumber: number, totalItems: number): Page<Product> {
-  const size = 20;
+  const size = 18;
   const start = (pageNumber - 1) * size;
   const count = Math.max(0, Math.min(size, totalItems - start));
   return {
@@ -69,7 +69,7 @@ describe('CatalogPage', () => {
   it('muestra las categorías con la actual resaltada y el rango de elementos', async () => {
     renderAt('/ceviches');
 
-    expect(await screen.findByText('Mostrando 1-20 de 40 elementos')).toBeInTheDocument();
+    expect(await screen.findByText('Mostrando 1-18 de 40 elementos')).toBeInTheDocument();
     expect(await screen.findByRole('link', { name: 'Ceviches' })).toHaveAttribute('aria-current', 'page');
     expect(catalogApi.getProducts).toHaveBeenCalledWith({ category: 'ceviches', page: 1, sort: 'name_asc' });
   });
@@ -77,29 +77,29 @@ describe('CatalogPage', () => {
   it('carga la página indicada en ?page= y actualiza el rango', async () => {
     renderAt('/ceviches?page=2');
 
-    expect(await screen.findByText('Mostrando 21-40 de 40 elementos')).toBeInTheDocument();
+    expect(await screen.findByText('Mostrando 19-36 de 40 elementos')).toBeInTheDocument();
     expect(catalogApi.getProducts).toHaveBeenCalledWith({ category: 'ceviches', page: 2, sort: 'name_asc' });
   });
 
   it('pone la página en la URL al paginar', async () => {
     const user = userEvent.setup();
     renderAt('/ceviches');
-    await screen.findByText('Mostrando 1-20 de 40 elementos');
+    await screen.findByText('Mostrando 1-18 de 40 elementos');
 
     await user.click(screen.getByRole('button', { name: 'Siguiente' }));
 
-    expect(await screen.findByText('Mostrando 21-40 de 40 elementos')).toBeInTheDocument();
+    expect(await screen.findByText('Mostrando 19-36 de 40 elementos')).toBeInTheDocument();
     expect(screen.getByTestId('location')).toHaveTextContent('/ceviches?page=2');
   });
 
   it('vuelve a la página 1 al elegir otra categoría', async () => {
     const user = userEvent.setup();
     renderAt('/ceviches?page=2');
-    await screen.findByText('Mostrando 21-40 de 40 elementos');
+    await screen.findByText('Mostrando 19-36 de 40 elementos');
 
     await user.click(await screen.findByRole('link', { name: 'Entradas' }));
 
-    expect(await screen.findByText('Mostrando 1-20 de 40 elementos')).toBeInTheDocument();
+    expect(await screen.findByText('Mostrando 1-18 de 40 elementos')).toBeInTheDocument();
     expect(screen.getByTestId('location')).toHaveTextContent('/entradas');
     expect(screen.getByTestId('location')).not.toHaveTextContent('page=');
   });
@@ -107,7 +107,7 @@ describe('CatalogPage', () => {
   it('trata una página no numérica como la primera', async () => {
     renderAt('/ceviches?page=abc');
 
-    expect(await screen.findByText('Mostrando 1-20 de 40 elementos')).toBeInTheDocument();
+    expect(await screen.findByText('Mostrando 1-18 de 40 elementos')).toBeInTheDocument();
     expect(catalogApi.getProducts).toHaveBeenCalledWith({ category: 'ceviches', page: 1, sort: 'name_asc' });
   });
 
@@ -124,11 +124,11 @@ describe('CatalogPage', () => {
   it('ordena por el criterio elegido, lo pone en la URL y vuelve a la página 1', async () => {
     const user = userEvent.setup();
     renderAt('/ceviches?page=2');
-    await screen.findByText('Mostrando 21-40 de 40 elementos');
+    await screen.findByText('Mostrando 19-36 de 40 elementos');
 
     await user.selectOptions(screen.getByLabelText('Ordenar por'), 'price_desc');
 
-    expect(await screen.findByText('Mostrando 1-20 de 40 elementos')).toBeInTheDocument();
+    expect(await screen.findByText('Mostrando 1-18 de 40 elementos')).toBeInTheDocument();
     expect(screen.getByTestId('location')).toHaveTextContent('/ceviches?sort=price_desc');
     expect(catalogApi.getProducts).toHaveBeenLastCalledWith({ category: 'ceviches', page: 1, sort: 'price_desc' });
   });
@@ -136,11 +136,11 @@ describe('CatalogPage', () => {
   it('conserva el orden al cambiar de página', async () => {
     const user = userEvent.setup();
     renderAt('/ceviches?sort=rating_desc');
-    await screen.findByText('Mostrando 1-20 de 40 elementos');
+    await screen.findByText('Mostrando 1-18 de 40 elementos');
 
     await user.click(screen.getByRole('button', { name: 'Siguiente' }));
 
-    await screen.findByText('Mostrando 21-40 de 40 elementos');
+    await screen.findByText('Mostrando 19-36 de 40 elementos');
     expect(screen.getByTestId('location')).toHaveTextContent('/ceviches?sort=rating_desc&page=2');
     expect(catalogApi.getProducts).toHaveBeenLastCalledWith({ category: 'ceviches', page: 2, sort: 'rating_desc' });
   });
@@ -148,7 +148,7 @@ describe('CatalogPage', () => {
   it('usa el orden por defecto cuando ?sort= es desconocido', async () => {
     renderAt('/ceviches?sort=xyz');
 
-    await screen.findByText('Mostrando 1-20 de 40 elementos');
+    await screen.findByText('Mostrando 1-18 de 40 elementos');
     expect(catalogApi.getProducts).toHaveBeenCalledWith({ category: 'ceviches', page: 1, sort: 'name_asc' });
     expect(screen.getByLabelText('Ordenar por')).toHaveValue('name_asc');
   });

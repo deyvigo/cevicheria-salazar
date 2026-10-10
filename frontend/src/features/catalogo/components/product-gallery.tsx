@@ -31,7 +31,7 @@ export function ProductGallery({
                 aria-label={`Ver imagen ${index + 1}`}
                 aria-pressed={index === selected}
                 onClick={() => setSelected(index)}
-                className={`block overflow-hidden rounded-md border-2 focus-visible:shadow-focus focus-visible:outline-none ${
+                className={`block cursor-pointer overflow-hidden rounded-md border-2 focus-visible:shadow-focus focus-visible:outline-none ${
                   index === selected ? 'border-focus-ring' : 'border-border'
                 }`}
               >
