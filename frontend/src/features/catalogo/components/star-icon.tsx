@@ -4,7 +4,7 @@ export function StarIcon({ className }: { className: string }) {
     <svg
       viewBox="1 0.1 18 18"
       aria-hidden="true"
-      className={`flex-none fill-naranja-500 stroke-naranja-500 ${className}`}
+      className={`flex-none fill-aji-500 stroke-aji-500 ${className}`}
       strokeWidth={1.5}
       strokeLinejoin="round"
     >
