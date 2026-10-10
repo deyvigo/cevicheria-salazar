@@ -36,13 +36,14 @@ export interface Page<T> {
   totalPages: number;
 }
 
-export async function getCategories(): Promise<Category[]> {
-  const { data } = await api.get<Category[]>('/categories');
+export async function getCategories(q?: string): Promise<Category[]> {
+  const { data } = await api.get<Category[]>('/categories', { params: { q } });
   return data;
 }
 
 export async function getProducts(params: {
-  category: string;
+  category?: string;
+  q?: string;
   page: number;
   sort: CatalogSort;
 }): Promise<Page<Product>> {

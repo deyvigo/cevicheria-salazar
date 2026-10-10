@@ -86,4 +86,9 @@ class CatalogSchemaIT {
                         category))
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
+
+    @Test
+    void unaccentExtensionIsAvailableForTheNameSearch() {
+        assertThat(jdbc.queryForObject("SELECT unaccent('ceviché')", String.class)).isEqualTo("ceviche");
+    }
 }

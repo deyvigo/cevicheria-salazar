@@ -19,16 +19,17 @@ public class CatalogController {
     private final CatalogService catalogService;
 
     @GetMapping("/categories")
-    public List<CategoryResponse> categories() {
-        return catalogService.listCategories();
+    public List<CategoryResponse> categories(@RequestParam(required = false) String q) {
+        return catalogService.listCategories(q);
     }
 
     @GetMapping("/products")
     public PageResponse<ProductResponse> products(
-            @RequestParam String category,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String q,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(required = false) String sort) {
-        return catalogService.listProducts(category, page, ProductSort.from(sort));
+        return catalogService.listProducts(category, q, page, ProductSort.from(sort));
     }
 
     @GetMapping("/products/{id}")

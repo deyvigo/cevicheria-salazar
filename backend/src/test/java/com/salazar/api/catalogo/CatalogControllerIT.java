@@ -117,8 +117,20 @@ class CatalogControllerIT {
     }
 
     @Test
-    void missingCategoryReturns400() throws Exception {
-        mockMvc.perform(get("/api/products")).andExpect(status().isBadRequest());
+    void withoutCategoryReturnsActiveProductsOfEveryCategory() throws Exception {
+        mockMvc.perform(get("/api/products"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalItems").value(41))
+                .andExpect(jsonPath("$.items", hasSize(18)))
+                .andExpect(jsonPath("$.items[0].name").value("Ceviche 01"));
+        mockMvc.perform(get("/api/products").param("sort", "price_asc"))
+                .andExpect(jsonPath("$.items[0].name").value("Chicha"));
+    }
+
+    @Test
+    void blankCategoryIsTreatedAsMissing() throws Exception {
+        mockMvc.perform(get("/api/products").param("category", " "))
+                .andExpect(jsonPath("$.totalItems").value(41));
     }
 
     @Test
@@ -264,5 +276,106 @@ class CatalogControllerIT {
                         .param("page", "2"))
                 .andExpect(jsonPath("$.items[0].name").value("Ceviche 22"))
                 .andExpect(jsonPath("$.items[17].name").value("Ceviche 05"));
+    }
+
+    private void seedSearchable() {
+        productRepository.deleteAll();
+        Category ceviches = category("ceviches");
+        Category chicharrones = category("chicharrones");
+        Category bebidas = category("bebidas");
+        productRepository.save(new Product("Ceviche mixto", "d", new BigDecimal("40.00"), ceviches, null));
+        productRepository.save(new Product("Ceviche clásico", "d", new BigDecimal("32.00"), ceviches, null));
+        productRepository.save(new Product("Chicharrón mixto", "d", new BigDecimal("35.00"), chicharrones, null));
+        productRepository.save(new Product("Chicha morada", "d", new BigDecimal("8.00"), bebidas, null));
+        productRepository.save(new Product("Piña colada 100%", "d", new BigDecimal("15.00"), bebidas, null));
+        Product soldOut = new Product("Ceviche de erizo", "d", new BigDecimal("50.00"), ceviches, null);
+        soldOut.markUnavailable();
+        productRepository.save(soldOut);
+        Product inactive = new Product("Ceviche retirado", "d", new BigDecimal("20.00"), ceviches, null);
+        inactive.deactivate();
+        productRepository.save(inactive);
+    }
+
+    @Test
+    void searchIgnoresCaseAccentsAndSurroundingSpaces() throws Exception {
+        seedSearchable();
+
+        for (String term : new String[] {"ceviche", "CEVICHE", "  cevíche "}) {
+            mockMvc.perform(get("/api/products").param("q", term))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.totalItems").value(3));
+        }
+        mockMvc.perform(get("/api/products").param("q", "chicharron"))
+                .andExpect(jsonPath("$.items[0].name").value("Chicharrón mixto"));
+        mockMvc.perform(get("/api/products").param("q", "pina"))
+                .andExpect(jsonPath("$.items[0].name").value("Piña colada 100%"));
+    }
+
+    @Test
+    void searchMatchesAnywhereInTheName() throws Exception {
+        seedSearchable();
+
+        mockMvc.perform(get("/api/products").param("q", "mixto").param("sort", "name_asc"))
+                .andExpect(jsonPath("$.totalItems").value(2))
+                .andExpect(jsonPath("$.items[0].name").value("Ceviche mixto"))
+                .andExpect(jsonPath("$.items[1].name").value("Chicharrón mixto"));
+    }
+
+    @Test
+    void searchKeepsSoldOutAndDropsInactiveProducts() throws Exception {
+        seedSearchable();
+
+        mockMvc.perform(get("/api/products").param("q", "erizo"))
+                .andExpect(jsonPath("$.totalItems").value(1));
+        mockMvc.perform(get("/api/products").param("q", "retirado"))
+                .andExpect(jsonPath("$.totalItems").value(0));
+    }
+
+    @Test
+    void searchWildcardsAreLiteral() throws Exception {
+        seedSearchable();
+
+        mockMvc.perform(get("/api/products").param("q", "%"))
+                .andExpect(jsonPath("$.totalItems").value(1))
+                .andExpect(jsonPath("$.items[0].name").value("Piña colada 100%"));
+        mockMvc.perform(get("/api/products").param("q", "_"))
+                .andExpect(jsonPath("$.totalItems").value(0));
+    }
+
+    @Test
+    void searchCombinesWithCategoryAndBlankTermMeansNoFilter() throws Exception {
+        seedSearchable();
+
+        mockMvc.perform(get("/api/products").param("q", "mixto").param("category", "ceviches"))
+                .andExpect(jsonPath("$.totalItems").value(1))
+                .andExpect(jsonPath("$.items[0].name").value("Ceviche mixto"));
+        mockMvc.perform(get("/api/products").param("q", "  "))
+                .andExpect(jsonPath("$.totalItems").value(6));
+    }
+
+    @Test
+    void searchSortsAcrossCategoriesAndKeepsTheTotalOnPageOutOfRange() throws Exception {
+        seedSearchable();
+
+        mockMvc.perform(get("/api/products").param("q", "ceviche").param("sort", "price_desc"))
+                .andExpect(jsonPath("$.items[0].name").value("Ceviche de erizo"));
+        mockMvc.perform(get("/api/products").param("q", "ceviche").param("page", "99"))
+                .andExpect(jsonPath("$.page").value(1))
+                .andExpect(jsonPath("$.totalItems").value(3));
+    }
+
+    @Test
+    void categoriesAreFilteredToTheOnesWithActiveMatches() throws Exception {
+        seedSearchable();
+
+        mockMvc.perform(get("/api/categories").param("q", "mixto"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].slug").value("ceviches"))
+                .andExpect(jsonPath("$[1].slug").value("chicharrones"));
+        mockMvc.perform(get("/api/categories").param("q", "retirado"))
+                .andExpect(jsonPath("$", hasSize(0)));
+        mockMvc.perform(get("/api/categories").param("q", "  "))
+                .andExpect(jsonPath("$", hasSize(5)));
     }
 }

@@ -15,7 +15,14 @@ const CATEGORIES = [
 ];
 
 function product(id: number): Product {
-  return { id, name: `Plato ${id}`, description: '', price: 10, rating: null, imageUrl: null };
+  return {
+    id,
+    name: `Plato ${id}`,
+    description: '',
+    price: 10,
+    rating: null,
+    imageUrl: null,
+  };
 }
 
 function page(pageNumber: number, totalItems: number): Page<Product> {
@@ -46,7 +53,10 @@ function renderAt(url: string) {
             <LocationProbe />
           </>
         ),
-        children: [{ path: '/:category', element: <CatalogPage /> }],
+        children: [
+          { path: '/', element: <CatalogPage /> },
+          { path: '/:category', element: <CatalogPage /> },
+        ],
       },
     ],
     { initialEntries: [url] },
@@ -71,14 +81,22 @@ describe('CatalogPage', () => {
 
     expect(await screen.findByText('Mostrando 1-18 de 40 elementos')).toBeInTheDocument();
     expect(await screen.findByRole('link', { name: 'Ceviches' })).toHaveAttribute('aria-current', 'page');
-    expect(catalogApi.getProducts).toHaveBeenCalledWith({ category: 'ceviches', page: 1, sort: 'name_asc' });
+    expect(catalogApi.getProducts).toHaveBeenCalledWith({
+      category: 'ceviches',
+      page: 1,
+      sort: 'name_asc',
+    });
   });
 
   it('carga la página indicada en ?page= y actualiza el rango', async () => {
     renderAt('/ceviches?page=2');
 
     expect(await screen.findByText('Mostrando 19-36 de 40 elementos')).toBeInTheDocument();
-    expect(catalogApi.getProducts).toHaveBeenCalledWith({ category: 'ceviches', page: 2, sort: 'name_asc' });
+    expect(catalogApi.getProducts).toHaveBeenCalledWith({
+      category: 'ceviches',
+      page: 2,
+      sort: 'name_asc',
+    });
   });
 
   it('pone la página en la URL al paginar', async () => {
@@ -108,7 +126,11 @@ describe('CatalogPage', () => {
     renderAt('/ceviches?page=abc');
 
     expect(await screen.findByText('Mostrando 1-18 de 40 elementos')).toBeInTheDocument();
-    expect(catalogApi.getProducts).toHaveBeenCalledWith({ category: 'ceviches', page: 1, sort: 'name_asc' });
+    expect(catalogApi.getProducts).toHaveBeenCalledWith({
+      category: 'ceviches',
+      page: 1,
+      sort: 'name_asc',
+    });
   });
 
   it('muestra "No se encontraron productos" sin resaltar ninguna categoría si no existe', async () => {
@@ -130,7 +152,11 @@ describe('CatalogPage', () => {
 
     expect(await screen.findByText('Mostrando 1-18 de 40 elementos')).toBeInTheDocument();
     expect(screen.getByTestId('location')).toHaveTextContent('/ceviches?sort=price_desc');
-    expect(catalogApi.getProducts).toHaveBeenLastCalledWith({ category: 'ceviches', page: 1, sort: 'price_desc' });
+    expect(catalogApi.getProducts).toHaveBeenLastCalledWith({
+      category: 'ceviches',
+      page: 1,
+      sort: 'price_desc',
+    });
   });
 
   it('conserva el orden al cambiar de página', async () => {
@@ -142,14 +168,103 @@ describe('CatalogPage', () => {
 
     await screen.findByText('Mostrando 19-36 de 40 elementos');
     expect(screen.getByTestId('location')).toHaveTextContent('/ceviches?sort=rating_desc&page=2');
-    expect(catalogApi.getProducts).toHaveBeenLastCalledWith({ category: 'ceviches', page: 2, sort: 'rating_desc' });
+    expect(catalogApi.getProducts).toHaveBeenLastCalledWith({
+      category: 'ceviches',
+      page: 2,
+      sort: 'rating_desc',
+    });
   });
 
   it('usa el orden por defecto cuando ?sort= es desconocido', async () => {
     renderAt('/ceviches?sort=xyz');
 
     await screen.findByText('Mostrando 1-18 de 40 elementos');
-    expect(catalogApi.getProducts).toHaveBeenCalledWith({ category: 'ceviches', page: 1, sort: 'name_asc' });
+    expect(catalogApi.getProducts).toHaveBeenCalledWith({
+      category: 'ceviches',
+      page: 1,
+      sort: 'name_asc',
+    });
     expect(screen.getByLabelText('Ordenar por')).toHaveValue('name_asc');
+  });
+
+  it('en / muestra "Todos" resaltado y pide los platos sin categoría', async () => {
+    renderAt('/');
+
+    expect(await screen.findByText('Mostrando 1-18 de 40 elementos')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Todos' })).toHaveAttribute('aria-current', 'page');
+    expect(catalogApi.getProducts).toHaveBeenCalledWith({
+      category: undefined,
+      q: undefined,
+      page: 1,
+      sort: 'name_asc',
+    });
+    expect(catalogApi.getCategories).toHaveBeenCalledWith(undefined);
+  });
+
+  it('con ?q= pide platos y categorías filtrados y deja "Todos" resaltado', async () => {
+    renderAt('/?q=ceviche');
+
+    expect(await screen.findByText('Mostrando 1-18 de 40 elementos')).toBeInTheDocument();
+    expect(catalogApi.getProducts).toHaveBeenCalledWith({
+      category: undefined,
+      q: 'ceviche',
+      page: 1,
+      sort: 'name_asc',
+    });
+    expect(catalogApi.getCategories).toHaveBeenCalledWith('ceviche');
+    expect(screen.getByRole('link', { name: 'Todos' })).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('al elegir una categoría dentro de una búsqueda conserva el término en la URL', async () => {
+    const user = userEvent.setup();
+    renderAt('/?q=ceviche&page=2');
+    await screen.findByText('Mostrando 19-36 de 40 elementos');
+
+    await user.click(await screen.findByRole('link', { name: 'Ceviches' }));
+
+    expect(screen.getByTestId('location')).toHaveTextContent('/ceviches?q=ceviche');
+    expect(screen.getByTestId('location')).not.toHaveTextContent('page=');
+    expect(catalogApi.getProducts).toHaveBeenLastCalledWith({
+      category: 'ceviches',
+      q: 'ceviche',
+      page: 1,
+      sort: 'name_asc',
+    });
+  });
+
+  it('conserva el término al paginar y al ordenar', async () => {
+    const user = userEvent.setup();
+    renderAt('/?q=ceviche');
+    await screen.findByText('Mostrando 1-18 de 40 elementos');
+
+    await user.click(screen.getByRole('button', { name: 'Siguiente' }));
+    await screen.findByText('Mostrando 19-36 de 40 elementos');
+    expect(screen.getByTestId('location')).toHaveTextContent('/?q=ceviche&page=2');
+
+    await user.selectOptions(screen.getByLabelText('Ordenar por'), 'price_desc');
+    await screen.findByText('Mostrando 1-18 de 40 elementos');
+    expect(screen.getByTestId('location')).toHaveTextContent('/?q=ceviche&sort=price_desc');
+  });
+
+  it('sin coincidencias muestra "No se encontraron productos" y solo "Todos"', async () => {
+    vi.mocked(catalogApi.getCategories).mockResolvedValue([]);
+    vi.mocked(catalogApi.getProducts).mockResolvedValue(page(1, 0));
+    renderAt('/?q=pizza');
+
+    expect(await screen.findByText('No se encontraron productos.')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Todos' })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Ceviches' })).not.toBeInTheDocument();
+  });
+
+  it('trata ?q= con solo espacios como sin búsqueda', async () => {
+    renderAt('/?q=%20%20');
+
+    await screen.findByText('Mostrando 1-18 de 40 elementos');
+    expect(catalogApi.getProducts).toHaveBeenCalledWith({
+      category: undefined,
+      q: undefined,
+      page: 1,
+      sort: 'name_asc',
+    });
   });
 });

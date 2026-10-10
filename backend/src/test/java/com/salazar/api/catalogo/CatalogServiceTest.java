@@ -3,10 +3,11 @@ package com.salazar.api.catalogo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.salazar.api.catalogo.dto.CategoryResponse;
 import com.salazar.api.catalogo.dto.PageResponse;
 import com.salazar.api.catalogo.dto.ProductDetailResponse;
 import com.salazar.api.common.exception.ProductNotFoundException;
@@ -24,6 +25,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
 @ExtendWith(MockitoExtension.class)
 class CatalogServiceTest {
@@ -44,6 +46,11 @@ class CatalogServiceTest {
                 new CatalogProperties(18));
     }
 
+    @SuppressWarnings("unchecked")
+    private static Specification<Product> anySpec() {
+        return any(Specification.class);
+    }
+
     private static Product product(String name, BigDecimal rating) {
         return new Product(name, "desc", new BigDecimal("32.00"), CEVICHES, rating);
     }
@@ -54,13 +61,13 @@ class CatalogServiceTest {
 
     @Test
     void pageBelowOneIsTreatedAsFirst() {
-        when(productRepository.findByActiveTrueAndCategorySlug(eq("ceviches"), any(Pageable.class)))
+        when(productRepository.findAll(anySpec(), any(Pageable.class)))
                 .thenReturn(page(0, 40, List.of(product("A", null))));
 
-        PageResponse<ProductResponse> result = service().listProducts("ceviches", -3, ProductSort.NAME_ASC);
+        PageResponse<ProductResponse> result = service().listProducts("ceviches", null, -3, ProductSort.NAME_ASC);
 
         ArgumentCaptor<Pageable> captor = ArgumentCaptor.forClass(Pageable.class);
-        verify(productRepository).findByActiveTrueAndCategorySlug(eq("ceviches"), captor.capture());
+        verify(productRepository).findAll(anySpec(), captor.capture());
         assertThat(captor.getValue().getPageNumber()).isZero();
         assertThat(captor.getValue().getPageSize()).isEqualTo(18);
         assertThat(result.page()).isEqualTo(1);
@@ -70,11 +77,11 @@ class CatalogServiceTest {
     @Test
     void pageBeyondTotalReturnsLastPage() {
         List<Product> lastPage = IntStream.range(0, 4).mapToObj(i -> product("P" + i, null)).toList();
-        when(productRepository.findByActiveTrueAndCategorySlug(eq("ceviches"), any(Pageable.class)))
+        when(productRepository.findAll(anySpec(), any(Pageable.class)))
                 .thenReturn(page(98, 40, List.of()))
                 .thenReturn(page(2, 40, lastPage));
 
-        PageResponse<ProductResponse> result = service().listProducts("ceviches", 99, ProductSort.NAME_ASC);
+        PageResponse<ProductResponse> result = service().listProducts("ceviches", null, 99, ProductSort.NAME_ASC);
 
         assertThat(result.page()).isEqualTo(3);
         assertThat(result.items()).hasSize(4);
@@ -83,10 +90,10 @@ class CatalogServiceTest {
 
     @Test
     void unknownCategoryReturnsEmptyPage() {
-        when(productRepository.findByActiveTrueAndCategorySlug(eq("pizzas"), any(Pageable.class)))
+        when(productRepository.findAll(anySpec(), any(Pageable.class)))
                 .thenReturn(page(0, 0, List.of()));
 
-        PageResponse<ProductResponse> result = service().listProducts("pizzas", 1, ProductSort.NAME_ASC);
+        PageResponse<ProductResponse> result = service().listProducts("pizzas", null, 1, ProductSort.NAME_ASC);
 
         assertThat(result.items()).isEmpty();
         assertThat(result.totalItems()).isZero();
@@ -99,10 +106,10 @@ class CatalogServiceTest {
         withImages.addImage("platos/principal.jpg", 0);
         withImages.addImage("platos/secundaria.jpg", 1);
         Product withoutImages = product("Sin foto", null);
-        when(productRepository.findByActiveTrueAndCategorySlug(eq("ceviches"), any(Pageable.class)))
+        when(productRepository.findAll(anySpec(), any(Pageable.class)))
                 .thenReturn(page(0, 2, List.of(withImages, withoutImages)));
 
-        List<ProductResponse> items = service().listProducts("ceviches", 1, ProductSort.NAME_ASC).items();
+        List<ProductResponse> items = service().listProducts("ceviches", null, 1, ProductSort.NAME_ASC).items();
 
         assertThat(items.get(0).imageUrl()).isEqualTo("http://media.test/platos/principal.jpg");
         assertThat(items.get(1).imageUrl()).isNull();
@@ -111,13 +118,13 @@ class CatalogServiceTest {
 
     @Test
     void sortIsPassedToTheRepositoryQuery() {
-        when(productRepository.findByActiveTrueAndCategorySlug(eq("ceviches"), any(Pageable.class)))
+        when(productRepository.findAll(anySpec(), any(Pageable.class)))
                 .thenReturn(page(0, 1, List.of(product("A", null))));
 
-        service().listProducts("ceviches", 1, ProductSort.PRICE_DESC);
+        service().listProducts("ceviches", null, 1, ProductSort.PRICE_DESC);
 
         ArgumentCaptor<Pageable> captor = ArgumentCaptor.forClass(Pageable.class);
-        verify(productRepository).findByActiveTrueAndCategorySlug(eq("ceviches"), captor.capture());
+        verify(productRepository).findAll(anySpec(), captor.capture());
         assertThat(captor.getValue().getSort().getOrderFor("price").isDescending()).isTrue();
     }
 
@@ -170,5 +177,25 @@ class CatalogServiceTest {
         assertThat(soldOutDetail.name()).isEqualTo("Agotado");
         assertThat(soldOutDetail.price()).isEqualByComparingTo("32.00");
         assertThat(soldOutDetail.images()).containsExactly("http://media.test/platos/agotado.jpg");
+    }
+
+    @Test
+    void categoriesWithoutSearchTermAreAllListed() {
+        when(categoryRepository.findAllByOrderByIdAsc()).thenReturn(List.of(CEVICHES));
+
+        assertThat(service().listCategories(null)).hasSize(1);
+        assertThat(service().listCategories("   ")).hasSize(1);
+
+        verify(categoryRepository, never()).findAllWithActiveMatch(any());
+    }
+
+    @Test
+    void categoriesWithSearchTermAreFilteredWithTheNormalizedPattern() {
+        when(categoryRepository.findAllWithActiveMatch("%ceviche%")).thenReturn(List.of(CEVICHES));
+
+        List<CategoryResponse> result = service().listCategories("  CEVICHÉ ");
+
+        assertThat(result).extracting(CategoryResponse::slug).containsExactly("ceviches");
+        verify(categoryRepository, never()).findAllByOrderByIdAsc();
     }
 }
