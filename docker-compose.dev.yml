@@ -17,18 +17,17 @@ services:
     ports:
       - "6379:6379"
 
-  minio:
-    image: minio/minio:latest
-    command: server /data --console-address ":9001"
+  garage:
+    image: dxflrs/garage:v1.0.1
     environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
+      GARAGE_RPC_SECRET: ${GARAGE_RPC_SECRET:-}
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - "3900:3900" # S3 API
+      - "3902:3902" # public web endpoint (images)
     volumes:
-      - minio_dev_data:/data
+      - ./docker/garage/garage.toml:/etc/garage.toml:ro
+      - garage_dev_data:/var/lib/garage
 
 volumes:
   postgres_dev_data:
-  minio_dev_data:
+  garage_dev_data:

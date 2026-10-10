@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Starts the full dev environment: Postgres/Redis, backend, frontend. Ctrl+C stops backend and frontend; containers keep running.
+# Starts the full dev environment: Postgres/Redis/Garage, backend, frontend. Ctrl+C stops backend and frontend; containers keep running.
 # --lan exposes the frontend on 0.0.0.0 and prints a URL to open from a phone on the same network.
 set -euo pipefail
 
@@ -29,24 +29,43 @@ if [ "$LAN" = true ]; then
   LAN_ORIGIN="http://$LAN_IP:5173"
 fi
 
-echo "==> Levantando Postgres y Redis..."
-docker compose -f "$ROOT_DIR/docker-compose.dev.yml" up -d postgres redis
+if [ ! -f "$BACKEND_DIR/.env" ]; then
+  cp "$BACKEND_DIR/.env.example" "$BACKEND_DIR/.env"
+fi
+
+# Variables added after a developer's .env was created, and the retired MinIO ones
+while IFS= read -r line; do
+  key="${line%%=*}"
+  grep -q "^$key=" "$BACKEND_DIR/.env" || echo "$line" >> "$BACKEND_DIR/.env"
+done < <(grep -E '^(STORAGE_|GARAGE_)[A-Z_]+=' "$BACKEND_DIR/.env.example")
+sed -i '' '/^MINIO_/d' "$BACKEND_DIR/.env"
+
+ensure_secret() {
+  local name="$1" value="$2"
+  if [ -z "$(grep "^$name=" "$BACKEND_DIR/.env" | cut -d'=' -f2-)" ]; then
+    echo "==> Generando $name en backend/.env (primera vez)..."
+    sed -i '' "s|^$name=.*|$name=$value|" "$BACKEND_DIR/.env"
+  fi
+}
+ensure_secret APP_JWT_SECRET "$(openssl rand -hex 32)"
+ensure_secret GARAGE_RPC_SECRET "$(openssl rand -hex 32)"
+ensure_secret STORAGE_ACCESS_KEY "GK$(openssl rand -hex 12)"
+ensure_secret STORAGE_SECRET_KEY "$(openssl rand -hex 32)"
+
+set -a
+# shellcheck disable=SC1091
+source "$BACKEND_DIR/.env"
+set +a
+
+echo "==> Levantando Postgres, Redis y Garage..."
+docker compose -f "$ROOT_DIR/docker-compose.dev.yml" up -d postgres redis garage
 
 echo "==> Esperando a que Postgres acepte conexiones..."
 until docker exec salazar-cevicheria-postgres-1 pg_isready -U salazar -d salazar_dev > /dev/null 2>&1; do
   sleep 1
 done
 
-if [ ! -f "$BACKEND_DIR/.env" ]; then
-  cp "$BACKEND_DIR/.env.example" "$BACKEND_DIR/.env"
-fi
-
-CURRENT_SECRET="$(grep '^APP_JWT_SECRET=' "$BACKEND_DIR/.env" | cut -d'=' -f2-)"
-if [ -z "$CURRENT_SECRET" ]; then
-  echo "==> Generando APP_JWT_SECRET en backend/.env (primera vez)..."
-  SECRET="$(openssl rand -hex 32)"
-  sed -i '' "s|^APP_JWT_SECRET=.*|APP_JWT_SECRET=$SECRET|" "$BACKEND_DIR/.env"
-fi
+"$ROOT_DIR/scripts/garage-init.sh"
 
 echo "==> Iniciando el backend (log: $BACKEND_LOG)..."
 (
@@ -68,8 +87,8 @@ cleanup() {
   echo "==> Deteniendo el backend..."
   kill "$BACKEND_PID" 2>/dev/null || true
   wait "$BACKEND_PID" 2>/dev/null || true
-  echo "==> Deteniendo Postgres y Redis..."
-  docker compose -f "$ROOT_DIR/docker-compose.dev.yml" stop postgres redis 2>/dev/null || true
+  echo "==> Deteniendo Postgres, Redis y Garage..."
+  docker compose -f "$ROOT_DIR/docker-compose.dev.yml" stop postgres redis garage 2>/dev/null || true
 }
 trap cleanup EXIT
 
