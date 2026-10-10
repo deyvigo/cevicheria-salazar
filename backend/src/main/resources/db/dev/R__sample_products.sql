@@ -73,3 +73,6 @@ WHERE p.name NOT IN ('Plato sin foto', 'Ceviche de pota')
 -- Older sample rows pointed at one file per dish or category; the main photo of every dish is the shared sample
 UPDATE product_images SET path = 'seed/dish.jpg' WHERE position = 0 AND path <> 'seed/dish.jpg';
 UPDATE product_images SET path = 'seed/dish-' || (position + 1) || '.svg' WHERE position > 0 AND path = 'seed/dish.jpg';
+
+-- A few sold-out dishes (still visible in the catalog) to see the availability badge
+UPDATE products SET is_available = false WHERE name IN ('Ceviche de erizo', 'Chicharrón de pota', 'Chicha morada');

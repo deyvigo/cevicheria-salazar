@@ -152,4 +152,23 @@ class CatalogServiceTest {
 
         assertThatThrownBy(() -> service().getProduct(99L)).isInstanceOf(ProductNotFoundException.class);
     }
+
+    @Test
+    void detailReportsAvailabilityAndKeepsTheRestOfTheDataForSoldOutDishes() {
+        Product available = product("Disponible", new BigDecimal("4.5"));
+        Product soldOut = product("Agotado", new BigDecimal("4.0"));
+        soldOut.markUnavailable();
+        soldOut.addImage("platos/agotado.jpg", 0);
+        when(productRepository.findByIdAndActiveTrue(1L)).thenReturn(Optional.of(available));
+        when(productRepository.findByIdAndActiveTrue(2L)).thenReturn(Optional.of(soldOut));
+
+        ProductDetailResponse availableDetail = service().getProduct(1L);
+        ProductDetailResponse soldOutDetail = service().getProduct(2L);
+
+        assertThat(availableDetail.available()).isTrue();
+        assertThat(soldOutDetail.available()).isFalse();
+        assertThat(soldOutDetail.name()).isEqualTo("Agotado");
+        assertThat(soldOutDetail.price()).isEqualByComparingTo("32.00");
+        assertThat(soldOutDetail.images()).containsExactly("http://media.test/platos/agotado.jpg");
+    }
 }
