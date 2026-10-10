@@ -75,6 +75,7 @@ Duración de cada sprint: 3 semanas (lunes a viernes). Historias en [historias.m
 | HU-05 | Cerrar sesión                                                    | Usuario | Media     | 1      |
 | HU-03 | Recuperar contraseña por correo                                  | Usuario | Media     | 1      |
 | HU-07 | Ver platos organizados por categorías                           | Usuario | Alta      | 1      |
+| HT-10 | Almacenamiento de imágenes (Garage y SDK de AWS S3)              | Técnica | Alta      | 2      |
 | HU-08 | Ver detalle de un plato (foto, descripción, precio)              | Usuario | Alta      | 2      |
 | HU-10 | Saber si un plato está agotado o no disponible                  | Usuario | Alta      | 2      |
 | HU-09 | Buscar platos por nombre                                         | Usuario | Media     | 2      |
@@ -91,7 +92,7 @@ Duración de cada sprint: 3 semanas (lunes a viernes). Historias en [historias.m
 | Semana | Fechas        | Enfoque                                                        | Elementos                               |
 | ------ | ------------- | ----------------------------------------------------------------- | ----------------------------------------- |
 | 1      | 28/09 – 02/10 | Cierre de autenticación (Google, sesión, contraseña); inicio del catálogo | HU-06, HU-04, HU-05, HU-03, HU-07 |
-| 2      | 05/10 – 09/10 | Catálogo: detalle, disponibilidad, búsqueda y destacados; inicio del carrito | HU-08, HU-10, HU-09, HU-11, HU-12 |
+| 2      | 05/10 – 09/10 | Almacenamiento de imágenes; catálogo: detalle, disponibilidad, búsqueda y destacados; inicio del carrito | HT-10, HU-08, HU-10, HU-09, HU-11, HU-12 |
 | 3      | 12/10 – 16/10 | Carrito: cantidades, totales, persistencia y notas                 | HU-13, HU-14, HU-16, HU-35, HU-15 |
 
 ### Eventos Scrum

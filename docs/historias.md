@@ -19,6 +19,7 @@ Historias técnicas (HT): trabajo necesario para el proyecto que no entrega valo
 | HT-07 | Elaborar el diagrama de despliegue.                                                                                                 | Alta      |
 | HT-08 | Diseñar los prototipos de pantallas (wireframes) de los flujos principales.                                                         | Media     |
 | HT-09 | Configurar el entorno: repositorio, estrategia de ramas, proyecto base y base de datos de desarrollo.                               | Alta      |
+| HT-10 | Configurar el almacenamiento de imágenes compatible con S3 (Garage) y usar el SDK de AWS S3 en el backend, en desarrollo y producción. | Alta      |
 
 <a id="e1"></a>
 
