@@ -8,8 +8,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
@@ -20,6 +22,13 @@ public class ApiExceptionHandler {
                 .toList();
         return ResponseEntity.badRequest()
                 .body(ApiError.ofFieldErrors(HttpStatus.BAD_REQUEST.value(), "Validación fallida", fieldErrors));
+    }
+
+    @ExceptionHandler({MissingServletRequestParameterException.class, MethodArgumentTypeMismatchException.class})
+    public ResponseEntity<ApiError> handleBadRequestParameter(Exception ex) {
+        return ResponseEntity.badRequest()
+                .body(ApiError.of(
+                        HttpStatus.BAD_REQUEST.value(), "Solicitud no válida", "Hay parámetros inválidos o faltantes."));
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
