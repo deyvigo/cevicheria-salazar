@@ -31,6 +31,12 @@ public class ApiExceptionHandler {
                         HttpStatus.BAD_REQUEST.value(), "Solicitud no válida", "Hay parámetros inválidos o faltantes."));
     }
 
+    @ExceptionHandler(TooManyIdsException.class)
+    public ResponseEntity<ApiError> handleTooManyIds(TooManyIdsException ex) {
+        return ResponseEntity.badRequest()
+                .body(ApiError.of(HttpStatus.BAD_REQUEST.value(), "Solicitud no válida", ex.getMessage()));
+    }
+
     @ExceptionHandler(ProductNotFoundException.class)
     public ResponseEntity<ApiError> handleProductNotFound(ProductNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)

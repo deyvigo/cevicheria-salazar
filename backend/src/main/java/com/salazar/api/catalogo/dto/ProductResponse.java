@@ -3,4 +3,11 @@ package com.salazar.api.catalogo.dto;
 import java.math.BigDecimal;
 
 public record ProductResponse(
-        Long id, String name, String description, BigDecimal price, BigDecimal rating, String imageUrl) {}
+        Long id,
+        String name,
+        String description,
+        BigDecimal price,
+        BigDecimal rating,
+        String imageUrl,
+        boolean available,
+        int stock) {}

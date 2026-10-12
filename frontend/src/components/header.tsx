@@ -4,6 +4,7 @@ import { Button } from '@/components/button';
 import { Notification } from '@/components/notification';
 import { SearchBox } from '@/components/search-box';
 import { useAuth } from '@/context/auth-context';
+import { CartLink } from '@/features/carrito/components/cart-link';
 import { useLogout } from '@/features/auth/use-auth-mutations';
 
 export function Header() {
@@ -58,44 +59,43 @@ export function Header() {
       {/* Keyed by the term so the field follows the URL (back button, cleared search) */}
       <SearchBox key={searchTerm} initialValue={searchTerm} />
 
-      {isLoading ? (
-        <div />
-      ) : user ? (
-        <div ref={containerRef} className="relative justify-self-end">
-          <button
-            ref={triggerRef}
-            type="button"
-            aria-haspopup="menu"
-            aria-expanded={menuOpen}
-            onClick={() => setMenuOpen((open) => !open)}
-            className="inline-flex min-h-12 items-center gap-2 rounded-md px-4 text-base font-bold text-ink hover:bg-surface-celeste focus-visible:shadow-focus focus-visible:outline-none"
-          >
-            {user.firstName}
-            <span aria-hidden="true">▾</span>
-          </button>
-          {menuOpen ? (
-            <div
-              role="menu"
-              className="absolute right-0 z-10 mt-2 min-w-48 rounded-lg border border-border bg-surface p-2 shadow-md"
+      <div className="flex items-center gap-3 justify-self-end">
+        <CartLink />
+        {isLoading ? null : user ? (
+          <div ref={containerRef} className="relative">
+            <button
+              ref={triggerRef}
+              type="button"
+              aria-haspopup="menu"
+              aria-expanded={menuOpen}
+              onClick={() => setMenuOpen((open) => !open)}
+              className="inline-flex min-h-12 items-center gap-2 rounded-md px-4 text-base font-bold text-ink hover:bg-surface-celeste focus-visible:shadow-focus focus-visible:outline-none"
             >
-              <button
-                type="button"
-                role="menuitem"
-                onClick={handleLogout}
-                className="flex min-h-12 w-full items-center rounded-md px-4 text-left text-base text-ink hover:bg-surface-celeste focus-visible:shadow-focus focus-visible:outline-none"
+              {user.firstName}
+              <span aria-hidden="true">▾</span>
+            </button>
+            {menuOpen ? (
+              <div
+                role="menu"
+                className="absolute right-0 z-10 mt-2 min-w-48 rounded-lg border border-border bg-surface p-2 shadow-md"
               >
-                Cerrar sesión
-              </button>
-            </div>
-          ) : null}
-        </div>
-      ) : (
-        <div className="justify-self-end">
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={handleLogout}
+                  className="flex min-h-12 w-full items-center rounded-md px-4 text-left text-base text-ink hover:bg-surface-celeste focus-visible:shadow-focus focus-visible:outline-none"
+                >
+                  Cerrar sesión
+                </button>
+              </div>
+            ) : null}
+          </div>
+        ) : (
           <Button variant="secondary" onClick={() => navigate('/iniciar-sesion')}>
             Iniciar sesión
           </Button>
-        </div>
-      )}
+        )}
+      </div>
 
       {logoutError ? (
         <div className="fixed right-6 bottom-6">

@@ -76,3 +76,7 @@ UPDATE product_images SET path = 'seed/dish-' || (position + 1) || '.svg' WHERE 
 
 -- A few sold-out dishes (still visible in the catalog) to see the availability badge
 UPDATE products SET is_available = false WHERE name IN ('Ceviche de erizo', 'Chicharrón de pota', 'Chicha morada');
+
+-- Stock between 5 and 30 per dish, deterministic by id; sold-out dishes get 0 and one extra dish is switched on but empty
+UPDATE products SET stock = 5 + (id * 7) % 26;
+UPDATE products SET stock = 0 WHERE name IN ('Ceviche de erizo', 'Chicharrón de pota', 'Chicha morada', 'Ceviche de pota');

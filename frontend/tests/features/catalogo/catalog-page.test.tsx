@@ -23,6 +23,8 @@ function product(id: number): Product {
     price: 10,
     rating: null,
     imageUrl: null,
+    available: true,
+    stock: 10,
   };
 }
 

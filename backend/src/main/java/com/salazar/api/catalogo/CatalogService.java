@@ -5,6 +5,7 @@ import com.salazar.api.catalogo.dto.PageResponse;
 import com.salazar.api.catalogo.dto.ProductDetailResponse;
 import com.salazar.api.catalogo.dto.ProductResponse;
 import com.salazar.api.common.exception.ProductNotFoundException;
+import com.salazar.api.common.exception.TooManyIdsException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -18,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @EnableConfigurationProperties(CatalogProperties.class)
 public class CatalogService {
+    static final int MAX_IDS_PER_LOOKUP = 100;
+
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
     private final ImageUrlResolver imageUrlResolver;
@@ -60,9 +63,24 @@ public class CatalogService {
                 product.getDescription(),
                 product.getPrice(),
                 product.getRating(),
-                product.isAvailable(),
+                product.isOrderable(),
+                product.getStock(),
                 CategoryResponse.from(product.getCategory()),
                 images);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProductResponse> getProductsByIds(List<Long> ids) {
+        List<Long> distinct = ids.stream().distinct().toList();
+        if (distinct.size() > MAX_IDS_PER_LOOKUP) {
+            throw new TooManyIdsException(MAX_IDS_PER_LOOKUP);
+        }
+        if (distinct.isEmpty()) {
+            return List.of();
+        }
+        return productRepository.findAllByIdInAndActiveTrueOrderByIdAsc(distinct).stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     private Specification<Product> filter(String categorySlug, String query) {
@@ -92,6 +110,8 @@ public class CatalogService {
                 product.getDescription(),
                 product.getPrice(),
                 product.getRating(),
-                imageUrl);
+                imageUrl,
+                product.isOrderable(),
+                product.getStock());
     }
 }

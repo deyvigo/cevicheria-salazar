@@ -48,16 +48,16 @@ class CatalogControllerIT {
 
         IntStream.rangeClosed(1, 40).forEach(i -> {
             Product product = new Product(
-                    "Ceviche %02d".formatted(i), "desc", new BigDecimal("32.00"), ceviches, new BigDecimal("4.5"));
+                    "Ceviche %02d".formatted(i), "desc", new BigDecimal("32.00"), ceviches, new BigDecimal("4.5"), 10);
             if (i != 1) {
                 product.addImage("platos/ceviche-%02d.jpg".formatted(i), 0);
             }
             productRepository.save(product);
         });
-        Product inactive = new Product("Ceviche retirado", "desc", new BigDecimal("20.00"), ceviches, null);
+        Product inactive = new Product("Ceviche retirado", "desc", new BigDecimal("20.00"), ceviches, null, 10);
         inactive.deactivate();
         productRepository.save(inactive);
-        productRepository.save(new Product("Chicha", "desc", new BigDecimal("8.00"), bebidas, null));
+        productRepository.save(new Product("Chicha", "desc", new BigDecimal("8.00"), bebidas, null, 10));
     }
 
     @Test
@@ -150,7 +150,7 @@ class CatalogControllerIT {
     @Transactional
     void detailReturnsProductWithImagesAndCategoryWithoutSession() throws Exception {
         Product dish = new Product(
-                "Ceviche galería", "Descripción larga", new BigDecimal("32.00"), category("ceviches"), new BigDecimal("4.5"));
+                "Ceviche galería", "Descripción larga", new BigDecimal("32.00"), category("ceviches"), new BigDecimal("4.5"), 10);
         dish.addImage("platos/a.jpg", 0);
         dish.addImage("platos/b.jpg", 1);
         Product saved = productRepository.save(dish);
@@ -168,7 +168,7 @@ class CatalogControllerIT {
     @Test
     @Transactional
     void soldOutProductStillShowsInTheCatalogAndItsDetailSaysItIsUnavailable() throws Exception {
-        Product soldOut = new Product("Ceviche agotado", "d", new BigDecimal("30.00"), category("fondos"), null);
+        Product soldOut = new Product("Ceviche agotado", "d", new BigDecimal("30.00"), category("fondos"), null, 10);
         soldOut.markUnavailable();
         Product saved = productRepository.save(soldOut);
 
@@ -185,10 +185,33 @@ class CatalogControllerIT {
     @Transactional
     void availableProductDetailSaysAvailable() throws Exception {
         Product saved = productRepository.save(
-                new Product("Ceviche disponible", "d", new BigDecimal("30.00"), category("fondos"), null));
+                new Product("Ceviche disponible", "d", new BigDecimal("30.00"), category("fondos"), null, 10));
 
         mockMvc.perform(get("/api/products/{id}", saved.getId()))
                 .andExpect(jsonPath("$.available").value(true));
+    }
+
+    @Test
+    void lookupByIdsIsPublicOrderedAndSkipsInactiveAndUnknownIds() throws Exception {
+        Long first = findByName("Ceviche 01").getId();
+        Long second = findByName("Ceviche 02").getId();
+        Long inactive = findByName("Ceviche retirado").getId();
+
+        mockMvc.perform(get("/api/products").param("ids", second + "," + first + "," + inactive + ",999999"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].id").value(first))
+                .andExpect(jsonPath("$[1].id").value(second))
+                .andExpect(jsonPath("$[0].available").value(true))
+                .andExpect(jsonPath("$[0].stock").value(10));
+    }
+
+    @Test
+    void lookupByIdsRejectsNonNumericIdsAndMoreThanOneHundred() throws Exception {
+        mockMvc.perform(get("/api/products").param("ids", "abc")).andExpect(status().isBadRequest());
+
+        String tooMany = IntStream.rangeClosed(1, 101).mapToObj(String::valueOf).collect(java.util.stream.Collectors.joining(","));
+        mockMvc.perform(get("/api/products").param("ids", tooMany)).andExpect(status().isBadRequest());
     }
 
     @Test
@@ -220,9 +243,9 @@ class CatalogControllerIT {
     private void seedSortable() {
         productRepository.deleteAll();
         Category fondos = category("fondos");
-        productRepository.save(new Product("Beta", "d", new BigDecimal("20.00"), fondos, new BigDecimal("4.0")));
-        productRepository.save(new Product("Alfa", "d", new BigDecimal("30.00"), fondos, null));
-        productRepository.save(new Product("Gamma", "d", new BigDecimal("10.00"), fondos, new BigDecimal("4.8")));
+        productRepository.save(new Product("Beta", "d", new BigDecimal("20.00"), fondos, new BigDecimal("4.0"), 10));
+        productRepository.save(new Product("Alfa", "d", new BigDecimal("30.00"), fondos, null, 10));
+        productRepository.save(new Product("Gamma", "d", new BigDecimal("10.00"), fondos, new BigDecimal("4.8"), 10));
     }
 
     @Test
@@ -283,15 +306,15 @@ class CatalogControllerIT {
         Category ceviches = category("ceviches");
         Category chicharrones = category("chicharrones");
         Category bebidas = category("bebidas");
-        productRepository.save(new Product("Ceviche mixto", "d", new BigDecimal("40.00"), ceviches, null));
-        productRepository.save(new Product("Ceviche clásico", "d", new BigDecimal("32.00"), ceviches, null));
-        productRepository.save(new Product("Chicharrón mixto", "d", new BigDecimal("35.00"), chicharrones, null));
-        productRepository.save(new Product("Chicha morada", "d", new BigDecimal("8.00"), bebidas, null));
-        productRepository.save(new Product("Piña colada 100%", "d", new BigDecimal("15.00"), bebidas, null));
-        Product soldOut = new Product("Ceviche de erizo", "d", new BigDecimal("50.00"), ceviches, null);
+        productRepository.save(new Product("Ceviche mixto", "d", new BigDecimal("40.00"), ceviches, null, 10));
+        productRepository.save(new Product("Ceviche clásico", "d", new BigDecimal("32.00"), ceviches, null, 10));
+        productRepository.save(new Product("Chicharrón mixto", "d", new BigDecimal("35.00"), chicharrones, null, 10));
+        productRepository.save(new Product("Chicha morada", "d", new BigDecimal("8.00"), bebidas, null, 10));
+        productRepository.save(new Product("Piña colada 100%", "d", new BigDecimal("15.00"), bebidas, null, 10));
+        Product soldOut = new Product("Ceviche de erizo", "d", new BigDecimal("50.00"), ceviches, null, 10);
         soldOut.markUnavailable();
         productRepository.save(soldOut);
-        Product inactive = new Product("Ceviche retirado", "d", new BigDecimal("20.00"), ceviches, null);
+        Product inactive = new Product("Ceviche retirado", "d", new BigDecimal("20.00"), ceviches, null, 10);
         inactive.deactivate();
         productRepository.save(inactive);
     }

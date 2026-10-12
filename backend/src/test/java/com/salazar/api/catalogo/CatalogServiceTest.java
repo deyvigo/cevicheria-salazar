@@ -11,6 +11,7 @@ import com.salazar.api.catalogo.dto.CategoryResponse;
 import com.salazar.api.catalogo.dto.PageResponse;
 import com.salazar.api.catalogo.dto.ProductDetailResponse;
 import com.salazar.api.common.exception.ProductNotFoundException;
+import com.salazar.api.common.exception.TooManyIdsException;
 import java.util.Optional;
 import com.salazar.api.common.config.StorageProperties;
 import com.salazar.api.catalogo.dto.ProductResponse;
@@ -52,7 +53,7 @@ class CatalogServiceTest {
     }
 
     private static Product product(String name, BigDecimal rating) {
-        return new Product(name, "desc", new BigDecimal("32.00"), CEVICHES, rating);
+        return new Product(name, "desc", new BigDecimal("32.00"), CEVICHES, rating, 10);
     }
 
     private static Page<Product> page(int pageNumber, long total, List<Product> content) {
@@ -177,6 +178,61 @@ class CatalogServiceTest {
         assertThat(soldOutDetail.name()).isEqualTo("Agotado");
         assertThat(soldOutDetail.price()).isEqualByComparingTo("32.00");
         assertThat(soldOutDetail.images()).containsExactly("http://media.test/platos/agotado.jpg");
+    }
+
+    @Test
+    void availabilityCombinesTheAdminSwitchWithStock() {
+        Product free = new Product("Libre", "d", new BigDecimal("10.00"), CEVICHES, null, 3);
+        Product empty = new Product("Vacio", "d", new BigDecimal("10.00"), CEVICHES, null, 0);
+        Product switchedOff = new Product("Apagado", "d", new BigDecimal("10.00"), CEVICHES, null, 5);
+        switchedOff.markUnavailable();
+        when(productRepository.findByIdAndActiveTrue(1L)).thenReturn(Optional.of(free));
+        when(productRepository.findByIdAndActiveTrue(2L)).thenReturn(Optional.of(empty));
+        when(productRepository.findByIdAndActiveTrue(3L)).thenReturn(Optional.of(switchedOff));
+
+        ProductDetailResponse freeDetail = service().getProduct(1L);
+
+        assertThat(freeDetail.available()).isTrue();
+        assertThat(freeDetail.stock()).isEqualTo(3);
+        assertThat(service().getProduct(2L).available()).isFalse();
+        assertThat(service().getProduct(3L).available()).isFalse();
+        assertThat(service().getProduct(3L).stock()).isEqualTo(5);
+    }
+
+    @Test
+    void listingCarriesAvailabilityAndStockForTheAddButton() {
+        Product empty = new Product("Vacio", "d", new BigDecimal("10.00"), CEVICHES, null, 0);
+        when(productRepository.findAll(anySpec(), any(Pageable.class)))
+                .thenReturn(page(0, 2, List.of(product("Libre", null), empty)));
+
+        List<ProductResponse> items = service().listProducts("ceviches", null, 1, ProductSort.NAME_ASC).items();
+
+        assertThat(items.get(0).available()).isTrue();
+        assertThat(items.get(0).stock()).isEqualTo(10);
+        assertThat(items.get(1).available()).isFalse();
+        assertThat(items.get(1).stock()).isZero();
+    }
+
+    @Test
+    void lookupByIdsDeduplicatesAndOnlyAsksForDistinctIds() {
+        when(productRepository.findAllByIdInAndActiveTrueOrderByIdAsc(any()))
+                .thenReturn(List.of(product("A", null)));
+
+        List<ProductResponse> result = service().getProductsByIds(List.of(5L, 5L, 7L));
+
+        ArgumentCaptor<java.util.Collection<Long>> captor = ArgumentCaptor.forClass(java.util.Collection.class);
+        verify(productRepository).findAllByIdInAndActiveTrueOrderByIdAsc(captor.capture());
+        assertThat(captor.getValue()).containsExactly(5L, 7L);
+        assertThat(result).hasSize(1);
+    }
+
+    @Test
+    void lookupByMoreThanTheLimitIsRejectedAndNeverHitsTheRepository() {
+        List<Long> ids = java.util.stream.LongStream.rangeClosed(1, 101).boxed().toList();
+
+        assertThatThrownBy(() -> service().getProductsByIds(ids)).isInstanceOf(TooManyIdsException.class);
+
+        verify(productRepository, never()).findAllByIdInAndActiveTrueOrderByIdAsc(any());
     }
 
     @Test

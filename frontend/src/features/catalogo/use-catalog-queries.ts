@@ -39,22 +39,27 @@ export function useProduct(id: number | null) {
       const pages = queryClient.getQueriesData<Page<Product>>({
         queryKey: ['catalog', 'products'],
       });
-      for (const [, page] of pages) {
-        const found = page?.items.find((item) => item.id === id);
-        if (found) {
-          return {
-            id: found.id,
-            name: found.name,
-            description: found.description,
-            price: found.price,
-            rating: found.rating,
-            available: null,
-            category: null,
-            images: found.imageUrl ? [found.imageUrl] : [],
-          };
-        }
-      }
-      return undefined;
+      // Opened from the cart: its products carry the same fields as a catalog card
+      const cartLists = queryClient.getQueriesData<Product[]>({
+        queryKey: ['catalog', 'cart-products'],
+      });
+      const candidates = [
+        ...pages.flatMap(([, page]) => page?.items ?? []),
+        ...cartLists.flatMap(([, list]) => list ?? []),
+      ];
+      const found = candidates.find((item) => item.id === id);
+      if (!found) return undefined;
+      return {
+        id: found.id,
+        name: found.name,
+        description: found.description,
+        price: found.price,
+        rating: found.rating,
+        available: found.available,
+        stock: found.stock,
+        category: null,
+        images: found.imageUrl ? [found.imageUrl] : [],
+      };
     },
   });
 }

@@ -22,25 +22,29 @@ export function ProductGallery({
         style={selected === 0 ? sharedName('image', transitioning) : undefined}
         className="aspect-square w-full rounded-lg bg-surface-celeste object-cover"
       />
-      {images.length > 1 ? (
-        <ul className="flex gap-3" aria-label="Imágenes del plato">
-          {images.map((url, index) => (
-            <li key={`${url}-${index}`}>
-              <button
-                type="button"
-                aria-label={`Ver imagen ${index + 1}`}
-                aria-pressed={index === selected}
-                onClick={() => setSelected(index)}
-                className={`block cursor-pointer overflow-hidden rounded-md border-2 focus-visible:shadow-focus focus-visible:outline-none ${
-                  index === selected ? 'border-focus-ring' : 'border-border'
-                }`}
-              >
-                <DishImage src={url} alt="" className="h-16 w-16 bg-surface-celeste object-cover" />
-              </button>
-            </li>
-          ))}
-        </ul>
-      ) : null}
+      {/* Always reserve the thumbnail row (h-16 + 2px borders): the list placeholder carries a single image, and the
+          thumbnails arriving later would grow the gallery and push the bottom-pinned add button down mid-transition */}
+      <div className="h-[68px]">
+        {images.length > 1 ? (
+          <ul className="flex gap-3" aria-label="Imágenes del plato">
+            {images.map((url, index) => (
+              <li key={`${url}-${index}`}>
+                <button
+                  type="button"
+                  aria-label={`Ver imagen ${index + 1}`}
+                  aria-pressed={index === selected}
+                  onClick={() => setSelected(index)}
+                  className={`block cursor-pointer overflow-hidden rounded-md border-2 focus-visible:shadow-focus focus-visible:outline-none ${
+                    index === selected ? 'border-focus-ring' : 'border-border'
+                  }`}
+                >
+                  <DishImage src={url} alt="" className="h-16 w-16 bg-surface-celeste object-cover" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </div>
     </div>
   );
 }

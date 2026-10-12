@@ -14,6 +14,9 @@ export interface Product {
   price: number;
   rating: number | null;
   imageUrl: string | null;
+  // Only drives the add-to-cart button; never shown on the card
+  available: boolean;
+  stock: number;
 }
 
 export interface ProductDetail {
@@ -24,6 +27,7 @@ export interface ProductDetail {
   rating: number | null;
   // null until the server confirms it: the list placeholder doesn't carry availability
   available: boolean | null;
+  stock: number | null;
   category: Category | null;
   images: string[];
 }
