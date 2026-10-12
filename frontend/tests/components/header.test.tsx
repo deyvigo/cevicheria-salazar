@@ -6,6 +6,7 @@ import { Header } from '@/components/header';
 import { AuthProvider, useAuth, type AuthUser } from '@/context/auth-context';
 import { QueryWrapper } from '@tests/utils/query-wrapper';
 import * as authApi from '@/features/auth/auth-api';
+import { useCartStore } from '@/features/carrito/cart-store';
 
 vi.mock('@/features/auth/auth-api');
 
@@ -44,6 +45,46 @@ function renderHeader(initialEntry = '/') {
 describe('Header', () => {
   beforeEach(() => {
     vi.resetAllMocks();
+    localStorage.clear();
+    useCartStore.setState({ items: [], lastAdded: null });
+  });
+
+  it('muestra el carrito a la izquierda de "Iniciar sesión" y del menú del usuario, incluso cargando', async () => {
+    vi.mocked(authApi.me).mockRejectedValue(new Error('401'));
+    renderHeader();
+
+    const cart = screen.getByRole('link', { name: 'Carrito' });
+    expect(cart).toHaveAttribute('href', '/cart');
+    const login = await screen.findByRole('button', { name: 'Iniciar sesión' });
+    expect(cart.compareDocumentPosition(login) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('la insignia cuenta platos distintos, no unidades', () => {
+    vi.mocked(authApi.me).mockReturnValue(new Promise(() => {}));
+    useCartStore.setState({
+      items: [
+        { productId: 1, quantity: 3 },
+        { productId: 2, quantity: 1 },
+      ],
+    });
+    renderHeader();
+
+    expect(screen.getByRole('link', { name: 'Carrito, 2 productos' })).toHaveTextContent('2');
+  });
+
+  it('con tres unidades de un mismo plato la insignia muestra 1 y el nombre es singular', () => {
+    vi.mocked(authApi.me).mockReturnValue(new Promise(() => {}));
+    useCartStore.setState({ items: [{ productId: 1, quantity: 3 }] });
+    renderHeader();
+
+    expect(screen.getByRole('link', { name: 'Carrito, 1 producto' })).toHaveTextContent('1');
+  });
+
+  it('sin platos no hay insignia', () => {
+    vi.mocked(authApi.me).mockReturnValue(new Promise(() => {}));
+    renderHeader();
+
+    expect(screen.getByRole('link', { name: 'Carrito' })).toHaveTextContent('');
   });
 
   it('muestra "Iniciar sesión" y no el menú cuando no hay sesión', async () => {

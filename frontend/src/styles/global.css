@@ -2,6 +2,14 @@
 @import './tokens.css';
 @import './tailwind-theme.css';
 
+/* Tailwind v4 resets buttons to the default cursor; in the base layer so disabled:cursor-not-allowed still wins */
+@layer base {
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']) {
+    cursor: pointer;
+  }
+}
+
 body {
   margin: 0;
   background: var(--bg);

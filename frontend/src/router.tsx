@@ -1,5 +1,6 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { Layout } from '@/components/layout';
+import { CartPage } from '@/features/carrito/cart-page';
 import { ForgotPasswordPage } from '@/features/auth/forgot-password-page';
 import { LoginPage } from '@/features/auth/login-page';
 import { RegisterPage } from '@/features/auth/register-page';
@@ -16,6 +17,7 @@ export const router = createBrowserRouter([
       { path: '/menu', element: <CatalogPage /> },
       { path: '/menu/:category', element: <CatalogPage /> },
       { path: '/products/:id', element: <ProductDetailPage /> },
+      { path: '/cart', element: <CartPage /> },
     ],
   },
   {

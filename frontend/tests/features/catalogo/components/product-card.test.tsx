@@ -1,7 +1,8 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { RouterProvider, createMemoryRouter, useLocation } from 'react-router-dom';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { useCartStore } from '@/features/carrito/cart-store';
 import type { Product } from '@/features/catalogo/catalog-api';
 import { ProductCard } from '@/features/catalogo/components/product-card';
 
@@ -12,6 +13,8 @@ const PRODUCT: Product = {
   price: 32,
   rating: 4.5,
   imageUrl: 'http://media.test/platos/ceviche.jpg',
+  available: true,
+  stock: 10,
 };
 
 function Probe() {
@@ -31,6 +34,51 @@ function renderCard(product: Product) {
 }
 
 describe('ProductCard', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    useCartStore.setState({ items: [], lastAdded: null });
+  });
+
+  it('"Agregar" suma al carrito sin navegar al detalle', async () => {
+    const user = userEvent.setup();
+    renderCard(PRODUCT);
+
+    await user.click(screen.getByRole('button', { name: 'Agregar Ceviche clásico al carrito' }));
+
+    expect(useCartStore.getState().items).toEqual([{ productId: 1, quantity: 1 }]);
+    expect(screen.queryByTestId('probe')).not.toBeInTheDocument();
+  });
+
+  it('el botón no está dentro del enlace y el resto de la tarjeta sigue navegando', async () => {
+    const user = userEvent.setup();
+    renderCard(PRODUCT);
+
+    expect(screen.getByRole('link')).not.toContainElement(screen.getByRole('button'));
+
+    await user.click(screen.getByRole('heading', { name: 'Ceviche clásico' }));
+    expect(await screen.findByTestId('probe')).toHaveTextContent('/products/1');
+  });
+
+  it.each([
+    ['agotado', { available: false }],
+    ['stock 0', { stock: 0 }],
+  ])('deshabilita el botón con %s sin mostrar stock ni disponibilidad', (_name, override) => {
+    renderCard({ ...PRODUCT, ...override });
+
+    expect(screen.getByRole('button', { name: /Agregar/ })).toBeDisabled();
+    expect(screen.queryByText(/agotado|disponible|stock/i)).not.toBeInTheDocument();
+  });
+
+  it('deshabilita el botón cuando el carrito ya tiene todo el stock', async () => {
+    const user = userEvent.setup();
+    renderCard({ ...PRODUCT, stock: 1 });
+    const button = screen.getByRole('button', { name: /Agregar/ });
+
+    await user.click(button);
+
+    expect(button).toBeDisabled();
+  });
+
   it('muestra nombre, precio con dos decimales, calificación e imagen', () => {
     renderCard(PRODUCT);
 

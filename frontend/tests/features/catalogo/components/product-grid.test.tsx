@@ -4,8 +4,17 @@ import { describe, expect, it } from 'vitest';
 import { ProductGrid } from '@/features/catalogo/components/product-grid';
 
 const PRODUCTS = [
-  { id: 1, name: 'Ceviche clásico', description: '', price: 32, rating: null, imageUrl: null },
-  { id: 2, name: 'Ceviche mixto', description: '', price: 35, rating: 4, imageUrl: null },
+  {
+    id: 1,
+    name: 'Ceviche clásico',
+    description: '',
+    price: 32,
+    rating: null,
+    imageUrl: null,
+    available: true,
+    stock: 10,
+  },
+  { id: 2, name: 'Ceviche mixto', description: '', price: 35, rating: 4, imageUrl: null, available: true, stock: 10 },
 ];
 
 function renderGrid(props: Parameters<typeof ProductGrid>[0]) {
