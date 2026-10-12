@@ -1,8 +1,7 @@
 import axios from 'axios';
 import { useCallback } from 'react';
 import { Link, useLocation, useNavigate, useParams, useViewTransitionState } from 'react-router-dom';
-import { AddToCartButton } from '@/features/carrito/components/add-to-cart-button';
-import { useAddToCart } from '@/features/carrito/use-add-to-cart';
+import { ProductPurchase } from '@/features/carrito/components/product-purchase';
 import { AvailabilityBadge } from '@/features/catalogo/components/availability-badge';
 import { StarIcon } from '@/features/catalogo/components/star-icon';
 import { ProductGallery } from '@/features/catalogo/components/product-gallery';
@@ -21,7 +20,6 @@ export function ProductDetailPage() {
   const transitioning = useViewTransitionState(`/products/${rawId ?? ''}`);
   const query = useProduct(id);
   const product = query.data;
-  const { atLimit } = useAddToCart(product ?? null);
   const focusHeading = useCallback((element: HTMLHeadingElement | null) => {
     element?.focus({ preventScroll: true });
   }, []);
@@ -120,17 +118,11 @@ export function ProductDetailPage() {
             </p>
             <p className="text-base whitespace-pre-line text-ink">{product.description}</p>
             {/* Pinned to the bottom of the column, level with the thumbnails */}
-            <div className="mt-auto flex flex-col gap-2">
-              {atLimit ? (
-                <p aria-live="polite" className="text-sm text-ink-muted">
-                  Ya tienes todo el stock disponible en tu carrito
-                </p>
-              ) : null}
-              <AddToCartButton
+            <div className="mt-auto">
+              <ProductPurchase
                 product={product}
-                label="Agregar al carrito"
-                style={sharedName('cta', transitioning)}
-                className="w-full"
+                ctaStyle={sharedName('cta', transitioning)}
+                stepperStyle={sharedName('stepper', transitioning)}
               />
             </div>
           </div>

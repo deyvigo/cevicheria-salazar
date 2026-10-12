@@ -1,4 +1,8 @@
+import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useViewTransitionState } from 'react-router-dom';
+import { Button } from '@/components/button';
+import { QuantityStepper } from '@/features/carrito/components/quantity-stepper';
+import { quantityCap, useCartStore } from '@/features/carrito/cart-store';
 import { DishImage } from '@/features/catalogo/components/dish-image';
 import { AvailabilityBadge } from '@/features/catalogo/components/availability-badge';
 import { formatPrice } from '@/features/catalogo/format';
@@ -6,7 +10,49 @@ import { rememberScroll } from '@/features/catalogo/scroll-memory';
 import { sharedName } from '@/features/catalogo/transition-names';
 import type { Product } from '@/features/catalogo/catalog-api';
 
-export function CartItemRow({ product, quantity }: { product: Product; quantity: number }) {
+const FADE_OUT_MS = 250;
+
+export function CartItemRow({
+  product,
+  quantity,
+  onRemoved,
+}: {
+  product: Product;
+  quantity: number;
+  onRemoved?: () => void;
+}) {
+  const setQuantity = useCartStore((state) => state.setQuantity);
+  const remove = useCartStore((state) => state.remove);
+  const purchasable = {
+    id: product.id,
+    name: product.name,
+    available: product.available,
+    stock: product.stock,
+  };
+
+  const [leaving, setLeaving] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  useEffect(() => () => clearTimeout(timer.current), []);
+
+  function change(next: number) {
+    if (leaving) return;
+    if (next <= 0) {
+      const finish = () => {
+        remove(product.id, product.name);
+        onRemoved?.();
+      };
+      // Wait for the fade so the row doesn't vanish abruptly; with reduced motion there is no fade to wait for
+      if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+        finish();
+      } else {
+        setLeaving(true);
+        timer.current = setTimeout(finish, FADE_OUT_MS);
+      }
+    } else {
+      setQuantity(purchasable, next);
+    }
+  }
+
   const location = useLocation();
   const to = `/products/${product.id}`;
   // Only the row involved in the navigation gets the shared names, so they never repeat in the list
@@ -19,7 +65,9 @@ export function CartItemRow({ product, quantity }: { product: Product; quantity:
   };
 
   return (
-    <li className="flex items-center gap-4 rounded-lg border border-border bg-surface p-4 shadow-sm">
+    <li
+      className={`flex items-center gap-4 rounded-lg border border-border bg-surface p-4 shadow-sm transition-opacity duration-250 ease-out ${leaving ? 'pointer-events-none opacity-0' : 'opacity-100'}`}
+    >
       {/* The name link is the accessible one; the image link only widens the click target */}
       <Link {...linkProps} tabIndex={-1} aria-hidden="true" className="flex-none">
         <DishImage
@@ -47,10 +95,34 @@ export function CartItemRow({ product, quantity }: { product: Product; quantity:
           </div>
         ) : null}
       </div>
-      <p className="flex-none text-base text-ink">
-        <span className="text-ink-muted">Cantidad: </span>
-        <span className="font-bold">{quantity}</span>
-      </p>
+      <div className="flex flex-none items-center gap-3">
+        <QuantityStepper
+          value={quantity}
+          min={0}
+          max={quantityCap(purchasable, quantity)}
+          label={product.name}
+          style={sharedName('stepper', transitioning)}
+          onChange={change}
+        />
+        <Button
+          type="button"
+          variant="secondary"
+          aria-label={`Eliminar ${product.name} del carrito`}
+          onClick={() => change(0)}
+          className="w-12 flex-none px-0!"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            className="h-5 w-5 fill-none stroke-current"
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 002 2h6a2 2 0 002-2l1-12M9 7V4h6v3" />
+          </svg>
+        </Button>
+      </div>
     </li>
   );
 }

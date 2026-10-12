@@ -39,7 +39,7 @@ describe('ProductDetailPage', () => {
   beforeEach(() => {
     vi.mocked(catalogApi.getProduct).mockReset();
     localStorage.clear();
-    useCartStore.setState({ items: [], lastAdded: null });
+    useCartStore.setState({ items: [], lastAdded: null, lastRemoved: null });
   });
 
   it('agrega al carrito y, al llegar al stock, avisa y deshabilita el botón', async () => {
@@ -47,18 +47,27 @@ describe('ProductDetailPage', () => {
     const user = userEvent.setup();
     renderAt('/products/7');
 
-    const button = await screen.findByRole('button', { name: 'Agregar al carrito' });
+    const button = await screen.findByRole('button', {
+      name: 'Agregar al carrito',
+    });
     expect(button).toBeEnabled();
     await user.click(button);
 
     expect(useCartStore.getState().items).toEqual([{ productId: 7, quantity: 1 }]);
-    expect(button).toBeDisabled();
+    expect(screen.queryByRole('button', { name: 'Agregar al carrito' })).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', {
+        name: 'Agregar una unidad de Ceviche clásico',
+      }),
+    ).toBeDisabled();
     expect(screen.getByText('Ya tienes todo el stock disponible en tu carrito')).toBeInTheDocument();
   });
 
   it('con datos del listado en caché el botón y el indicador ya reflejan disponibilidad y stock sin esperar al servidor', async () => {
     vi.mocked(catalogApi.getProduct).mockReturnValue(new Promise(() => {}));
-    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
     const listed: Product = {
       id: 7,
       name: 'Ceviche clásico',
@@ -69,7 +78,13 @@ describe('ProductDetailPage', () => {
       available: true,
       stock: 4,
     };
-    const cached: Page<Product> = { items: [listed], page: 1, pageSize: 18, totalItems: 1, totalPages: 1 };
+    const cached: Page<Product> = {
+      items: [listed],
+      page: 1,
+      pageSize: 18,
+      totalItems: 1,
+      totalPages: 1,
+    };
     client.setQueryData(['catalog', 'products', 'ceviches', null, 1, 'name_asc'], cached);
     const router = createMemoryRouter([{ path: '/products/:id', element: <ProductDetailPage /> }], {
       initialEntries: ['/products/7'],
@@ -90,7 +105,10 @@ describe('ProductDetailPage', () => {
     ['stock 0', { available: true, stock: 0 }],
     ['sin confirmar', { available: null, stock: null }],
   ])('deja el botón deshabilitado con %s', async (_name, override) => {
-    vi.mocked(catalogApi.getProduct).mockResolvedValue({ ...DETAIL, ...override });
+    vi.mocked(catalogApi.getProduct).mockResolvedValue({
+      ...DETAIL,
+      ...override,
+    });
     renderAt('/products/7');
 
     expect(await screen.findByRole('button', { name: 'Agregar al carrito' })).toBeDisabled();
@@ -100,7 +118,10 @@ describe('ProductDetailPage', () => {
     vi.mocked(catalogApi.getProduct).mockResolvedValue(DETAIL);
     renderAt('/products/7');
 
-    const heading = await screen.findByRole('heading', { name: 'Ceviche clásico', level: 1 });
+    const heading = await screen.findByRole('heading', {
+      name: 'Ceviche clásico',
+      level: 1,
+    });
     expect(heading).toHaveFocus();
     expect(screen.getByText('Ceviches')).toBeInTheDocument();
     expect(screen.getByText('S/ 32.00')).toBeInTheDocument();
@@ -118,7 +139,10 @@ describe('ProductDetailPage', () => {
   });
 
   it('muestra "Agotado" sin ocultar nombre, precio ni descripción', async () => {
-    vi.mocked(catalogApi.getProduct).mockResolvedValue({ ...DETAIL, available: false });
+    vi.mocked(catalogApi.getProduct).mockResolvedValue({
+      ...DETAIL,
+      available: false,
+    });
     renderAt('/products/7');
 
     expect(await screen.findByText('Agotado')).toBeInTheDocument();
@@ -129,7 +153,10 @@ describe('ProductDetailPage', () => {
   });
 
   it('no muestra ningún estado mientras la disponibilidad no está confirmada', async () => {
-    vi.mocked(catalogApi.getProduct).mockResolvedValue({ ...DETAIL, available: null });
+    vi.mocked(catalogApi.getProduct).mockResolvedValue({
+      ...DETAIL,
+      available: null,
+    });
     renderAt('/products/7');
 
     await screen.findByRole('heading', { name: 'Ceviche clásico' });
@@ -138,7 +165,10 @@ describe('ProductDetailPage', () => {
   });
 
   it('no muestra calificación cuando el plato no tiene', async () => {
-    vi.mocked(catalogApi.getProduct).mockResolvedValue({ ...DETAIL, rating: null });
+    vi.mocked(catalogApi.getProduct).mockResolvedValue({
+      ...DETAIL,
+      rating: null,
+    });
     renderAt('/products/7');
 
     await screen.findByRole('heading', { name: 'Ceviche clásico' });
@@ -147,7 +177,10 @@ describe('ProductDetailPage', () => {
 
   it('"Volver" va al listado del que se vino, con página y orden', async () => {
     vi.mocked(catalogApi.getProduct).mockResolvedValue(DETAIL);
-    renderAt({ pathname: '/products/7', state: { from: '/ceviches?page=2&sort=price_desc' } });
+    renderAt({
+      pathname: '/products/7',
+      state: { from: '/ceviches?page=2&sort=price_desc' },
+    });
 
     expect(await screen.findByRole('link', { name: 'Volver' })).toHaveAttribute(
       'href',
@@ -178,7 +211,9 @@ describe('ProductDetailPage', () => {
 
   it('con datos del carrito en caché el detalle pinta el plato de inmediato', async () => {
     vi.mocked(catalogApi.getProduct).mockReturnValue(new Promise(() => {}));
-    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
     const listed: Product = {
       id: 7,
       name: 'Ceviche clásico',
@@ -214,7 +249,9 @@ describe('ProductDetailPage', () => {
 
   it('muestra "No encontramos este plato" ante un 404', async () => {
     vi.mocked(catalogApi.getProduct).mockRejectedValue(
-      new AxiosError('Not found', 'ERR_BAD_REQUEST', undefined, undefined, { status: 404 } as never),
+      new AxiosError('Not found', 'ERR_BAD_REQUEST', undefined, undefined, {
+        status: 404,
+      } as never),
     );
     renderAt('/products/999');
 
@@ -234,5 +271,135 @@ describe('ProductDetailPage', () => {
     renderAt('/products/7');
 
     expect(await screen.findByText('No pudimos cargar el plato. Intenta de nuevo.')).toBeInTheDocument();
+  });
+
+  describe('cantidad', () => {
+    const field = () => screen.findByRole('textbox', { name: 'Cantidad de Ceviche clásico' });
+
+    it('fuera del carrito muestra stepper en 1 y el botón, y agrega la cantidad elegida', async () => {
+      vi.mocked(catalogApi.getProduct).mockResolvedValue(DETAIL);
+      const user = userEvent.setup();
+      renderAt('/products/7');
+
+      expect(await field()).toHaveValue('1');
+      await user.click(
+        screen.getByRole('button', {
+          name: 'Agregar una unidad de Ceviche clásico',
+        }),
+      );
+      await user.click(
+        screen.getByRole('button', {
+          name: 'Agregar una unidad de Ceviche clásico',
+        }),
+      );
+      expect(useCartStore.getState().items).toEqual([]);
+
+      await user.click(screen.getByRole('button', { name: 'Agregar al carrito' }));
+
+      expect(useCartStore.getState().items).toEqual([{ productId: 7, quantity: 3 }]);
+      expect(screen.queryByRole('button', { name: 'Agregar al carrito' })).not.toBeInTheDocument();
+      expect(await field()).toHaveValue('3');
+    });
+
+    it('antes de agregar el mínimo es 1 y se recorta al stock', async () => {
+      vi.mocked(catalogApi.getProduct).mockResolvedValue({
+        ...DETAIL,
+        stock: 4,
+      });
+      const user = userEvent.setup();
+      renderAt('/products/7');
+      const input = await field();
+
+      expect(
+        screen.getByRole('button', {
+          name: 'Quitar una unidad de Ceviche clásico',
+        }),
+      ).toBeDisabled();
+      await user.clear(input);
+      await user.type(input, '0{Enter}');
+      expect(input).toHaveValue('1');
+
+      await user.clear(input);
+      await user.type(input, '50{Enter}');
+      expect(input).toHaveValue('4');
+    });
+
+    it('con el plato en el carrito muestra solo el stepper con su cantidad y no hay "Eliminar"', async () => {
+      useCartStore.setState({ items: [{ productId: 7, quantity: 2 }] });
+      vi.mocked(catalogApi.getProduct).mockResolvedValue(DETAIL);
+      renderAt('/products/7');
+
+      expect(await field()).toHaveValue('2');
+      expect(screen.queryByRole('button', { name: 'Agregar al carrito' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /Eliminar/ })).not.toBeInTheDocument();
+    });
+
+    it('− hasta 0 quita el plato, avisa y devuelve stepper en 1 y botón', async () => {
+      useCartStore.setState({ items: [{ productId: 7, quantity: 1 }] });
+      vi.mocked(catalogApi.getProduct).mockResolvedValue(DETAIL);
+      const user = userEvent.setup();
+      renderAt('/products/7');
+
+      await user.click(
+        await screen.findByRole('button', {
+          name: 'Quitar una unidad de Ceviche clásico',
+        }),
+      );
+
+      expect(useCartStore.getState().items).toEqual([]);
+      expect(useCartStore.getState().lastRemoved?.name).toBe('Ceviche clásico');
+      expect(await field()).toHaveValue('1');
+      expect(screen.getByRole('button', { name: 'Agregar al carrito' })).toBeEnabled();
+    });
+
+    it('cambiar la cantidad en el carrito no avisa', async () => {
+      useCartStore.setState({ items: [{ productId: 7, quantity: 1 }] });
+      vi.mocked(catalogApi.getProduct).mockResolvedValue(DETAIL);
+      const user = userEvent.setup();
+      renderAt('/products/7');
+
+      await user.click(
+        await screen.findByRole('button', {
+          name: 'Agregar una unidad de Ceviche clásico',
+        }),
+      );
+
+      expect(useCartStore.getState().items).toEqual([{ productId: 7, quantity: 2 }]);
+      expect(useCartStore.getState().lastAdded).toBeNull();
+      expect(useCartStore.getState().lastRemoved).toBeNull();
+    });
+
+    it('un plato agotado ya en el carrito deja + deshabilitado y − funcional', async () => {
+      useCartStore.setState({ items: [{ productId: 7, quantity: 2 }] });
+      vi.mocked(catalogApi.getProduct).mockResolvedValue({
+        ...DETAIL,
+        available: false,
+      });
+      const user = userEvent.setup();
+      renderAt('/products/7');
+
+      expect(
+        await screen.findByRole('button', {
+          name: 'Agregar una unidad de Ceviche clásico',
+        }),
+      ).toBeDisabled();
+      await user.click(
+        screen.getByRole('button', {
+          name: 'Quitar una unidad de Ceviche clásico',
+        }),
+      );
+      expect(useCartStore.getState().items).toEqual([{ productId: 7, quantity: 1 }]);
+    });
+
+    it('un plato agotado fuera del carrito deja stepper y botón deshabilitados', async () => {
+      vi.mocked(catalogApi.getProduct).mockResolvedValue({
+        ...DETAIL,
+        available: false,
+      });
+      renderAt('/products/7');
+
+      expect(await field()).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Agregar al carrito' })).toBeDisabled();
+    });
   });
 });

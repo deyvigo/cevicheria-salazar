@@ -63,6 +63,9 @@ export function CartPage() {
     if (y !== null) window.scrollTo({ top: y });
   }, [query.data, query.isPlaceholderData, location.key, location.pathname, isReturn]);
 
+  // The removed row takes the focus with it, so park it on the title
+  const titleRef = useRef<HTMLHeadingElement>(null);
+
   const productsById = new Map((query.data ?? []).map((product) => [product.id, product]));
 
   return (
@@ -82,7 +85,13 @@ export function CartPage() {
       ) : null}
 
       <div className="flex items-start justify-between gap-4">
-        <h1 className="font-display text-[32px] leading-10 font-semibold text-ink">Tu carrito</h1>
+        <h1
+          ref={titleRef}
+          tabIndex={-1}
+          className="font-display text-[32px] leading-10 font-semibold text-ink focus:outline-none"
+        >
+          Tu carrito
+        </h1>
         {items.length > 0 ? <ShareButton items={items} /> : null}
       </div>
 
@@ -112,7 +121,14 @@ export function CartPage() {
                 <li key={item.productId} className="h-28 animate-pulse rounded-lg bg-surface-celeste" />
               ) : null;
             }
-            return <CartItemRow key={item.productId} product={product} quantity={item.quantity} />;
+            return (
+              <CartItemRow
+                key={item.productId}
+                product={product}
+                quantity={item.quantity}
+                onRemoved={() => titleRef.current?.focus()}
+              />
+            );
           })}
         </ul>
       )}

@@ -14,12 +14,20 @@ export interface Purchasable {
 
 interface CartState {
   items: CartItem[];
-  // Transient: drives the "added" notice and is never persisted
+  // Transient: drive the cart notice and are never persisted; only one is set at a time
   lastAdded: { productId: number; name: string; at: number } | null;
-  add: (product: Purchasable) => void;
+  lastRemoved: { productId: number; name: string; at: number } | null;
+  add: (product: Purchasable, quantity?: number) => void;
+  setQuantity: (product: Purchasable, quantity: number) => void;
+  remove: (productId: number, name: string) => void;
   importItems: (incoming: CartItem[]) => void;
   reconcile: (requestedIds: number[], products: { id: number; stock: number }[]) => void;
   clear: () => void;
+}
+
+// A dish that can't be ordered keeps its current quantity as the ceiling: it can go down or be removed, never up
+export function quantityCap(product: { available: boolean; stock: number }, current: number): number {
+  return product.available && product.stock > 0 ? Math.min(product.stock, MAX_QUANTITY) : current;
 }
 
 const itemSchema = z.object({
@@ -70,15 +78,17 @@ export const useCartStore = create<CartState>()(
     (set) => ({
       items: [],
       lastAdded: null,
-      add: (product) =>
+      lastRemoved: null,
+      add: (product, quantity = 1) =>
         set((state) => {
-          if (!product.available) return state;
+          if (!product.available || !Number.isFinite(quantity)) return state;
           const current = state.items.find((item) => item.productId === product.id);
-          const quantity = current?.quantity ?? 0;
-          if (quantity >= product.stock || state.items.length >= MAX_PRODUCTS) return state;
+          const currentQuantity = current?.quantity ?? 0;
+          const next = Math.min(currentQuantity + Math.floor(quantity), quantityCap(product, currentQuantity));
+          if (next <= currentQuantity || (!current && state.items.length >= MAX_PRODUCTS)) return state;
           const items = current
-            ? state.items.map((item) => (item.productId === product.id ? { ...item, quantity: quantity + 1 } : item))
-            : [...state.items, { productId: product.id, quantity: 1 }];
+            ? state.items.map((item) => (item.productId === product.id ? { ...item, quantity: next } : item))
+            : [...state.items, { productId: product.id, quantity: next }];
           return {
             items,
             lastAdded: {
@@ -86,6 +96,38 @@ export const useCartStore = create<CartState>()(
               name: product.name,
               at: Date.now(),
             },
+            lastRemoved: null,
+          };
+        }),
+      setQuantity: (product, quantity) =>
+        set((state) => {
+          const current = state.items.find((item) => item.productId === product.id);
+          if (!current || !Number.isFinite(quantity)) return state;
+          const wanted = Math.floor(quantity);
+          if (wanted <= 0) {
+            return {
+              items: state.items.filter((item) => item.productId !== product.id),
+              lastAdded: null,
+              lastRemoved: {
+                productId: product.id,
+                name: product.name,
+                at: Date.now(),
+              },
+            };
+          }
+          const next = Math.min(wanted, quantityCap(product, current.quantity));
+          if (next === current.quantity) return state;
+          return {
+            items: state.items.map((item) => (item.productId === product.id ? { ...item, quantity: next } : item)),
+          };
+        }),
+      remove: (productId, name) =>
+        set((state) => {
+          if (!state.items.some((item) => item.productId === productId)) return state;
+          return {
+            items: state.items.filter((item) => item.productId !== productId),
+            lastAdded: null,
+            lastRemoved: { productId, name, at: Date.now() },
           };
         }),
       importItems: (incoming) =>

@@ -1,11 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CART_STORAGE_KEY, useCartStore } from '@/features/carrito/cart-store';
 
-const dish = (id: number, stock = 10, available = true) => ({ id, name: `Plato ${id}`, available, stock });
+const dish = (id: number, stock = 10, available = true) => ({
+  id,
+  name: `Plato ${id}`,
+  available,
+  stock,
+});
 
 beforeEach(() => {
   localStorage.clear();
-  useCartStore.setState({ items: [], lastAdded: null });
+  useCartStore.setState({ items: [], lastAdded: null, lastRemoved: null });
 });
 
 describe('cart-store', () => {
@@ -82,7 +87,13 @@ describe('cart-store', () => {
   it.each([
     ['JSON roto', '{no es json'],
     ['el arreglo antiguo', JSON.stringify([{ platoId: 1, nombre: 'x', precio: 1, cantidad: 1 }])],
-    ['ítems con forma incorrecta', JSON.stringify({ state: { items: [{ productId: 'a' }, null] }, version: 1 })],
+    [
+      'ítems con forma incorrecta',
+      JSON.stringify({
+        state: { items: [{ productId: 'a' }, null] },
+        version: 1,
+      }),
+    ],
   ])('arranca vacío con contenido corrupto: %s', async (_name, raw) => {
     localStorage.setItem(CART_STORAGE_KEY, raw);
 
@@ -104,11 +115,94 @@ describe('cart-store', () => {
   it('rehidrata cuando otra pestaña cambia la llave', async () => {
     localStorage.setItem(
       CART_STORAGE_KEY,
-      JSON.stringify({ state: { items: [{ productId: 8, quantity: 2 }] }, version: 1 }),
+      JSON.stringify({
+        state: { items: [{ productId: 8, quantity: 2 }] },
+        version: 1,
+      }),
     );
 
     window.dispatchEvent(new StorageEvent('storage', { key: CART_STORAGE_KEY }));
 
     await vi.waitFor(() => expect(useCartStore.getState().items).toEqual([{ productId: 8, quantity: 2 }]));
+  });
+
+  describe('setQuantity y remove', () => {
+    beforeEach(() => {
+      useCartStore.setState({ items: [{ productId: 1, quantity: 2 }] });
+    });
+
+    it('fija la cantidad exacta sin avisar', () => {
+      useCartStore.getState().setQuantity(dish(1), 5);
+
+      expect(useCartStore.getState().items).toEqual([{ productId: 1, quantity: 5 }]);
+      expect(useCartStore.getState().lastAdded).toBeNull();
+      expect(useCartStore.getState().lastRemoved).toBeNull();
+    });
+
+    it.each([0, -3])('con %i quita la fila y deja el aviso de eliminación', (quantity) => {
+      useCartStore.getState().setQuantity(dish(1), quantity);
+
+      expect(useCartStore.getState().items).toEqual([]);
+      expect(useCartStore.getState().lastRemoved?.name).toBe('Plato 1');
+    });
+
+    it('recorta al stock y a 99', () => {
+      useCartStore.getState().setQuantity(dish(1, 4), 50);
+      expect(useCartStore.getState().items).toEqual([{ productId: 1, quantity: 4 }]);
+
+      useCartStore.getState().setQuantity(dish(1, 500), 5000);
+      expect(useCartStore.getState().items).toEqual([{ productId: 1, quantity: 99 }]);
+    });
+
+    it('un plato no pedible no crece pero baja y se quita', () => {
+      useCartStore.setState({ items: [{ productId: 1, quantity: 3 }] });
+
+      useCartStore.getState().setQuantity(dish(1, 0), 5);
+      expect(useCartStore.getState().items).toEqual([{ productId: 1, quantity: 3 }]);
+
+      useCartStore.getState().setQuantity(dish(1, 0, false), 1);
+      expect(useCartStore.getState().items).toEqual([{ productId: 1, quantity: 1 }]);
+
+      useCartStore.getState().setQuantity(dish(1, 0), 0);
+      expect(useCartStore.getState().items).toEqual([]);
+    });
+
+    it('ignora un plato que no está en el carrito y valores no numéricos', () => {
+      useCartStore.getState().setQuantity(dish(9), 3);
+      useCartStore.getState().setQuantity(dish(1), Number.NaN);
+
+      expect(useCartStore.getState().items).toEqual([{ productId: 1, quantity: 2 }]);
+    });
+
+    it('add con cantidad suma recortado al stock', () => {
+      useCartStore.getState().add(dish(1, 4), 3);
+      expect(useCartStore.getState().items).toEqual([{ productId: 1, quantity: 4 }]);
+
+      useCartStore.getState().add(dish(2, 10), 3);
+      expect(useCartStore.getState().items).toContainEqual({
+        productId: 2,
+        quantity: 3,
+      });
+    });
+
+    it('remove deja el aviso y limpia el de agregado; reconcile no avisa', () => {
+      useCartStore.getState().add(dish(2));
+      useCartStore.getState().remove(2, 'Plato 2');
+
+      expect(useCartStore.getState().lastAdded).toBeNull();
+      expect(useCartStore.getState().lastRemoved?.productId).toBe(2);
+
+      useCartStore.setState({ lastRemoved: null });
+      useCartStore.getState().reconcile([1], []);
+      expect(useCartStore.getState().items).toEqual([]);
+      expect(useCartStore.getState().lastRemoved).toBeNull();
+    });
+
+    it('no persiste lastRemoved', () => {
+      useCartStore.getState().remove(1, 'Plato 1');
+
+      const stored = JSON.parse(localStorage.getItem(CART_STORAGE_KEY) as string);
+      expect(stored.state).toEqual({ items: [] });
+    });
   });
 });

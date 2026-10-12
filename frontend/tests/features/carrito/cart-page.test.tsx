@@ -53,7 +53,7 @@ function renderCart(entry = '/cart') {
 beforeEach(() => {
   vi.mocked(cartApi.getProductsByIds).mockReset();
   localStorage.clear();
-  useCartStore.setState({ items: [], lastAdded: null });
+  useCartStore.setState({ items: [], lastAdded: null, lastRemoved: null });
 });
 
 describe('CartPage', () => {
@@ -79,7 +79,8 @@ describe('CartPage', () => {
     expect(await screen.findByRole('link', { name: 'Plato 1' })).toHaveAttribute('href', '/products/1');
     expect(screen.getByText('S/ 11.00')).toBeInTheDocument();
     expect(screen.getByText('S/ 12.00')).toBeInTheDocument();
-    expect(screen.getAllByText(/Cantidad:/)).toHaveLength(2);
+    expect(screen.getByRole('textbox', { name: 'Cantidad de Plato 1' })).toHaveValue('2');
+    expect(screen.getByRole('textbox', { name: 'Cantidad de Plato 2' })).toHaveValue('1');
     expect(cartApi.getProductsByIds).toHaveBeenCalledWith([1, 2]);
   });
 
@@ -115,7 +116,7 @@ describe('CartPage', () => {
     renderCart();
 
     await waitFor(() => expect(useCartStore.getState().items).toEqual([{ productId: 1, quantity: 4 }]));
-    expect(await screen.findByText('4')).toBeInTheDocument();
+    expect(await screen.findByRole('textbox', { name: 'Cantidad de Plato 1' })).toHaveValue('4');
     expect(screen.queryByText('Plato 2')).not.toBeInTheDocument();
   });
 
@@ -175,5 +176,153 @@ describe('CartPage', () => {
     expect(await screen.findByText('No pudimos leer el carrito compartido')).toBeInTheDocument();
     expect(screen.getByTestId('location')).toHaveTextContent(/^\/cart$/);
     expect(useCartStore.getState().items).toEqual([{ productId: 9, quantity: 1 }]);
+  });
+
+  describe('editar cantidades', () => {
+    beforeEach(() => {
+      useCartStore.setState({
+        items: [
+          { productId: 1, quantity: 2 },
+          { productId: 2, quantity: 1 },
+        ],
+      });
+      vi.mocked(cartApi.getProductsByIds).mockResolvedValue([product(1, { stock: 3 }), product(2)]);
+    });
+
+    it('+ y − cambian la cantidad sin avisar y + se deshabilita en el stock', async () => {
+      const user = userEvent.setup();
+      renderCart();
+      const field = await screen.findByRole('textbox', {
+        name: 'Cantidad de Plato 1',
+      });
+
+      await user.click(screen.getByRole('button', { name: 'Agregar una unidad de Plato 1' }));
+      expect(field).toHaveValue('3');
+      expect(screen.getByRole('button', { name: 'Agregar una unidad de Plato 1' })).toBeDisabled();
+
+      await user.click(screen.getByRole('button', { name: 'Quitar una unidad de Plato 1' }));
+      expect(field).toHaveValue('2');
+      expect(useCartStore.getState().items[0]).toEqual({
+        productId: 1,
+        quantity: 2,
+      });
+      expect(useCartStore.getState().lastRemoved).toBeNull();
+    });
+
+    it('aplica la cantidad escrita y la recorta al stock', async () => {
+      const user = userEvent.setup();
+      renderCart();
+      const field = await screen.findByRole('textbox', {
+        name: 'Cantidad de Plato 1',
+      });
+
+      await user.clear(field);
+      await user.type(field, '50{Enter}');
+
+      expect(useCartStore.getState().items[0]).toEqual({
+        productId: 1,
+        quantity: 3,
+      });
+      expect(field).toHaveValue('3');
+    });
+
+    it('la fila se desvanece antes de quitarse del carrito', async () => {
+      const user = userEvent.setup();
+      renderCart();
+
+      await user.click(await screen.findByRole('button', { name: 'Eliminar Plato 1 del carrito' }));
+
+      expect(screen.getByRole('link', { name: 'Plato 1' }).closest('li')).toHaveClass('opacity-0');
+      expect(useCartStore.getState().items).toHaveLength(2);
+      await waitFor(() => expect(useCartStore.getState().items).toHaveLength(1));
+    });
+
+    it('"Eliminar" quita la fila de inmediato y deja el foco en el título', async () => {
+      const user = userEvent.setup();
+      renderCart();
+
+      await user.click(
+        await screen.findByRole('button', {
+          name: 'Eliminar Plato 1 del carrito',
+        }),
+      );
+
+      await waitFor(() => expect(useCartStore.getState().items).toEqual([{ productId: 2, quantity: 1 }]));
+      expect(screen.queryByRole('link', { name: 'Plato 1' })).not.toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Tu carrito' })).toHaveFocus();
+    });
+
+    it('− desde 1 y escribir 0 quitan el plato', async () => {
+      const user = userEvent.setup();
+      renderCart();
+
+      await user.click(
+        await screen.findByRole('button', {
+          name: 'Quitar una unidad de Plato 2',
+        }),
+      );
+      await waitFor(() => expect(useCartStore.getState().items).toEqual([{ productId: 1, quantity: 2 }]));
+
+      const field = screen.getByRole('textbox', {
+        name: 'Cantidad de Plato 1',
+      });
+      await user.clear(field);
+      await user.type(field, '0{Enter}');
+      await waitFor(() => expect(useCartStore.getState().items).toEqual([]));
+      expect(await screen.findByText('Tu carrito está vacío.')).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Compartir' })).not.toBeInTheDocument();
+    });
+
+    it('un plato agotado tiene + deshabilitado y se puede quitar', async () => {
+      vi.mocked(cartApi.getProductsByIds).mockResolvedValue([product(1, { available: false, stock: 0 }), product(2)]);
+      const user = userEvent.setup();
+      renderCart();
+
+      expect(
+        await screen.findByRole('button', {
+          name: 'Agregar una unidad de Plato 1',
+        }),
+      ).toBeDisabled();
+      await user.click(screen.getByRole('button', { name: 'Quitar una unidad de Plato 1' }));
+      expect(useCartStore.getState().items[0]).toEqual({
+        productId: 1,
+        quantity: 1,
+      });
+
+      await user.click(screen.getByRole('button', { name: 'Eliminar Plato 1 del carrito' }));
+      await waitFor(() => expect(useCartStore.getState().items).toEqual([{ productId: 2, quantity: 1 }]));
+    });
+
+    it('no ofrece el control hasta conocer el stock', () => {
+      vi.mocked(cartApi.getProductsByIds).mockReturnValue(new Promise(() => {}));
+      renderCart();
+
+      expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+    });
+
+    it('el enlace de compartir lleva las cantidades vigentes', async () => {
+      const user = userEvent.setup();
+      const writeText = vi.fn().mockResolvedValue(undefined);
+      Object.defineProperty(navigator, 'clipboard', {
+        value: { writeText },
+        configurable: true,
+      });
+      renderCart();
+
+      await user.click(
+        await screen.findByRole('button', {
+          name: 'Agregar una unidad de Plato 1',
+        }),
+      );
+      await user.click(screen.getByRole('button', { name: 'Compartir' }));
+
+      const link = writeText.mock.calls[0][0] as string;
+      expect(link).toContain(
+        encodeCart([
+          { productId: 1, quantity: 3 },
+          { productId: 2, quantity: 1 },
+        ]),
+      );
+    });
   });
 });

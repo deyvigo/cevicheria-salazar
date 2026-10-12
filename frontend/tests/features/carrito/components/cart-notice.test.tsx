@@ -2,12 +2,12 @@ import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { CartAddedNotice } from '@/features/carrito/components/cart-added-notice';
+import { CartNotice } from '@/features/carrito/components/cart-notice';
 import { useCartStore } from '@/features/carrito/cart-store';
 
 beforeEach(() => {
   localStorage.clear();
-  useCartStore.setState({ items: [], lastAdded: null });
+  useCartStore.setState({ items: [], lastAdded: null, lastRemoved: null });
 });
 
 afterEach(() => {
@@ -17,12 +17,12 @@ afterEach(() => {
 function renderNotice() {
   return render(
     <MemoryRouter>
-      <CartAddedNotice />
+      <CartNotice />
     </MemoryRouter>,
   );
 }
 
-describe('CartAddedNotice', () => {
+describe('CartNotice', () => {
   it('no muestra nada antes de agregar', () => {
     renderNotice();
 
@@ -51,6 +51,34 @@ describe('CartAddedNotice', () => {
 
     await user.click(screen.getByRole('button', { name: 'Cerrar' }));
 
+    expect(screen.queryByText('Agregamos Ceviche a tu carrito')).not.toBeInTheDocument();
+  });
+
+  it('avisa al quitar un plato, sin acción', () => {
+    renderNotice();
+    act(() => useCartStore.setState({ items: [{ productId: 1, quantity: 1 }] }));
+
+    act(() => useCartStore.getState().remove(1, 'Ceviche'));
+
+    expect(screen.getByText('Quitamos Ceviche de tu carrito')).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Ver carrito' })).not.toBeInTheDocument();
+  });
+
+  it('no avisa al cambiar la cantidad sin quitar', () => {
+    renderNotice();
+    act(() => useCartStore.setState({ items: [{ productId: 1, quantity: 1 }] }));
+
+    act(() => useCartStore.getState().setQuantity({ id: 1, name: 'Ceviche', available: true, stock: 5 }, 3));
+
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  });
+
+  it('el evento nuevo reemplaza al anterior', () => {
+    renderNotice();
+    act(() => useCartStore.getState().add({ id: 1, name: 'Ceviche', available: true, stock: 5 }));
+    act(() => useCartStore.getState().remove(1, 'Ceviche'));
+
+    expect(screen.getByText('Quitamos Ceviche de tu carrito')).toBeInTheDocument();
     expect(screen.queryByText('Agregamos Ceviche a tu carrito')).not.toBeInTheDocument();
   });
 });

@@ -8,7 +8,7 @@ const product = { id: 1, name: 'Ceviche clásico', available: true, stock: 2 };
 
 beforeEach(() => {
   localStorage.clear();
-  useCartStore.setState({ items: [], lastAdded: null });
+  useCartStore.setState({ items: [], lastAdded: null, lastRemoved: null });
 });
 
 describe('AddToCartButton', () => {
@@ -40,6 +40,24 @@ describe('AddToCartButton', () => {
   it('el botón corto incluye el plato en su nombre accesible', () => {
     render(<AddToCartButton product={product} label="Agregar" />);
 
-    expect(screen.getByRole('button', { name: 'Agregar Ceviche clásico al carrito' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', {
+        name: 'Agregar Ceviche clásico al carrito',
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it('agrega la cantidad indicada, recortada al stock', async () => {
+    const user = userEvent.setup();
+    const { rerender } = render(
+      <AddToCartButton product={{ ...product, stock: 5 }} label="Agregar al carrito" quantity={3} />,
+    );
+
+    await user.click(screen.getByRole('button'));
+    expect(useCartStore.getState().items).toEqual([{ productId: 1, quantity: 3 }]);
+
+    rerender(<AddToCartButton product={{ ...product, stock: 5 }} label="Agregar al carrito" quantity={9} />);
+    await user.click(screen.getByRole('button'));
+    expect(useCartStore.getState().items).toEqual([{ productId: 1, quantity: 5 }]);
   });
 });
