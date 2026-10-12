@@ -1,21 +1,38 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { AxiosError } from 'axios';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, useLocation } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AuthProvider } from '@/context/auth-context';
 import { QueryWrapper } from '@tests/utils/query-wrapper';
 import * as authApi from '@/features/auth/auth-api';
 import { RegisterPage } from '@/features/auth/register-page';
+import { useCartStore } from '@/features/carrito/cart-store';
 
 vi.mock('@/features/auth/auth-api');
 
-function renderPage() {
+const CART = [
+  { productId: 3, quantity: 2 },
+  { productId: 7, quantity: 1 },
+];
+
+function Where() {
+  const location = useLocation();
+  return (
+    <>
+      <p data-testid="location">{location.pathname}</p>
+      <p data-testid="location-state">{JSON.stringify(location.state)}</p>
+    </>
+  );
+}
+
+function renderPage(from?: string) {
   return render(
-    <MemoryRouter>
+    <MemoryRouter initialEntries={[{ pathname: '/registro', state: from ? { from } : undefined }]}>
       <QueryWrapper>
         <AuthProvider>
           <RegisterPage />
+          <Where />
         </AuthProvider>
       </QueryWrapper>
     </MemoryRouter>,
@@ -41,6 +58,8 @@ describe('RegisterPage', () => {
   beforeEach(() => {
     vi.mocked(authApi.me).mockRejectedValue(new Error('sin sesión'));
     vi.clearAllMocks();
+    localStorage.clear();
+    useCartStore.setState({ items: CART, lastAdded: null, lastRemoved: null });
   });
 
   it('muestra los campos obligatorios vacíos al enviar sin completar nada', async () => {
@@ -121,6 +140,35 @@ describe('RegisterPage', () => {
     await user.click(screen.getByRole('button', { name: /crear cuenta/i }));
 
     expect(await screen.findByText('Tu cuenta fue creada')).toBeInTheDocument();
+    expect(useCartStore.getState().items).toEqual(CART);
+  });
+
+  it('tras registrarse vuelve a la pantalla de origen y no al inicio', async () => {
+    vi.mocked(authApi.register).mockResolvedValue({
+      id: 1,
+      email: 'maria@correo.com',
+      firstName: 'María',
+      lastName: 'Quispe',
+      phone: '987654321',
+      role: 'CLIENTE',
+    });
+    const user = userEvent.setup();
+    renderPage('/cart');
+
+    await fillValidFormExcept(user);
+    await user.click(screen.getByRole('button', { name: /crear cuenta/i }));
+
+    await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent('/cart'), { timeout: 3000 });
+  });
+
+  it('el enlace a iniciar sesión conserva la pantalla de origen', async () => {
+    const user = userEvent.setup();
+    renderPage('/cart');
+
+    await user.click(screen.getByRole('link', { name: 'Inicia sesión' }));
+
+    expect(screen.getByTestId('location')).toHaveTextContent('/iniciar-sesion');
+    expect(screen.getByTestId('location-state')).toHaveTextContent('"from":"/cart"');
   });
 
   it('en correo duplicado muestra el error devuelto por la API bajo el campo de correo', async () => {

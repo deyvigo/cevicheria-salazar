@@ -11,6 +11,7 @@ import { Notification } from '@/components/notification';
 import type { ApiErrorResponse } from '@/lib/api';
 import { AuthShell } from './components/auth-shell';
 import { GoogleLoginButton } from './components/google-login-button';
+import { rememberReturnPath, returnPathFromState } from './return-path';
 import { useLogin } from './use-auth-mutations';
 
 const loginSchema = z.object({
@@ -25,6 +26,7 @@ export function LoginPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const location = useLocation();
+  const returnPath = returnPathFromState(location.state);
   const passwordReset = (location.state as { passwordReset?: boolean } | null)?.passwordReset === true;
 
   const {
@@ -46,7 +48,8 @@ export function LoginPage() {
   async function onSubmit(values: LoginFormValues) {
     try {
       await loginMutation.mutateAsync(values);
-      navigate('/');
+      rememberReturnPath(null);
+      navigate(returnPath ?? '/', { replace: true });
     } catch (error) {
       const message = isAxiosError<ApiErrorResponse>(error) ? error.response?.data.message : undefined;
       setError('root', {
@@ -94,6 +97,7 @@ export function LoginPage() {
           ¿No tienes cuenta?{' '}
           <Link
             to="/registro"
+            state={returnPath ? { from: returnPath } : undefined}
             className="font-bold text-link underline-offset-2 hover:underline focus-visible:rounded-sm focus-visible:shadow-focus focus-visible:outline-none"
           >
             Regístrate

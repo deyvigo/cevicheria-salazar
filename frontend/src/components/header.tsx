@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/button';
 import { Notification } from '@/components/notification';
 import { SearchBox } from '@/components/search-box';
@@ -11,6 +11,7 @@ export function Header() {
   const { user, isLoading } = useAuth();
   const logoutMutation = useLogout();
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const searchTerm = searchParams.get('q') ?? '';
   const [menuOpen, setMenuOpen] = useState(false);
@@ -99,7 +100,7 @@ export function Header() {
             ) : null}
           </div>
         ) : (
-          <Button variant="secondary" onClick={() => navigate('/iniciar-sesion')}>
+          <Button variant="secondary" onClick={() => navigate('/iniciar-sesion', { state: { from: location.pathname + location.search } })}>
             Iniciar sesión
           </Button>
         )}

@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Header } from '@/components/header';
 import { AuthProvider, useAuth, type AuthUser } from '@/context/auth-context';
@@ -24,6 +24,10 @@ function CurrentUser() {
   return <p data-testid="current-user">{user ? user.email : 'sin sesión'}</p>;
 }
 
+function LoginState() {
+  return <p data-testid="login-from">{JSON.stringify(useLocation().state)}</p>;
+}
+
 function renderHeader(initialEntry = '/') {
   return render(
     <MemoryRouter initialEntries={[initialEntry]}>
@@ -34,6 +38,7 @@ function renderHeader(initialEntry = '/') {
           <Routes>
             <Route path="/" element={<p>Inicio</p>} />
             <Route path="/menu" element={<p>Menu</p>} />
+            <Route path="/iniciar-sesion" element={<LoginState />} />
             <Route path="/products/:id" element={<p>Detalle</p>} />
           </Routes>
         </AuthProvider>
@@ -98,6 +103,16 @@ describe('Header', () => {
     expect(screen.getByRole('link', { name: 'Carrito' })).toHaveTextContent('');
   });
 
+  it('"Iniciar sesión" lleva al formulario recordando la pantalla actual con su búsqueda', async () => {
+    vi.mocked(authApi.me).mockRejectedValue(new Error('401'));
+    const user = userEvent.setup();
+    renderHeader('/menu?q=ceviche');
+
+    await user.click(await screen.findByRole('button', { name: 'Iniciar sesión' }));
+
+    expect(screen.getByTestId('login-from')).toHaveTextContent('{"from":"/menu?q=ceviche"}');
+  });
+
   it('muestra "Iniciar sesión" y no el menú cuando no hay sesión', async () => {
     vi.mocked(authApi.me).mockRejectedValue(new Error('401'));
     renderHeader();
@@ -157,9 +172,33 @@ describe('Header', () => {
     expect(screen.getByRole('button', { name: 'Iniciar sesión' })).toBeInTheDocument();
   });
 
+  it('cerrar sesión no vacía el carrito ni su insignia', async () => {
+    vi.mocked(authApi.me).mockResolvedValue(maria);
+    vi.mocked(authApi.logout).mockResolvedValue();
+    useCartStore.setState({
+      items: [
+        { productId: 3, quantity: 2 },
+        { productId: 7, quantity: 1 },
+      ],
+    });
+    const user = userEvent.setup();
+    renderHeader();
+
+    await user.click(await screen.findByRole('button', { name: /María/ }));
+    await user.click(screen.getByRole('menuitem', { name: 'Cerrar sesión' }));
+
+    await waitFor(() => expect(screen.getByTestId('current-user')).toHaveTextContent('sin sesión'));
+    expect(useCartStore.getState().items).toEqual([
+      { productId: 3, quantity: 2 },
+      { productId: 7, quantity: 1 },
+    ]);
+    expect(screen.getByRole('link', { name: 'Carrito, 2 productos' })).toBeInTheDocument();
+  });
+
   it('si el servidor falla conserva la sesión y muestra el error', async () => {
     vi.mocked(authApi.me).mockResolvedValue(maria);
     vi.mocked(authApi.logout).mockRejectedValue(new Error('Network Error'));
+    useCartStore.setState({ items: [{ productId: 3, quantity: 2 }] });
     const user = userEvent.setup();
     renderHeader();
 
@@ -169,6 +208,7 @@ describe('Header', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('No pudimos cerrar tu sesión');
     expect(screen.getByTestId('current-user')).toHaveTextContent('maria@correo.com');
     expect(screen.getByRole('button', { name: /María/ })).toBeInTheDocument();
+    expect(useCartStore.getState().items).toEqual([{ productId: 3, quantity: 2 }]);
   });
 
   it('muestra el buscador con sesión, sin sesión y mientras se confirma', async () => {
