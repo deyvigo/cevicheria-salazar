@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { RouterProvider, createMemoryRouter, useLocation } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -323,6 +323,81 @@ describe('CartPage', () => {
           { productId: 2, quantity: 1 },
         ]),
       );
+    });
+  });
+
+  describe('resumen del pedido', () => {
+    const summaryValue = (label: string) => {
+      const region = screen.getByRole('region', { name: 'Resumen del pedido' });
+      const term = within(region).getByText(label);
+      return term.nextElementSibling?.textContent;
+    };
+
+    beforeEach(() => {
+      useCartStore.setState({
+        items: [
+          { productId: 1, quantity: 2 },
+          { productId: 2, quantity: 1 },
+        ],
+      });
+      vi.mocked(cartApi.getProductsByIds).mockResolvedValue([product(1, { price: 32 }), product(2, { price: 18.5 })]);
+    });
+
+    it('muestra subtotal, descuento, delivery y total', async () => {
+      renderCart();
+
+      await screen.findByRole('textbox', { name: 'Cantidad de Plato 1' });
+      expect(summaryValue('Subtotal')).toBe('S/ 82.50');
+      expect(summaryValue('Descuento')).toBe('S/ 0.00');
+      expect(summaryValue('Delivery')).toBe('S/ 5.00');
+      expect(summaryValue('Total')).toBe('S/ 87.50');
+    });
+
+    it('no muestra montos mientras cargan los precios', async () => {
+      vi.mocked(cartApi.getProductsByIds).mockReturnValue(new Promise(() => {}));
+      renderCart();
+
+      const region = screen.getByRole('region', { name: 'Resumen del pedido' });
+      expect(region).toHaveAttribute('aria-busy', 'true');
+      expect(within(region).queryByText(/S\//)).not.toBeInTheDocument();
+    });
+
+    it('se recalcula al cambiar la cantidad y al eliminar un plato', async () => {
+      const user = userEvent.setup();
+      renderCart();
+      await screen.findByRole('textbox', { name: 'Cantidad de Plato 1' });
+
+      await user.click(screen.getByRole('button', { name: 'Agregar una unidad de Plato 1' }));
+      expect(summaryValue('Subtotal')).toBe('S/ 114.50');
+      expect(summaryValue('Total')).toBe('S/ 119.50');
+
+      await user.click(screen.getByRole('button', { name: 'Eliminar Plato 1 del carrito' }));
+      await waitFor(() => expect(summaryValue('Subtotal')).toBe('S/ 18.50'));
+      expect(summaryValue('Total')).toBe('S/ 23.50');
+    });
+
+    it('no suma los platos agotados', async () => {
+      vi.mocked(cartApi.getProductsByIds).mockResolvedValue([
+        product(1, { price: 32 }),
+        product(2, { price: 18.5, available: false, stock: 0 }),
+      ]);
+      renderCart();
+
+      await screen.findByText('Agotado');
+      expect(summaryValue('Subtotal')).toBe('S/ 64.00');
+    });
+
+    it('desaparece con el carrito vacío y con error', async () => {
+      useCartStore.setState({ items: [] });
+      const { unmount } = renderCart();
+      expect(screen.queryByRole('region', { name: 'Resumen del pedido' })).not.toBeInTheDocument();
+      unmount();
+
+      useCartStore.setState({ items: [{ productId: 1, quantity: 1 }] });
+      vi.mocked(cartApi.getProductsByIds).mockRejectedValue(new Error('network'));
+      renderCart();
+      await screen.findByRole('button', { name: 'Reintentar' });
+      expect(screen.queryByRole('region', { name: 'Resumen del pedido' })).not.toBeInTheDocument();
     });
   });
 });
