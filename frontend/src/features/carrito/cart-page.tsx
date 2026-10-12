@@ -3,8 +3,10 @@ import { Link, useLocation, useNavigationType, useSearchParams } from 'react-rou
 import { Button } from '@/components/button';
 import { Notification } from '@/components/notification';
 import { CartItemRow } from '@/features/carrito/components/cart-item-row';
+import { OrderSummary } from '@/features/carrito/components/order-summary';
 import { ShareButton } from '@/features/carrito/components/share-button';
 import { useCartStore } from '@/features/carrito/cart-store';
+import { computeOrderSummary } from '@/features/carrito/order-summary';
 import { decodeCart } from '@/features/carrito/share-code';
 import { useCartProducts } from '@/features/carrito/use-cart-products';
 import { takeScroll } from '@/features/catalogo/scroll-memory';
@@ -67,9 +69,10 @@ export function CartPage() {
   const titleRef = useRef<HTMLHeadingElement>(null);
 
   const productsById = new Map((query.data ?? []).map((product) => [product.id, product]));
+  const summary = computeOrderSummary(items, productsById);
 
   return (
-    <main className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-6 py-8">
+    <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-8">
       {sharedNotice ? (
         <div className="fixed right-6 bottom-6">
           <Notification
@@ -113,24 +116,29 @@ export function CartPage() {
           </Button>
         </div>
       ) : (
-        <ul aria-busy={query.isPending} className="flex flex-col gap-3">
-          {items.map((item) => {
-            const product = productsById.get(item.productId);
-            if (!product) {
-              return query.isPending ? (
-                <li key={item.productId} className="h-28 animate-pulse rounded-lg bg-surface-celeste" />
-              ) : null;
-            }
-            return (
-              <CartItemRow
-                key={item.productId}
-                product={product}
-                quantity={item.quantity}
-                onRemoved={() => titleRef.current?.focus()}
-              />
-            );
-          })}
-        </ul>
+        <div className="grid items-start gap-6 md:grid-cols-[1fr_20rem]">
+          <ul aria-busy={query.isPending} className="flex flex-col gap-3">
+            {items.map((item) => {
+              const product = productsById.get(item.productId);
+              if (!product) {
+                return query.isPending ? (
+                  <li key={item.productId} className="h-28 animate-pulse rounded-lg bg-surface-celeste" />
+                ) : null;
+              }
+              return (
+                <CartItemRow
+                  key={item.productId}
+                  product={product}
+                  quantity={item.quantity}
+                  onRemoved={() => titleRef.current?.focus()}
+                />
+              );
+            })}
+          </ul>
+          <aside className="sticky top-24 border-l border-border pl-6">
+            <OrderSummary summary={summary} />
+          </aside>
+        </div>
       )}
     </main>
   );
