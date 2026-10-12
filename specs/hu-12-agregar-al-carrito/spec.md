@@ -1,7 +1,7 @@
 # Spec: HU-12 — Agregar platos al carrito
 
 **Épica**: [E3. Carrito de compras](../../docs/epicas.md#e3)
-**Estado**: En implementación
+**Estado**: Hecha
 
 ## Objetivo
 
