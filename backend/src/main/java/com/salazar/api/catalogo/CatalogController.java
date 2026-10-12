@@ -32,6 +32,11 @@ public class CatalogController {
         return catalogService.listProducts(category, q, page, ProductSort.from(sort));
     }
 
+    @GetMapping(value = "/products", params = "ids")
+    public List<ProductResponse> productsByIds(@RequestParam List<Long> ids) {
+        return catalogService.getProductsByIds(ids);
+    }
+
     @GetMapping("/products/{id}")
     public ProductDetailResponse product(@PathVariable Long id) {
         return catalogService.getProduct(id);

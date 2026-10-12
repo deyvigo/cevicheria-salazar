@@ -10,5 +10,6 @@ public record ProductDetailResponse(
         BigDecimal price,
         BigDecimal rating,
         boolean available,
+        int stock,
         CategoryResponse category,
         List<String> images) {}

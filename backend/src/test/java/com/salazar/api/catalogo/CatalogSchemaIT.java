@@ -88,6 +88,26 @@ class CatalogSchemaIT {
     }
 
     @Test
+    void stockDefaultsToZeroAndRejectsNegativeAndNullValues() {
+        long category = categoryId("fondos");
+
+        Integer stock = jdbc.queryForObject(
+                "INSERT INTO products (name, description, price, category_id) VALUES ('Sin stock', 'd', 1, ?) RETURNING stock",
+                Integer.class,
+                category);
+
+        assertThat(stock).isZero();
+        assertThatThrownBy(() -> jdbc.update(
+                        "INSERT INTO products (name, description, price, category_id, stock) VALUES ('Negativo', 'd', 1, ?, -1)",
+                        category))
+                .isInstanceOf(DataIntegrityViolationException.class);
+        assertThatThrownBy(() -> jdbc.update(
+                        "INSERT INTO products (name, description, price, category_id, stock) VALUES ('Nulo', 'd', 1, ?, NULL)",
+                        category))
+                .isInstanceOf(DataIntegrityViolationException.class);
+    }
+
+    @Test
     void unaccentExtensionIsAvailableForTheNameSearch() {
         assertThat(jdbc.queryForObject("SELECT unaccent('ceviché')", String.class)).isEqualTo("ceviche");
     }

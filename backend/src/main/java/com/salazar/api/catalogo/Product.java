@@ -58,10 +58,14 @@ public class Product {
     @Column(name = "is_available", nullable = false)
     private boolean available;
 
+    @Column(nullable = false)
+    private int stock;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
-    public Product(String name, String description, BigDecimal price, Category category, BigDecimal rating) {
+    public Product(
+            String name, String description, BigDecimal price, Category category, BigDecimal rating, int stock) {
         this.name = name;
         this.description = description;
         this.price = price;
@@ -69,6 +73,7 @@ public class Product {
         this.rating = rating;
         this.active = true;
         this.available = true;
+        this.stock = stock;
     }
 
     public void addImage(String path, int position) {
@@ -81,6 +86,11 @@ public class Product {
 
     public void markUnavailable() {
         this.available = false;
+    }
+
+    // The single rule for "can be ordered"; the client never recombines available and stock
+    public boolean isOrderable() {
+        return available && stock > 0;
     }
 
     @PrePersist
