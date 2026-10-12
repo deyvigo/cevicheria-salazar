@@ -1,20 +1,29 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { AxiosError } from 'axios';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AuthProvider, useAuth } from '@/context/auth-context';
 import { QueryWrapper } from '@tests/utils/query-wrapper';
 import * as authApi from '@/features/auth/auth-api';
 import { LoginPage } from '@/features/auth/login-page';
+import { useCartStore } from '@/features/carrito/cart-store';
 
 vi.mock('@/features/auth/auth-api');
 
+const CART = [
+  { productId: 3, quantity: 2 },
+  { productId: 7, quantity: 1 },
+];
+
 function Harness() {
   const { user } = useAuth();
+  const location = useLocation();
   return (
     <>
       <LoginPage />
+      <p data-testid="location">{location.pathname + location.search}</p>
+      <p data-testid="location-state">{JSON.stringify(location.state)}</p>
       <p data-testid="current-user">{user ? user.email : 'sin sesión'}</p>
     </>
   );
@@ -49,6 +58,8 @@ describe('LoginPage', () => {
   beforeEach(() => {
     vi.mocked(authApi.me).mockRejectedValue(new Error('sin sesión'));
     vi.clearAllMocks();
+    localStorage.clear();
+    useCartStore.setState({ items: CART, lastAdded: null, lastRemoved: null });
   });
 
   it('muestra los campos obligatorios vacíos al enviar sin completar nada', async () => {
@@ -90,6 +101,89 @@ describe('LoginPage', () => {
     await user.click(screen.getByRole('button', { name: /iniciar sesión/i }));
 
     expect(await screen.findByTestId('current-user')).toHaveTextContent('maria@correo.com');
+    expect(useCartStore.getState().items).toEqual(CART);
+  });
+
+  it('tras iniciar sesión vuelve a la pantalla de origen y no al inicio', async () => {
+    vi.mocked(authApi.login).mockResolvedValue({
+      id: 1,
+      email: 'maria@correo.com',
+      firstName: 'María',
+      lastName: 'Quispe',
+      phone: '987654321',
+      role: 'CLIENTE',
+    });
+    const user = userEvent.setup();
+    renderPage([{ pathname: '/iniciar-sesion', state: { from: '/cart' } }]);
+
+    await user.type(screen.getByLabelText('Correo'), 'maria@correo.com');
+    await user.type(screen.getByLabelText('Contraseña'), 'clave1234');
+    await user.click(screen.getByRole('button', { name: /iniciar sesión/i }));
+
+    await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent('/cart'));
+  });
+
+  it('sin pantalla de origen o con una insegura va al inicio', async () => {
+    vi.mocked(authApi.login).mockResolvedValue({
+      id: 1,
+      email: 'maria@correo.com',
+      firstName: 'María',
+      lastName: 'Quispe',
+      phone: '987654321',
+      role: 'CLIENTE',
+    });
+    const user = userEvent.setup();
+    renderPage([{ pathname: '/iniciar-sesion', state: { from: '//malo.com' } }]);
+
+    await user.type(screen.getByLabelText('Correo'), 'maria@correo.com');
+    await user.type(screen.getByLabelText('Contraseña'), 'clave1234');
+    await user.click(screen.getByRole('button', { name: /iniciar sesión/i }));
+
+    await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent(/^\/$/));
+  });
+
+  it('con credenciales inválidas se queda en la pantalla de inicio de sesión', async () => {
+    vi.mocked(authApi.login).mockRejectedValue(apiError(401, 'Correo o contraseña incorrectos.'));
+    const user = userEvent.setup();
+    renderPage([{ pathname: '/iniciar-sesion', state: { from: '/cart' } }]);
+
+    await user.type(screen.getByLabelText('Correo'), 'maria@correo.com');
+    await user.type(screen.getByLabelText('Contraseña'), 'incorrecta');
+    await user.click(screen.getByRole('button', { name: /iniciar sesión/i }));
+
+    expect(await screen.findByText('Correo o contraseña incorrectos.')).toBeInTheDocument();
+    expect(screen.getByTestId('location')).toHaveTextContent('/iniciar-sesion');
+  });
+
+  it('el enlace a registrarse conserva la pantalla de origen', async () => {
+    const user = userEvent.setup();
+    renderPage([{ pathname: '/iniciar-sesion', state: { from: '/cart' } }]);
+
+    await user.click(screen.getByRole('link', { name: 'Regístrate' }));
+
+    expect(screen.getByTestId('location')).toHaveTextContent('/registro');
+    expect(screen.getByTestId('location-state')).toHaveTextContent('"from":"/cart"');
+  });
+
+  it('con el carrito vacío, iniciar sesión no introduce platos', async () => {
+    useCartStore.setState({ items: [] });
+    vi.mocked(authApi.login).mockResolvedValue({
+      id: 1,
+      email: 'maria@correo.com',
+      firstName: 'María',
+      lastName: 'Quispe',
+      phone: '987654321',
+      role: 'CLIENTE',
+    });
+    const user = userEvent.setup();
+    renderPage();
+
+    await user.type(screen.getByLabelText('Correo'), 'maria@correo.com');
+    await user.type(screen.getByLabelText('Contraseña'), 'clave1234');
+    await user.click(screen.getByRole('button', { name: /iniciar sesión/i }));
+
+    expect(await screen.findByTestId('current-user')).toHaveTextContent('maria@correo.com');
+    expect(useCartStore.getState().items).toEqual([]);
   });
 
   it('en credenciales inválidas muestra el mensaje genérico a nivel de formulario', async () => {
@@ -103,6 +197,7 @@ describe('LoginPage', () => {
 
     expect(await screen.findByText('Correo o contraseña incorrectos.')).toBeInTheDocument();
     expect(screen.getByTestId('current-user')).toHaveTextContent('sin sesión');
+    expect(useCartStore.getState().items).toEqual(CART);
   });
 
   it('tras bloquearse por intentos fallidos muestra el mensaje distinto que devuelve la API', async () => {
@@ -126,6 +221,7 @@ describe('LoginPage', () => {
 
     expect(await screen.findByText('No pudimos iniciar sesión con Google. Intenta de nuevo.')).toBeInTheDocument();
     expect(authApi.login).not.toHaveBeenCalled();
+    expect(useCartStore.getState().items).toEqual(CART);
   });
 
   it('incluye el botón de Google, igual que en RegisterPage', () => {

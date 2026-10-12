@@ -1,9 +1,13 @@
+import { useLocation } from 'react-router-dom';
+import { rememberReturnPath, returnPathFromState } from '@/features/auth/return-path';
 import { googleLoginUrl } from '@/lib/api';
 
 export function GoogleLoginButton() {
+  const returnPath = returnPathFromState(useLocation().state);
   return (
     <a
       href={googleLoginUrl}
+      onClick={() => rememberReturnPath(returnPath)}
       className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-border-strong bg-surface px-6 text-base font-bold text-ink hover:bg-surface-celeste focus-visible:shadow-focus focus-visible:outline-none"
     >
       <svg aria-hidden="true" viewBox="0 0 48 48" className="h-5 w-5 flex-none">

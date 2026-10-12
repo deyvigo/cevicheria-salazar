@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { isAxiosError } from 'axios';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { Button } from '@/components/button';
 import { Divider } from '@/components/divider';
@@ -12,6 +12,7 @@ import type { ApiErrorResponse } from '@/lib/api';
 import { AuthShell } from './components/auth-shell';
 import { GoogleLoginButton } from './components/google-login-button';
 import { passwordSchema } from './password-schema';
+import { rememberReturnPath, returnPathFromState } from './return-path';
 import { useRegister } from './use-auth-mutations';
 
 const registerSchema = z
@@ -39,6 +40,7 @@ const BACKEND_FIELDS: ReadonlyArray<keyof RegisterFormValues> = ['email', 'passw
 export function RegisterPage() {
   const registerMutation = useRegister();
   const navigate = useNavigate();
+  const returnPath = returnPathFromState(useLocation().state);
   const [registered, setRegistered] = useState(false);
 
   const {
@@ -52,7 +54,8 @@ export function RegisterPage() {
     try {
       await registerMutation.mutateAsync(values);
       setRegistered(true);
-      setTimeout(() => navigate('/'), 1200);
+      rememberReturnPath(null);
+      setTimeout(() => navigate(returnPath ?? '/', { replace: true }), 1200);
     } catch (error) {
       if (isAxiosError<ApiErrorResponse>(error) && error.response?.data.fieldErrors) {
         for (const fieldError of error.response.data.fieldErrors) {
@@ -101,6 +104,7 @@ export function RegisterPage() {
           ¿Ya tienes cuenta?{' '}
           <Link
             to="/iniciar-sesion"
+            state={returnPath ? { from: returnPath } : undefined}
             className="font-bold text-link underline-offset-2 hover:underline focus-visible:rounded-sm focus-visible:shadow-focus focus-visible:outline-none"
           >
             Inicia sesión

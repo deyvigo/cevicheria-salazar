@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AuthProvider, useAuth } from '@/context/auth-context';
 import { QueryWrapper } from '@tests/utils/query-wrapper';
 import * as authApi from '@/features/auth/auth-api';
+import { useCartStore } from '@/features/carrito/cart-store';
 
 vi.mock('@/features/auth/auth-api');
 
@@ -29,6 +30,8 @@ function renderProbe() {
 describe('AuthProvider (recuperar sesión al abrir la app)', () => {
   beforeEach(() => {
     vi.resetAllMocks();
+    localStorage.clear();
+    useCartStore.setState({ items: [{ productId: 3, quantity: 2 }], lastAdded: null, lastRemoved: null });
   });
 
   it('deja al usuario con sesión cuando /me responde', async () => {
@@ -46,6 +49,7 @@ describe('AuthProvider (recuperar sesión al abrir la app)', () => {
 
     await waitFor(() => expect(screen.getByTestId('loading')).toHaveTextContent('false'));
     expect(screen.getByTestId('user')).toHaveTextContent('maria@correo.com');
+    expect(useCartStore.getState().items).toEqual([{ productId: 3, quantity: 2 }]);
   });
 
   it('deja al usuario como Visitante cuando /me falla', async () => {
@@ -55,5 +59,6 @@ describe('AuthProvider (recuperar sesión al abrir la app)', () => {
 
     await waitFor(() => expect(screen.getByTestId('loading')).toHaveTextContent('false'));
     expect(screen.getByTestId('user')).toHaveTextContent('sin sesión');
+    expect(useCartStore.getState().items).toEqual([{ productId: 3, quantity: 2 }]);
   });
 });
