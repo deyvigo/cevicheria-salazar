@@ -36,7 +36,7 @@ function renderCard(product: Product) {
 describe('ProductCard', () => {
   beforeEach(() => {
     localStorage.clear();
-    useCartStore.setState({ items: [], lastAdded: null });
+    useCartStore.setState({ items: [], lastAdded: null, lastRemoved: null });
   });
 
   it('"Agregar" suma al carrito sin navegar al detalle', async () => {

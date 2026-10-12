@@ -5,10 +5,12 @@ import { useCartStore } from '@/features/carrito/cart-store';
 
 const TOAST_DURATION_MS = 4000;
 
-export function CartAddedNotice() {
+export function CartNotice() {
   const lastAdded = useCartStore((state) => state.lastAdded);
+  const lastRemoved = useCartStore((state) => state.lastRemoved);
   const [dismissedAt, setDismissedAt] = useState<number | null>(null);
-  const at = lastAdded?.at ?? null;
+  const event = lastAdded ?? lastRemoved;
+  const at = event?.at ?? null;
 
   useEffect(() => {
     if (at === null) return;
@@ -16,20 +18,22 @@ export function CartAddedNotice() {
     return () => clearTimeout(timer);
   }, [at]);
 
-  if (!lastAdded || dismissedAt === lastAdded.at) return null;
+  if (!event || dismissedAt === event.at) return null;
   return (
     <div className="fixed right-6 bottom-6">
       <Notification
         variant="success"
-        title={`Agregamos ${lastAdded.name} a tu carrito`}
-        onClose={() => setDismissedAt(lastAdded.at)}
+        title={lastAdded ? `Agregamos ${event.name} a tu carrito` : `Quitamos ${event.name} de tu carrito`}
+        onClose={() => setDismissedAt(event.at)}
         action={
-          <Link
-            to="/cart"
-            className="text-sm font-bold text-ink underline focus-visible:shadow-focus focus-visible:outline-none"
-          >
-            Ver carrito
-          </Link>
+          lastAdded ? (
+            <Link
+              to="/cart"
+              className="text-sm font-bold text-ink underline focus-visible:shadow-focus focus-visible:outline-none"
+            >
+              Ver carrito
+            </Link>
+          ) : undefined
         }
       />
     </div>

@@ -6,12 +6,16 @@ export function AddToCartButton({
   product,
   label,
   variant = 'primary',
+  quantity = 1,
+  onAdd,
   className,
   style,
 }: {
   product: AddableProduct | null;
   label: string;
   variant?: 'primary' | 'secondary';
+  quantity?: number;
+  onAdd?: () => void;
   className?: string;
   style?: CSSProperties;
 }) {
@@ -22,7 +26,10 @@ export function AddToCartButton({
       type="button"
       variant={variant}
       disabled={!canAdd}
-      onClick={add}
+      onClick={() => {
+        add(quantity);
+        onAdd?.();
+      }}
       // The grid shows many identical buttons, so the short label needs the dish to be distinguishable
       aria-label={label === 'Agregar' && product ? `Agregar ${product.name} al carrito` : undefined}
       className={className}

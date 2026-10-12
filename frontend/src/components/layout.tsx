@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import { Header } from '@/components/header';
 import { LogoutNotice } from '@/components/logout-notice';
-import { CartAddedNotice } from '@/features/carrito/components/cart-added-notice';
+import { CartNotice } from '@/features/carrito/components/cart-notice';
 
 export function Layout() {
   return (
@@ -9,7 +9,7 @@ export function Layout() {
       <Header />
       <Outlet />
       <LogoutNotice />
-      <CartAddedNotice />
+      <CartNotice />
     </>
   );
 }

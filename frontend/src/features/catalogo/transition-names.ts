@@ -5,6 +5,7 @@ const NAMES = {
   name: 'product-name',
   price: 'product-price',
   cta: 'product-cta',
+  stepper: 'product-stepper',
 } as const;
 
 export function sharedName(part: keyof typeof NAMES, active: boolean): CSSProperties | undefined {

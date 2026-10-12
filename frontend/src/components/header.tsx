@@ -52,9 +52,17 @@ export function Header() {
 
   return (
     <header className="grid grid-cols-[1fr_minmax(0,32rem)_1fr] items-center gap-6 border-b border-border bg-surface px-6 py-3">
-      <Link to="/" className="font-display text-ink text-[24px] leading-[30px] font-semibold justify-self-start">
-        Salazar SAC
-      </Link>
+      <div className="flex items-center gap-4 justify-self-start">
+        <Link to="/" className="font-display text-ink text-[24px] leading-[30px] font-semibold">
+          Salazar SAC
+        </Link>
+        <Link
+          to="/menu"
+          className="inline-flex min-h-12 items-center rounded-md px-4 text-base font-bold text-ink hover:bg-surface-celeste focus-visible:shadow-focus focus-visible:outline-none"
+        >
+          Carta
+        </Link>
+      </div>
 
       {/* Keyed by the term so the field follows the URL (back button, cleared search) */}
       <SearchBox key={searchTerm} initialValue={searchTerm} />

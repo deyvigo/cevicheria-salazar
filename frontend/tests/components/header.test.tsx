@@ -46,7 +46,7 @@ describe('Header', () => {
   beforeEach(() => {
     vi.resetAllMocks();
     localStorage.clear();
-    useCartStore.setState({ items: [], lastAdded: null });
+    useCartStore.setState({ items: [], lastAdded: null, lastRemoved: null });
   });
 
   it('muestra el carrito a la izquierda de "Iniciar sesión" y del menú del usuario, incluso cargando', async () => {
@@ -57,6 +57,17 @@ describe('Header', () => {
     expect(cart).toHaveAttribute('href', '/cart');
     const login = await screen.findByRole('button', { name: 'Iniciar sesión' });
     expect(cart.compareDocumentPosition(login) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('el logo lleva a / y "Carta" a /menu, justo a su derecha', () => {
+    vi.mocked(authApi.me).mockReturnValue(new Promise(() => {}));
+    renderHeader();
+
+    const logo = screen.getByRole('link', { name: 'Salazar SAC' });
+    const menu = screen.getByRole('link', { name: 'Carta' });
+    expect(logo).toHaveAttribute('href', '/');
+    expect(menu).toHaveAttribute('href', '/menu');
+    expect(logo.compareDocumentPosition(menu) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it('la insignia cuenta platos distintos, no unidades', () => {

@@ -10,7 +10,7 @@ vi.mock('@/features/carrito/cart-api');
 beforeEach(() => {
   vi.mocked(cartApi.getProductsByIds).mockReset();
   localStorage.clear();
-  useCartStore.setState({ items: [], lastAdded: null });
+  useCartStore.setState({ items: [], lastAdded: null, lastRemoved: null });
 });
 
 describe('useCartProducts', () => {

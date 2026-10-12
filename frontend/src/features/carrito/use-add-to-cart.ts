@@ -1,4 +1,4 @@
-import { useCartStore } from '@/features/carrito/cart-store';
+import { quantityCap, useCartStore } from '@/features/carrito/cart-store';
 
 export interface AddableProduct {
   id: number;
@@ -15,18 +15,24 @@ export function useAddToCart(product: AddableProduct | null) {
   const known = product !== null && product.available === true && product.stock !== null;
   const atLimit = known && quantity >= product.stock!;
   const canAdd = known && !atLimit;
+  const cap = known ? quantityCap({ available: true, stock: product.stock! }, quantity) : quantity;
 
   return {
+    quantity,
+    cap,
     canAdd,
     atLimit,
-    add: () => {
+    add: (amount = 1) => {
       if (canAdd)
-        add({
-          id: product.id,
-          name: product.name,
-          available: true,
-          stock: product.stock!,
-        });
+        add(
+          {
+            id: product.id,
+            name: product.name,
+            available: true,
+            stock: product.stock!,
+          },
+          amount,
+        );
     },
   };
 }

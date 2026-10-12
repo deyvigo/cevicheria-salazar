@@ -69,7 +69,7 @@ No hay botón "Agregar al carrito" ni indicador de agotado en esta historia (HU-
 
 - **Ruta**: `/products/{id}`, independiente del slug de categoría.
 - **"Volver" (actualizado en HU-12)**: va al listado indicado en el estado de navegación (`from`); si no hay, y se llegó navegando dentro de la app, retrocede en el historial; si se abrió el detalle directamente, va a la categoría del plato.
-- **Elementos compartidos**: imagen, nombre y precio (HU-12 suma el botón de agregar al carrito); el resto, cruce de opacidad. Si el nombre se ve mal al cambiar de tamaño, se reduce a solo la imagen.
+- **Elementos compartidos**: imagen, nombre y precio (HU-12 suma el botón de agregar al carrito; con HU-13 ese espacio muestra el control de cantidad junto al botón, o solo el control si el plato ya está en el carrito); el resto, cruce de opacidad. Si el nombre se ve mal al cambiar de tamaño, se reduce a solo la imagen.
 - **Duración**: ~300 ms con la curva de salida estándar del design system (`ease-out` si `tokens.json` no define una).
 - **Sin soporte de *view transitions***: el navegador navega normal, sin animación y sin polyfill.
 - **Plato inactivo**: nunca aparece en el catálogo ni es accesible por su detalle (mismo mensaje que un plato inexistente).
