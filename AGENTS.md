@@ -92,7 +92,7 @@ Antes de construir una pantalla nueva, revisar si el componente/token necesario 
 - **Componentes por feature**: si una feature necesita componentes que solo ella usa, van en `src/features/<feature>/components/` (ej. `features/auth/components/auth-shell.tsx`). Los reutilizables entre features siguen en `src/components/`. Crear la carpeta solo cuando haga falta.
 - **Tests**: en `frontend/tests/`, árbol independiente que replica la estructura de `src/` (`tests/components/header.test.tsx` prueba `src/components/header.tsx`); nunca junto al código fuente. Helpers compartidos en `tests/utils/` y setup global en `tests/setup.ts`. Alias `@tests/` → `tests/`.
 - **Imports**: alias `@/` → `src/` (configurado en `vite.config.ts`, `vitest.config.ts` y `tsconfig.app.json`). Usar `@/...` en vez de rutas relativas (`../../lib/api`) para cualquier import dentro de `src/`.
-- **Estado global**: Context API + hooks (`AuthContext`, `CartContext`) — sin librería externa de estado.
+- **Estado global**: Context API + hooks para la sesión (`AuthContext`) y **Zustand** para el carrito (`src/features/carrito/cart-store.ts`, persistido en `localStorage`). Sin otra librería de estado.
 - Carpetas por feature en `src/features/` (`auth`, `catalogo`, `carrito`, `checkout`, `perfil`, `admin`). Detalle completo en [`specs/ht-09-entorno/plan.md`](specs/ht-09-entorno/plan.md).
 - Formularios con `react-hook-form` + `zod`; llamadas a la API con **axios** (instancia única en `lib/api.ts`, `withCredentials: true`) + `@tanstack/react-query` para el cache.
 
