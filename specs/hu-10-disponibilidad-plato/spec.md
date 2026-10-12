@@ -77,5 +77,5 @@ El significado nunca depende solo del color: el punto va siempre acompañado del
 
 - **Un solo estado**: "agotado" y "no disponible" son el mismo estado. Un único atributo `available` en la base de datos (decisión del usuario), pensado para que el administrador lo marque en HU-30. Esta historia solo agrega el atributo y su lectura.
 - **Texto**: "Disponible" / "Agotado" (propuesta aceptada por defecto).
-- **Listado y tarjetas**: el listado `GET /api/products?category=` no cambia y las tarjetas no muestran el estado; solo el detalle lo trae (propuesta aceptada por defecto).
+- **Listado y tarjetas**: el listado `GET /api/products?category=` no cambia y las tarjetas no muestran el estado; solo el detalle lo trae (propuesta aceptada por defecto). *Actualizado en HU-12*: el listado ahora trae `available` y `stock` solo para la lógica del botón "Agregar"; las tarjetas siguen sin mostrar el estado, y `available` pasa a ser `is_available && stock > 0`.
 - **Datos de semilla de desarrollo**: 2 o 3 platos agotados en `R__sample_products.sql` para verlo en local (propuesta aceptada por defecto).
