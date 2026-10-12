@@ -13,6 +13,15 @@ beforeEach(() => {
   useCartStore.setState({ items: [], lastAdded: null, lastRemoved: null });
 });
 
+// A reload drops the in-memory store and reads back what was persisted. Emptying the store
+// persists too, so the stored value is put back before rehydrating.
+async function reload() {
+  const stored = localStorage.getItem(CART_STORAGE_KEY) as string;
+  useCartStore.setState({ items: [] });
+  localStorage.setItem(CART_STORAGE_KEY, stored);
+  await useCartStore.persist.rehydrate();
+}
+
 describe('cart-store', () => {
   it('agregar dos veces el mismo plato deja una sola fila con cantidad 2', () => {
     useCartStore.getState().add(dish(1));
@@ -110,6 +119,51 @@ describe('cart-store', () => {
     expect(() => useCartStore.getState().add(dish(1))).not.toThrow();
     expect(useCartStore.getState().items).toHaveLength(1);
     spy.mockRestore();
+  });
+
+  it('conserva ítems y cantidades al recargar la página', async () => {
+    const { add, setQuantity } = useCartStore.getState();
+    add(dish(1));
+    add(dish(2));
+    setQuantity(dish(2), 4);
+
+    await reload();
+
+    expect(useCartStore.getState().items).toEqual([
+      { productId: 1, quantity: 1 },
+      { productId: 2, quantity: 4 },
+    ]);
+  });
+
+  it('setQuantity y remove actualizan lo guardado, no dejan el estado anterior', () => {
+    const { add, setQuantity, remove } = useCartStore.getState();
+    const stored = () => JSON.parse(localStorage.getItem(CART_STORAGE_KEY) as string).state.items;
+    add(dish(1));
+    add(dish(2));
+
+    setQuantity(dish(1), 3);
+    expect(stored()).toEqual([
+      { productId: 1, quantity: 3 },
+      { productId: 2, quantity: 1 },
+    ]);
+
+    remove(2, 'Plato 2');
+    expect(stored()).toEqual([{ productId: 1, quantity: 3 }]);
+  });
+
+  it('no descarta un carrito guardado hace tiempo: no hay caducidad', async () => {
+    vi.useFakeTimers();
+    try {
+      vi.setSystemTime(new Date('2026-01-01T00:00:00Z'));
+      useCartStore.getState().add(dish(5));
+      vi.setSystemTime(new Date('2026-10-01T00:00:00Z'));
+
+      await reload();
+
+      expect(useCartStore.getState().items).toEqual([{ productId: 5, quantity: 1 }]);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('rehidrata cuando otra pestaña cambia la llave', async () => {
