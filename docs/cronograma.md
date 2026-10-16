@@ -19,19 +19,19 @@ Duración de cada sprint: 3 semanas (lunes a viernes). Historias en [historias.m
 
 ### Elementos del backlog incluidos
 
-| ID    | Elemento                                              | Tipo    | Semana |
-| ----- | ----------------------------------------------------- | ------- | ------ |
-| HT-01 | Documento de visión y alcance                         | Técnica | 1      |
-| HT-02 | Levantamiento y validación de requerimientos          | Técnica | 1      |
-| HT-03 | Product Backlog inicial, DoR y DoD                    | Técnica | 1      |
-| HT-04 | Diagrama de casos de uso                              | Técnica | 2      |
-| HT-05 | Diagrama de arquitectura                              | Técnica | 2      |
-| HT-06 | Modelo de base de datos                               | Técnica | 2      |
-| HT-07 | Diagrama de despliegue                                | Técnica | 2      |
-| HT-08 | Prototipos de pantallas                               | Técnica | 3      |
-| HT-09 | Configuración del entorno                             | Técnica | 3      |
-| HU-01 | Registrarse con correo, nombre, teléfono y contraseña | Usuario | 3      |
-| HU-02 | Iniciar sesión con correo y contraseña                | Usuario | 3      |
+| ID    | Elemento                                              | Tipo    | Semana | Hecho |
+| ----- | ----------------------------------------------------- | ------- | ------ | ----- |
+| HT-01 | Documento de visión y alcance                         | Técnica | 1      | ✓ |
+| HT-02 | Levantamiento y validación de requerimientos          | Técnica | 1      | ✓ |
+| HT-03 | Product Backlog inicial, DoR y DoD                    | Técnica | 1      | ✓ |
+| HT-04 | Diagrama de casos de uso                              | Técnica | 2      | ✓ |
+| HT-05 | Diagrama de arquitectura                              | Técnica | 2      | ✓ |
+| HT-06 | Modelo de base de datos                               | Técnica | 2      | ✓ |
+| HT-07 | Diagrama de despliegue                                | Técnica | 2      | ✓ |
+| HT-08 | Prototipos de pantallas                               | Técnica | 3      | ✓ |
+| HT-09 | Configuración del entorno                             | Técnica | 3      | ✓ |
+| HU-01 | Registrarse con correo, nombre, teléfono y contraseña | Usuario | 3      | ✓ |
+| HU-02 | Iniciar sesión con correo y contraseña                | Usuario | 3      | ✓ |
 
 ### Distribución por semana
 
@@ -68,24 +68,27 @@ Duración de cada sprint: 3 semanas (lunes a viernes). Historias en [historias.m
 
 ### Elementos del backlog incluidos
 
-| ID    | Elemento                                                       | Tipo    | Prioridad | Semana |
-| ----- | --------------------------------------------------------------- | ------- | --------- | ------ |
-| HU-06 | Registrarse o iniciar sesión con Google                         | Usuario | Baja      | 1      |
-| HU-04 | Mantener la sesión iniciada                                     | Usuario | Media     | 1      |
-| HU-05 | Cerrar sesión                                                    | Usuario | Media     | 1      |
-| HU-03 | Recuperar contraseña por correo                                  | Usuario | Media     | 1      |
-| HU-07 | Ver platos organizados por categorías                           | Usuario | Alta      | 1      |
-| HT-10 | Almacenamiento de imágenes (Garage y SDK de AWS S3)              | Técnica | Alta      | 2      |
-| HU-08 | Ver detalle de un plato (foto, descripción, precio)              | Usuario | Alta      | 2      |
-| HU-10 | Saber si un plato está agotado o no disponible                  | Usuario | Alta      | 2      |
-| HU-09 | Buscar platos por nombre                                         | Usuario | Media     | 2      |
-| HU-11 | Ver promociones o platos destacados                              | Usuario | Baja      | 2      |
-| HU-12 | Agregar platos al carrito                                        | Usuario | Alta      | 2      |
-| HU-13 | Modificar cantidad o eliminar platos del carrito                 | Usuario | Alta      | 3      |
-| HU-14 | Ver subtotal, costo de delivery y total                         | Usuario | Alta      | 3      |
-| HU-16 | Conservar el carrito aunque cierre la app sin iniciar sesión     | Usuario | Alta      | 3      |
-| HU-35 | Conservar el carrito al iniciar sesión o registrarse             | Usuario | Alta      | 3      |
-| HU-15 | Agregar una nota a un plato                                     | Usuario | Media     | 3      |
+| ID    | Elemento                                                       | Tipo    | Prioridad | Semana | Hecho |
+| ----- | --------------------------------------------------------------- | ------- | --------- | ------ | ----- |
+| HU-06 | Registrarse o iniciar sesión con Google                         | Usuario | Baja      | 1      | ✓ |
+| HU-04 | Mantener la sesión iniciada                                     | Usuario | Media     | 1      | ✓ |
+| HU-05 | Cerrar sesión                                                    | Usuario | Media     | 1      | ✓ |
+| HU-03 | Recuperar contraseña por correo                                  | Usuario | Media     | 1      | ✓ |
+| HU-07 | Ver platos organizados por categorías                           | Usuario | Alta      | 1      | ✓ |
+| HT-10 | Almacenamiento de imágenes (Garage y SDK de AWS S3)              | Técnica | Alta      | 2      | ✓ |
+| HU-08 | Ver detalle de un plato (foto, descripción, precio)              | Usuario | Alta      | 2      | ✓ |
+| HU-10 | Saber si un plato está agotado o no disponible                  | Usuario | Alta      | 2      | ✓ |
+| HU-09 | Buscar platos por nombre                                         | Usuario | Media     | 2      | ✓ |
+| HU-11 | Ver promociones o platos destacados                              | Usuario | Baja      | 2      | ✓ |
+| HU-12 | Agregar platos al carrito                                        | Usuario | Alta      | 2      | ✓ |
+| HU-13 | Modificar cantidad o eliminar platos del carrito                 | Usuario | Alta      | 3      | ✓ |
+| HU-14 | Ver subtotal, costo de delivery y total                         | Usuario | Alta      | 3      | ✓ |
+| HU-16 | Conservar el carrito aunque cierre la app sin iniciar sesión     | Usuario | Alta      | 3      | ✓ |
+| HU-35 | Conservar el carrito al iniciar sesión o registrarse             | Usuario | Alta      | 3      | ✓ |
+| HU-15 | Agregar una nota a un plato                                     | Usuario | Media     | 3      |  |
+| HT-11 | Cuenta de administrador por defecto (configurada en `application.yml`) | Técnica | Alta | 3 |  |
+| HU-28 | Iniciar sesión como administrador y acceder al panel `/admin`   | Usuario | Alta      | 3      |  |
+| HU-23 | Ver y editar mis datos personales                               | Usuario | Media     | 3      |  |
 
 ### Distribución por semana
 
@@ -93,7 +96,7 @@ Duración de cada sprint: 3 semanas (lunes a viernes). Historias en [historias.m
 | ------ | ------------- | ----------------------------------------------------------------- | ----------------------------------------- |
 | 1      | 28/09 – 02/10 | Cierre de autenticación (Google, sesión, contraseña); inicio del catálogo | HU-06, HU-04, HU-05, HU-03, HU-07 |
 | 2      | 05/10 – 09/10 | Almacenamiento de imágenes; catálogo: detalle, disponibilidad, búsqueda y destacados; inicio del carrito | HT-10, HU-08, HU-10, HU-09, HU-11, HU-12 |
-| 3      | 12/10 – 16/10 | Carrito: cantidades, totales, persistencia y notas                 | HU-13, HU-14, HU-16, HU-35, HU-15 |
+| 3      | 12/10 – 16/10 | Carrito: cantidades, totales, persistencia y notas; acceso al panel de administración; datos personales del cliente | HU-13, HU-14, HU-16, HU-35, HU-15, HT-11, HU-28, HU-23 |
 
 ### Eventos Scrum
 
@@ -109,3 +112,5 @@ Duración de cada sprint: 3 semanas (lunes a viernes). Historias en [historias.m
 - Épica E1 completa: login con Google, mantener sesión, cerrar sesión y recuperar contraseña (HU-03 a HU-06)
 - Catálogo de productos navegable por categorías, con detalle, búsqueda, disponibilidad y destacados (HU-07 a HU-11)
 - Carrito de compras funcional sin necesidad de cuenta, con notas, totales y persistencia al iniciar sesión o registrarse (HU-12 a HU-16, HU-35)
+- Cuenta de administrador por defecto y acceso al panel `/admin` desde el mismo login, con navegación vertical por secciones (HT-11, HU-28)
+- Ver y editar los datos personales del cliente (HU-23)

@@ -20,6 +20,7 @@ Historias técnicas (HT): trabajo necesario para el proyecto que no entrega valo
 | HT-08 | Diseñar los prototipos de pantallas (wireframes) de los flujos principales.                                                         | Media     |
 | HT-09 | Configurar el entorno: repositorio, estrategia de ramas, proyecto base y base de datos de desarrollo.                               | Alta      |
 | HT-10 | Configurar el almacenamiento de imágenes compatible con S3 (Garage) y usar el SDK de AWS S3 en el backend, en desarrollo y producción. | Alta      |
+| HT-11 | Crear al arrancar una cuenta de administrador por defecto, configurada en `application.yml`, si todavía no existe.                 | Alta      |
 
 <a id="e1"></a>
 
@@ -92,7 +93,7 @@ El carrito no requiere cuenta. El inicio de sesión se exige recién al realizar
 
 | ID    | Historia de usuario                                                                                                              | Prioridad |
 | ----- | -------------------------------------------------------------------------------------------------------------------------------- | --------- |
-| HU-28 | Como administrador, quiero iniciar sesión en el panel con un rol de administrador para gestionar el negocio de forma segura.     | Alta      |
+| HU-28 | Como administrador, quiero iniciar sesión en el mismo login que los clientes y llegar a un panel con navegación vertical (Platos, Categorías, Pedidos, Reportes) para gestionar el negocio de forma segura. | Alta      |
 | HU-29 | Como administrador, quiero crear, editar y eliminar platos (con foto, precio y categoría) para mantener el catálogo actualizado. | Alta      |
 | HU-30 | Como administrador, quiero marcar platos como disponibles o agotados para reflejar el stock del día.                             | Alta      |
 | HU-31 | Como administrador, quiero gestionar las categorías del catálogo para organizar la carta.                                        | Media     |
