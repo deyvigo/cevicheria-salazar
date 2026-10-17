@@ -86,7 +86,7 @@ Duración de cada sprint: 3 semanas (lunes a viernes). Historias en [historias.m
 | HU-16 | Conservar el carrito aunque cierre la app sin iniciar sesión     | Usuario | Alta      | 3      | ✓ |
 | HU-35 | Conservar el carrito al iniciar sesión o registrarse             | Usuario | Alta      | 3      | ✓ |
 | HU-15 | Agregar una nota a un plato                                     | Usuario | Media     | 3      |  |
-| HT-11 | Cuenta de administrador por defecto (configurada en `application.yml`) | Técnica | Alta | 3 |  |
+| HT-11 | Cuenta de administrador por defecto (configurada en `application.yml`) | Técnica | Alta | 3 | ✓ |
 | HU-28 | Iniciar sesión como administrador y acceder al panel `/admin`   | Usuario | Alta      | 3      |  |
 | HU-23 | Ver y editar mis datos personales                               | Usuario | Media     | 3      |  |
 

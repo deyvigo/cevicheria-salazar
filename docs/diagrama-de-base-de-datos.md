@@ -14,7 +14,7 @@ Por ahora modela el dominio de **autenticación y registro** (épica [E1](epicas
   - `email`, `password_hash`: credenciales para el login tradicional (HU-01, HU-02).
   - `google_id`: identificador devuelto por Google OAuth2 cuando el usuario se registra/inicia sesión con Google en lugar de contraseña (HU-06).
   - `first_name`, `last_name`, `phone`: datos solicitados al registrarse (HU-01) y editables luego desde el perfil (HU-23).
-  - `role` (`user_role`): distingue Cliente de Administrador, para que el panel de administración exija este rol al iniciar sesión (HU-28).
+  - `role` (`user_role`): distingue Cliente de Administrador, para que el panel de administración exija este rol al iniciar sesión (HU-28). El primer administrador lo crea el backend al arrancar si no existe ninguno, con datos de configuración (HT-11).
   - `email_verified`: soporta la validación del correo en el registro (HU-01).
   - `is_active`: permite desactivar una cuenta sin eliminar su historial de pedidos.
   - `created_at`, `updated_at`: trazabilidad estándar de auditoría.
