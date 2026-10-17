@@ -14,7 +14,7 @@ public record RegisterRequest(
         @NotBlank(message = "El nombre es obligatorio.") String firstName,
         @NotBlank(message = "El apellido es obligatorio.") String lastName,
         @NotBlank(message = "El teléfono es obligatorio.")
-                @Pattern(regexp = "^9[0-9]{8}$", message = "Ingresa un teléfono de 9 dígitos que empiece con 9.")
+                @Pattern(regexp = PhoneRules.REGEXP, message = PhoneRules.MESSAGE)
                 String phone) {
     public RegisterRequest {
         email = email == null ? null : email.trim().toLowerCase();

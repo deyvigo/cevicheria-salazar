@@ -132,6 +132,7 @@ describe('RegisterPage', () => {
       lastName: 'Quispe',
       phone: '987654321',
       role: 'CLIENTE',
+      hasPassword: true,
     });
     const user = userEvent.setup();
     renderPage();
@@ -151,6 +152,7 @@ describe('RegisterPage', () => {
       lastName: 'Quispe',
       phone: '987654321',
       role: 'CLIENTE',
+      hasPassword: true,
     });
     const user = userEvent.setup();
     renderPage('/cart');

@@ -32,6 +32,7 @@ describe('Panel de administración', () => {
       lastName: 'Salazar',
       phone: '987654321',
       role: 'ADMINISTRADOR',
+      hasPassword: true,
     });
   });
 
@@ -82,6 +83,7 @@ describe('Panel de administración', () => {
       lastName: 'Quispe',
       phone: '987654321',
       role: 'CLIENTE',
+      hasPassword: true,
     });
     renderPanel('/admin/pedidos');
 

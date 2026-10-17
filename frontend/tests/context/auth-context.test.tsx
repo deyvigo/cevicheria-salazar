@@ -42,6 +42,7 @@ describe('AuthProvider (recuperar sesión al abrir la app)', () => {
       lastName: 'Quispe',
       phone: '987654321',
       role: 'CLIENTE',
+      hasPassword: true,
     });
 
     renderProbe();

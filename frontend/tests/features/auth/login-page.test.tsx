@@ -92,6 +92,7 @@ describe('LoginPage', () => {
       lastName: 'Quispe',
       phone: '987654321',
       role: 'CLIENTE',
+      hasPassword: true,
     });
     const user = userEvent.setup();
     renderPage();
@@ -112,6 +113,7 @@ describe('LoginPage', () => {
       lastName: 'Quispe',
       phone: '987654321',
       role: 'CLIENTE',
+      hasPassword: true,
     });
     const user = userEvent.setup();
     renderPage([{ pathname: '/iniciar-sesion', state: { from: '/cart' } }]);
@@ -131,6 +133,7 @@ describe('LoginPage', () => {
       lastName: 'Quispe',
       phone: '987654321',
       role: 'CLIENTE',
+      hasPassword: true,
     });
     const user = userEvent.setup();
     renderPage([{ pathname: '/iniciar-sesion', state: { from: '//malo.com' } }]);
@@ -150,6 +153,7 @@ describe('LoginPage', () => {
       lastName: 'Salazar',
       phone: '987654321',
       role: 'ADMINISTRADOR',
+      hasPassword: true,
     });
     const user = userEvent.setup();
     renderPage([{ pathname: '/iniciar-sesion', state: { from: '/cart' } }]);
@@ -169,6 +173,7 @@ describe('LoginPage', () => {
       lastName: 'Quispe',
       phone: '987654321',
       role: 'CLIENTE',
+      hasPassword: true,
     });
     const user = userEvent.setup();
     renderPage([{ pathname: '/iniciar-sesion', state: { from: '/admin/pedidos' } }]);
@@ -212,6 +217,7 @@ describe('LoginPage', () => {
       lastName: 'Quispe',
       phone: '987654321',
       role: 'CLIENTE',
+      hasPassword: true,
     });
     const user = userEvent.setup();
     renderPage();

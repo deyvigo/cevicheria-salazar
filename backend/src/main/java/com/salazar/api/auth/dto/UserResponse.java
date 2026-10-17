@@ -3,7 +3,7 @@ package com.salazar.api.auth.dto;
 import com.salazar.api.auth.User;
 
 public record UserResponse(
-        Long id, String email, String firstName, String lastName, String phone, String role, boolean emailVerified) {
+        Long id, String email, String firstName, String lastName, String phone, String role, boolean emailVerified, boolean hasPassword) {
     public static UserResponse from(User user) {
         return new UserResponse(
                 user.getId(),
@@ -12,6 +12,7 @@ public record UserResponse(
                 user.getLastName(),
                 user.getPhone(),
                 user.getRole().name(),
-                user.isEmailVerified());
+                user.isEmailVerified(),
+                user.getPasswordHash() != null);
     }
 }

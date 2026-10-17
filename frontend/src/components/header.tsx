@@ -98,6 +98,16 @@ export function Header() {
                     Panel de administración
                   </Link>
                 ) : null}
+                {user.role === 'CLIENTE' ? (
+                  <Link
+                    to="/perfil"
+                    role="menuitem"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex min-h-12 w-full items-center rounded-md px-4 text-left text-base text-ink hover:bg-surface-celeste focus-visible:shadow-focus focus-visible:outline-none"
+                  >
+                    Mi perfil
+                  </Link>
+                ) : null}
                 <button
                   type="button"
                   role="menuitem"

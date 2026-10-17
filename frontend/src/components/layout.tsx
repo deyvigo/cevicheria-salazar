@@ -6,12 +6,12 @@ import { CartNotice } from '@/features/carrito/components/cart-notice';
 
 export function Layout() {
   return (
-    <>
+    <div className="flex min-h-svh flex-col">
       <Header />
       <Outlet />
       <LogoutNotice />
       <ReturnPathRedirect />
       <CartNotice />
-    </>
+    </div>
   );
 }

@@ -60,7 +60,7 @@ class OAuth2SuccessHandlerTest {
         when(authentication.getPrincipal()).thenReturn(googleUser());
         when(authService.loginWithGoogle("google-123", "maria@correo.com", "María", "Quispe", null))
                 .thenReturn(new AuthResult(
-                        new UserResponse(1L, "maria@correo.com", "María", "Quispe", null, "CLIENTE", true),
+                        new UserResponse(1L, "maria@correo.com", "María", "Quispe", null, "CLIENTE", true, false),
                         "jwt-token",
                         "refresh-token"));
 
@@ -93,7 +93,7 @@ class OAuth2SuccessHandlerTest {
         when(authentication.getPrincipal()).thenReturn(userWithoutGivenName);
         when(authService.loginWithGoogle("google-456", "ana@correo.com", "Ana Torres", "", null))
                 .thenReturn(new AuthResult(
-                        new UserResponse(2L, "ana@correo.com", "Ana Torres", "", null, "CLIENTE", true),
+                        new UserResponse(2L, "ana@correo.com", "Ana Torres", "", null, "CLIENTE", true, false),
                         "jwt-token",
                         "refresh-token"));
 
