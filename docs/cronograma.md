@@ -89,6 +89,7 @@ Duración de cada sprint: 3 semanas (lunes a viernes). Historias en [historias.m
 | HT-11 | Cuenta de administrador por defecto (configurada en `application.yml`) | Técnica | Alta | 3 | ✓ |
 | HU-28 | Iniciar sesión como administrador y acceder al panel `/admin`   | Usuario | Alta      | 3      | ✓ |
 | HU-23 | Ver y editar mis datos personales                               | Usuario | Media     | 3      | ✓ |
+| HU-36 | Ver y editar mis datos personales y cambiar mi contraseña (administrador) | Usuario | Media | 3 | ✓ |
 
 ### Distribución por semana
 
@@ -96,7 +97,7 @@ Duración de cada sprint: 3 semanas (lunes a viernes). Historias en [historias.m
 | ------ | ------------- | ----------------------------------------------------------------- | ----------------------------------------- |
 | 1      | 28/09 – 02/10 | Cierre de autenticación (Google, sesión, contraseña); inicio del catálogo | HU-06, HU-04, HU-05, HU-03, HU-07 |
 | 2      | 05/10 – 09/10 | Almacenamiento de imágenes; catálogo: detalle, disponibilidad, búsqueda y destacados; inicio del carrito | HT-10, HU-08, HU-10, HU-09, HU-11, HU-12 |
-| 3      | 12/10 – 16/10 | Carrito: cantidades, totales, persistencia y notas; acceso al panel de administración; datos personales del cliente | HU-13, HU-14, HU-16, HU-35, HU-15, HT-11, HU-28, HU-23 |
+| 3      | 12/10 – 16/10 | Carrito: cantidades, totales, persistencia y notas; acceso al panel de administración; datos personales del cliente y del administrador | HU-13, HU-14, HU-16, HU-35, HU-15, HT-11, HU-28, HU-23, HU-36 |
 
 ### Eventos Scrum
 
@@ -114,3 +115,4 @@ Duración de cada sprint: 3 semanas (lunes a viernes). Historias en [historias.m
 - Carrito de compras funcional sin necesidad de cuenta, con notas, totales y persistencia al iniciar sesión o registrarse (HU-12 a HU-16, HU-35)
 - Cuenta de administrador por defecto y acceso al panel `/admin` desde el mismo login, con navegación vertical por secciones (HT-11, HU-28)
 - Ver y editar los datos personales del cliente (HU-23)
+- Ver y editar los datos personales del administrador y cambiar su contraseña desde el panel (HU-36)

@@ -20,7 +20,7 @@ El diagrama representa los actores y casos de uso principales del sistema, deriv
 - **Gestionar carrito** (E3): agrupa agregar, modificar y conservar el carrito (HU-12 a HU-16, HU-35). Es accesible tanto para el Visitante como para el Cliente, ya que no requiere cuenta.
 - **Realizar pedido** (E4): representa el checkout (dirección, confirmación) de las historias HU-17, HU-21 y HU-22. Se extiende con "Pagar contraentrega" (HU-20) y "Pagar en línea" (HU-19), los dos métodos de pago alternativos de la historia HU-18. "Pagar en línea" depende de la **Pasarela de pagos** como actor externo.
 - **Ver estado de pedido** y **Consultar historial** (E5): corresponden a HU-26 y HU-25 respectivamente, exclusivas del Cliente porque requieren una cuenta con pedidos asociados.
-- **Gestionar perfil** (E5): agrupa la edición de datos personales y direcciones (HU-23, HU-24) y repetir pedidos anteriores (HU-27).
+- **Gestionar perfil** (E5): agrupa la edición de datos personales y direcciones (HU-23, HU-24) y repetir pedidos anteriores (HU-27). El Administrador también edita sus datos personales y su contraseña desde la sección "Mi información" de su panel (HU-36).
 - **Gestionar platos, Gestionar categorías, Actualizar stock, Gestionar pedidos y Reporte de ventas** (E6): son los casos de uso exclusivos del Administrador, correspondientes a las historias HU-29 a HU-34. Todos requieren el inicio de sesión del Administrador (HU-28), representado por la relación directa hacia "Iniciar sesión".
 
 ### Relaciones clave

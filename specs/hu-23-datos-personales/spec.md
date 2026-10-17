@@ -15,7 +15,7 @@ El perfil es una sección con navegación vertical, parecida a la del panel de a
 
 ## Actor(es)
 
-Cliente con sesión iniciada (HU-01, HU-02 o HU-06). Los administradores quedan fuera: su panel es otra pantalla (HU-28).
+Cliente con sesión iniciada (HU-01, HU-02 o HU-06). Los administradores no usan `/perfil`: reutilizan esta misma pantalla y API desde su panel (HU-36).
 
 ## Criterios de aceptación
 
@@ -76,7 +76,7 @@ Cliente con sesión iniciada (HU-01, HU-02 o HU-06). Los administradores quedan 
 - Subir foto de perfil.
 - Avisar por correo que la contraseña cambió.
 - Ver o cerrar sesiones activas una por una.
-- Edición de datos de administradores.
+- Edición de datos de administradores (HU-36).
 
 ## Decisiones de clarificación
 
@@ -85,4 +85,4 @@ Cliente con sesión iniciada (HU-01, HU-02 o HU-06). Los administradores quedan 
 - **Contraseña actual incorrecta**: mismo límite que el login (3 intentos, bloqueo temporal de 15 minutos en Redis), contado por usuario y separado del contador del login (así quien robe una sesión no puede bloquear el inicio de sesión del dueño).
 - **Ruta**: `/perfil` (redirige a `/perfil/mi-informacion`), con el header de la tienda y una navegación vertical propia. El menú de cuenta del header ofrece "Mi perfil" solo a Clientes.
 - **Alcance**: la historia cubre al actor Cliente de punta a punta (backend y frontend), como las demás.
-- **Administrador**: no usa el perfil; la API también lo rechaza (`403`).
+- **Administrador**: no usa `/perfil` (ve un 404 y su menú no ofrece "Mi perfil"); la API sí le sirve, para la sección "Mi información" de su panel (HU-36).

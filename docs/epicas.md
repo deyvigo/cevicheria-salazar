@@ -8,7 +8,7 @@
 | [E3](#e3) | Carrito de compras       | Permite armar y ajustar el pedido antes de pagar, sin necesidad de tener cuenta.        | HU-12 a HU-16, HU-35 |
 | [E4](#e4) | Checkout y pagos         | Gestiona la dirección de entrega y el pago en línea o contraentrega.                    | HU-17 a HU-22        |
 | [E5](#e5) | Perfil del cliente       | Permite gestionar datos personales, direcciones y seguimiento de pedidos.               | HU-23 a HU-27        |
-| [E6](#e6) | Panel de administración  | Permite al negocio gestionar el catálogo, los pedidos y ver reportes.                   | HU-28 a HU-34        |
+| [E6](#e6) | Panel de administración  | Permite al negocio gestionar el catálogo, los pedidos y ver reportes.                   | HU-28 a HU-34, HU-36 |
 
 ---
 
