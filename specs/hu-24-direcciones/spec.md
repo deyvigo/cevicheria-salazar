@@ -1,7 +1,7 @@
 # Spec: HU-24 — Ver, crear, editar y eliminar mis direcciones de entrega
 
 **Épica**: [E5. Perfil del cliente](../../docs/epicas.md#e5)
-**Estado**: En implementación
+**Estado**: Hecha
 
 ## Objetivo
 
