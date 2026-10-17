@@ -72,8 +72,8 @@ Duración de cada sprint: 3 semanas (lunes a viernes). Historias en [historias.m
 | ----- | --------------------------------------------------------------- | ------- | --------- | ------ | ----- |
 | HU-06 | Registrarse o iniciar sesión con Google                         | Usuario | Baja      | 1      | ✓ |
 | HU-04 | Mantener la sesión iniciada                                     | Usuario | Media     | 1      | ✓ |
-| HU-05 | Cerrar sesión                                                    | Usuario | Media     | 1      |       |
-| HU-03 | Recuperar contraseña por correo                                  | Usuario | Media     | 1      |       |
+| HU-05 | Cerrar sesión                                                    | Usuario | Media     | 1      | ✓ |
+| HU-03 | Recuperar contraseña por correo                                  | Usuario | Media     | 1      | ✓ |
 | HU-07 | Ver platos organizados por categorías                           | Usuario | Alta      | 1      | ✓ |
 | HT-10 | Almacenamiento de imágenes (Garage y SDK de AWS S3)              | Técnica | Alta      | 2      | ✓ |
 | HU-08 | Ver detalle de un plato (foto, descripción, precio)              | Usuario | Alta      | 2      | ✓ |
@@ -126,7 +126,7 @@ Duración de cada sprint: 3 semanas (lunes a viernes). Historias en [historias.m
 
 | ID    | Elemento                                                  | Tipo    | Prioridad | Semana | Hecho |
 | ----- | --------------------------------------------------------- | ------- | --------- | ------ | ----- |
-| HU-24 | Ver, crear, editar y eliminar mis direcciones de entrega | Usuario | Media     | 1      |       |
+| HU-24 | Ver, crear, editar y eliminar mis direcciones de entrega | Usuario | Media     | 1      | ✓ |
 
 ### Eventos Scrum
 
