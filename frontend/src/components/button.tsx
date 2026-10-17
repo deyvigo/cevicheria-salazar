@@ -1,12 +1,13 @@
 import { forwardRef, type ButtonHTMLAttributes } from 'react';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary';
+  variant?: 'primary' | 'secondary' | 'outline';
 }
 
 const VARIANT_CLASSES: Record<NonNullable<ButtonProps['variant']>, string> = {
   primary: 'bg-action text-on-action hover:bg-action-hover active:bg-action-pressed',
   secondary: 'bg-action-secondary text-ink hover:bg-action-secondary-hover',
+  outline: 'border-2 border-action-secondary bg-transparent text-ink shadow-none hover:border-action-secondary-hover',
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(

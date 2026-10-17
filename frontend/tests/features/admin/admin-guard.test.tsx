@@ -19,6 +19,7 @@ const admin: AuthUser = {
   lastName: 'Salazar',
   phone: '987654321',
   role: 'ADMINISTRADOR',
+  hasPassword: true,
 };
 
 function SignOutButton() {

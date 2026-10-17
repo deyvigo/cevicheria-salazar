@@ -17,6 +17,7 @@ const maria: AuthUser = {
   lastName: 'Quispe',
   phone: '987654321',
   role: 'CLIENTE',
+  hasPassword: true,
 };
 
 function CurrentUser() {
@@ -161,6 +162,21 @@ describe('Header', () => {
     await user.click(await screen.findByRole('button', { name: /María/ }));
     expect(screen.getByRole('menuitem', { name: 'Cerrar sesión' })).toBeInTheDocument();
     expect(screen.queryByRole('menuitem', { name: 'Panel de administración' })).not.toBeInTheDocument();
+  });
+
+  it('el menú de un cliente ofrece "Mi perfil" y el de un administrador no', async () => {
+    const user = userEvent.setup();
+    vi.mocked(authApi.me).mockResolvedValue(maria);
+    const customer = renderHeader();
+
+    await user.click(await screen.findByRole('button', { name: /María/ }));
+    expect(screen.getByRole('menuitem', { name: 'Mi perfil' })).toHaveAttribute('href', '/perfil');
+    customer.unmount();
+
+    vi.mocked(authApi.me).mockResolvedValue({ ...maria, role: 'ADMINISTRADOR' });
+    renderHeader();
+    await user.click(await screen.findByRole('button', { name: /María/ }));
+    expect(screen.queryByRole('menuitem', { name: 'Mi perfil' })).not.toBeInTheDocument();
   });
 
   it('cierra el menú al hacer clic fuera', async () => {

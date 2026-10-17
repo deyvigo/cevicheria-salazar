@@ -15,7 +15,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   const isPassword = type === 'password';
 
   return (
-    <div className="flex w-full max-w-[340px] flex-col gap-2">
+    <div className="flex w-full max-w-[340px] flex-col gap-2 text-left">
       <label htmlFor={inputId} className="text-sm font-bold text-ink">
         {label}
       </label>

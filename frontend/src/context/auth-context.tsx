@@ -10,6 +10,7 @@ export interface AuthUser {
   lastName: string;
   phone: string;
   role: 'CLIENTE' | 'ADMINISTRADOR';
+  hasPassword: boolean;
 }
 
 interface AuthContextValue {
