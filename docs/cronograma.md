@@ -8,7 +8,7 @@ Duración de cada sprint: 3 semanas (lunes a viernes). Historias en [historias.m
 | -------- | ---------- | ---------- | ----------------------------------------------------------- |
 | Sprint 0 | 07/09/2026 | 25/09/2026 | Documentación inicial, diagramas, entorno, registro y login |
 | Sprint 1 | 28/09/2026 | 16/10/2026 | Catálogo de productos y carrito de compras                  |
-| Sprint 2 | 19/10/2026 | 06/11/2026 | Por definir en su Sprint Planning                           |
+| Sprint 2 | 19/10/2026 | 06/11/2026 | Perfil del cliente: direcciones de entrega                  |
 | Sprint 3 | 09/11/2026 | 27/11/2026 | Por definir en su Sprint Planning                           |
 
 ---
@@ -71,9 +71,9 @@ Duración de cada sprint: 3 semanas (lunes a viernes). Historias en [historias.m
 | ID    | Elemento                                                       | Tipo    | Prioridad | Semana | Hecho |
 | ----- | --------------------------------------------------------------- | ------- | --------- | ------ | ----- |
 | HU-06 | Registrarse o iniciar sesión con Google                         | Usuario | Baja      | 1      | ✓ |
-| HU-04 | Mantener la sesión iniciada                                     | Usuario | Media     | 1      | ✓ |
-| HU-05 | Cerrar sesión                                                    | Usuario | Media     | 1      | ✓ |
-| HU-03 | Recuperar contraseña por correo                                  | Usuario | Media     | 1      | ✓ |
+| HU-04 | Mantener la sesión iniciada                                     | Usuario | Media     | 1      |       |
+| HU-05 | Cerrar sesión                                                    | Usuario | Media     | 1      |       |
+| HU-03 | Recuperar contraseña por correo                                  | Usuario | Media     | 1      |       |
 | HU-07 | Ver platos organizados por categorías                           | Usuario | Alta      | 1      | ✓ |
 | HT-10 | Almacenamiento de imágenes (Garage y SDK de AWS S3)              | Técnica | Alta      | 2      | ✓ |
 | HU-08 | Ver detalle de un plato (foto, descripción, precio)              | Usuario | Alta      | 2      | ✓ |
@@ -115,3 +115,24 @@ Duración de cada sprint: 3 semanas (lunes a viernes). Historias en [historias.m
 - Cuenta de administrador por defecto y acceso al panel `/admin` desde el mismo login, con navegación vertical por secciones (HT-11, HU-28)
 - Ver y editar los datos personales del cliente (HU-23)
 - Ver y editar los datos personales del administrador y cambiar su contraseña desde el panel (HU-36)
+
+---
+
+## Sprint 2 (19/10/2026 – 06/11/2026)
+
+**Objetivo del sprint:** que el Cliente pueda guardar y gestionar sus direcciones de entrega desde su perfil. El resto del backlog del sprint se define en su Sprint Planning.
+
+### Elementos del backlog incluidos
+
+| ID    | Elemento                                                  | Tipo    | Prioridad | Semana | Hecho |
+| ----- | --------------------------------------------------------- | ------- | --------- | ------ | ----- |
+| HU-24 | Ver, crear, editar y eliminar mis direcciones de entrega | Usuario | Media     | 1      |       |
+
+### Eventos Scrum
+
+| Evento               | Fecha              |
+| -------------------- | ------------------ |
+| Sprint Planning      | 19/10/2026         |
+| Daily Scrum          | Diario, 15 minutos |
+| Sprint Review        | 06/11/2026         |
+| Sprint Retrospective | 06/11/2026         |
