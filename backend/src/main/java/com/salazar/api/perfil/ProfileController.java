@@ -8,7 +8,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,7 +22,7 @@ public class ProfileController {
 
     @PutMapping
     public UserResponse updateProfile(Authentication authentication, @Valid @RequestBody UpdateProfileRequest request) {
-        return profileService.updateProfile(userId(authentication), request);
+        return profileService.updateProfile(AuthenticatedUser.id(authentication), request);
     }
 
     @PutMapping("/contrasena")
@@ -33,14 +32,7 @@ public class ProfileController {
             HttpServletRequest httpRequest) {
         String refreshToken = SessionCookieFactory.readCookie(httpRequest, SessionCookieFactory.REFRESH_TOKEN_COOKIE)
                 .orElse(null);
-        profileService.changePassword(userId(authentication), request, refreshToken);
+        profileService.changePassword(AuthenticatedUser.id(authentication), request, refreshToken);
         return ResponseEntity.noContent().build();
-    }
-
-    private Long userId(Authentication authentication) {
-        if (authentication == null || !(authentication.getPrincipal() instanceof Long userId)) {
-            throw new InsufficientAuthenticationException("No hay sesión.");
-        }
-        return userId;
     }
 }
