@@ -10,7 +10,9 @@ export function safeReturnPath(value: unknown): string | null {
     return null;
   }
   const pathname = value.split(/[?#]/)[0];
-  return AUTH_PATHS.includes(pathname) ? null : value;
+  // Customers never belong in the panel, and administrators are sent there by role
+  if (AUTH_PATHS.includes(pathname) || pathname === '/admin' || pathname.startsWith('/admin/')) return null;
+  return value;
 }
 
 export function returnPathFromState(state: unknown): string | null {

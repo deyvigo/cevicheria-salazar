@@ -147,6 +147,22 @@ describe('Header', () => {
     expect(trigger).toHaveFocus();
   });
 
+  it('el menú de un administrador ofrece el panel y el de un cliente no', async () => {
+    const user = userEvent.setup();
+    vi.mocked(authApi.me).mockResolvedValue({ ...maria, role: 'ADMINISTRADOR' });
+    const admin = renderHeader();
+
+    await user.click(await screen.findByRole('button', { name: /María/ }));
+    expect(screen.getByRole('menuitem', { name: 'Panel de administración' })).toHaveAttribute('href', '/admin');
+    admin.unmount();
+
+    vi.mocked(authApi.me).mockResolvedValue(maria);
+    renderHeader();
+    await user.click(await screen.findByRole('button', { name: /María/ }));
+    expect(screen.getByRole('menuitem', { name: 'Cerrar sesión' })).toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: 'Panel de administración' })).not.toBeInTheDocument();
+  });
+
   it('cierra el menú al hacer clic fuera', async () => {
     vi.mocked(authApi.me).mockResolvedValue(maria);
     const user = userEvent.setup();

@@ -88,6 +88,16 @@ export function Header() {
                 role="menu"
                 className="absolute right-0 z-10 mt-2 min-w-48 rounded-lg border border-border bg-surface p-2 shadow-md"
               >
+                {user.role === 'ADMINISTRADOR' ? (
+                  <Link
+                    to="/admin"
+                    role="menuitem"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex min-h-12 w-full items-center rounded-md px-4 text-left text-base text-ink hover:bg-surface-celeste focus-visible:shadow-focus focus-visible:outline-none"
+                  >
+                    Panel de administración
+                  </Link>
+                ) : null}
                 <button
                   type="button"
                   role="menuitem"
