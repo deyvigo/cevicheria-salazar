@@ -30,10 +30,11 @@ Backend único que atiende a la app web, organizado en capas:
 - **Google OAuth 2.0**: habilita el registro/login rápido con cuenta de Google (HU-06), sin manejar contraseñas propias para ese flujo.
 - **Izipay (pasarela de pagos)**: procesa el pago en línea con tarjeta (HU-19) y notifica el resultado a la API (API · IPN), permitiendo informar al cliente si el pago fue rechazado (HU-22). El pago contraentrega (HU-20) no pasa por este servicio.
 - **Servidor SMTP (correos y boletas)**: envía la confirmación de pedido con su número (HU-21) y los correos de recuperación de contraseña (HU-03).
+- **OpenStreetMap (teselas del mapa)**: el navegador descarga directamente las imágenes del mapa con el que el cliente fija las coordenadas de una dirección (HU-24, Leaflet). No pasa por la API ni recibe datos del cliente; la URL del servidor de teselas es configurable (`VITE_MAP_TILE_URL`).
 
 ### Flujo general
 
 1. El Cliente/Visitante y el Administrador acceden únicamente a través de la misma app web React, nunca directamente a la API.
 2. Toda petición pasa por la capa de seguridad antes de llegar a los controladores, servicios y repositorios.
-3. Los servicios externos (Google, Izipay, SMTP) se integran solo desde la capa de servicios de la API, nunca desde el frontend, manteniendo las credenciales y la lógica de integración en el backend.
+3. Los servicios externos (Google, Izipay, SMTP) se integran solo desde la capa de servicios de la API, nunca desde el frontend, manteniendo las credenciales y la lógica de integración en el backend. La única excepción son las teselas del mapa (OpenStreetMap), que no usan credenciales.
 4. Redis actúa como componente de soporte transversal: la capa de seguridad lo usa para intentos de login y la capa de servicios para caché, pero ningún dato persistente vive ahí — PostgreSQL y Garage siguen siendo las únicas fuentes de verdad.

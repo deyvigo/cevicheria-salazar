@@ -6,7 +6,7 @@
 
 El diagrama es el modelo entidad-relación (ER) que se persiste en el contenedor **PostgreSQL** del [diagrama de despliegue](diagrama-de-despliegue.md) y que implementa la capa de **Repositorios (Spring Data JPA)** del [diagrama de arquitectura](diagrama-de-arquitectura.md). Corresponde a la historia técnica **HT-06** de la épica [E0. Fundamentos del proyecto](epicas.md#e0).
 
-Por ahora modela el dominio de **autenticación y registro** (épica [E1](epicas.md#e1)) y el **catálogo** (épica [E2](epicas.md#e2), HU-07); las tablas de carrito, pedidos y perfil se incorporarán en iteraciones posteriores de esta misma historia técnica.
+Por ahora modela el dominio de **autenticación y registro** (épica [E1](epicas.md#e1)) y el **catálogo** (épica [E2](epicas.md#e2), HU-07) y las **direcciones de entrega** del perfil (épica [E5](epicas.md#e5), HU-24); las tablas de carrito y pedidos se incorporarán en iteraciones posteriores de esta misma historia técnica.
 
 ### Tablas
 
@@ -51,10 +51,19 @@ Por ahora modela el dominio de **autenticación y registro** (épica [E1](epicas
   - `position`: orden dentro del plato; la de menor posición es la imagen principal.
   - `created_at`: fecha en que se registró la imagen.
 
+- **addresses**: direcciones de entrega guardadas por un cliente (HU-24).
+  - `user_id`: referencia a `users`, dueño de la dirección. Sin borrado en cascada: las cuentas se desactivan, no se borran, y los pedidos seguirán referenciando la dirección.
+  - `label`: nombre que el cliente da a la dirección ("Casa", "Trabajo"), hasta 40 caracteres.
+  - `address`, `reference`: dirección escrita (hasta 200 caracteres) y referencia opcional para el repartidor.
+  - `latitude`, `longitude`: coordenadas fijadas en el mapa (`NUMERIC(9,6)`, ~0.1 m); el punto por defecto es el Centro de Lima.
+  - `deleted_at`: borrado lógico (soft delete). Una dirección eliminada deja de ser visible para el cliente pero la fila se conserva; las consultas filtran `deleted_at IS NULL`. El cliente puede tener hasta 10 direcciones activas.
+  - `created_at`, `updated_at`: trazabilidad estándar.
+
 ### Relaciones
 
 - `users (1) — (N) refresh_tokens`: un usuario puede tener varias sesiones/dispositivos activos a la vez.
 - `users (1) — (N) password_reset_tokens`: un usuario puede generar varias solicitudes de recuperación a lo largo del tiempo (por ejemplo, si no completa una anterior).
+- `users (1) — (N) addresses`: un cliente guarda varias direcciones de entrega.
 - `categories (1) — (N) products`: una categoría agrupa varios platos; cada plato pertenece a una sola categoría.
 - `products (1) — (N) product_images`: un plato tiene una o más imágenes; la de menor `position` es la principal.
 
