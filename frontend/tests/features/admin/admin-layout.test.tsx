@@ -90,4 +90,43 @@ describe('Panel de administración', () => {
     expect(await screen.findByRole('heading', { name: 'Página no encontrada' })).toBeInTheDocument();
     expect(screen.queryByRole('navigation', { name: 'Panel de administración' })).not.toBeInTheDocument();
   });
+
+  it('/admin/mi-informacion muestra los datos del administrador sin el header de la tienda', async () => {
+    renderPanel('/admin/mi-informacion');
+
+    expect(await screen.findByRole('heading', { name: 'Mi información' })).toBeInTheDocument();
+    expect(screen.getByText('Admin')).toBeInTheDocument();
+    expect(screen.getByText('admin@correo.com')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Mi información' })).toHaveAttribute('aria-current', 'page');
+    expect(screen.queryByRole('banner')).not.toBeInTheDocument();
+    expect(screen.getByRole('navigation', { name: 'Panel de administración' })).toBeInTheDocument();
+  });
+
+  it('desde "Mi información" se abren los diálogos independientes de datos y de contraseña', async () => {
+    const user = userEvent.setup();
+    renderPanel('/admin/mi-informacion');
+
+    await user.click(await screen.findByRole('button', { name: 'Editar datos' }));
+    expect(screen.getByRole('dialog', { name: 'Editar datos' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Cancelar' }));
+
+    await user.click(screen.getByRole('button', { name: 'Cambiar contraseña' }));
+    expect(screen.getByRole('dialog', { name: 'Cambiar contraseña' })).toBeInTheDocument();
+  });
+
+  it('un cliente no ve "Mi información" del panel', async () => {
+    vi.mocked(authApi.me).mockResolvedValue({
+      id: 2,
+      email: 'maria@correo.com',
+      firstName: 'María',
+      lastName: 'Quispe',
+      phone: '987654321',
+      role: 'CLIENTE',
+      hasPassword: true,
+    });
+    renderPanel('/admin/mi-informacion');
+
+    expect(await screen.findByRole('heading', { name: 'Página no encontrada' })).toBeInTheDocument();
+    expect(screen.queryByText('maria@correo.com')).not.toBeInTheDocument();
+  });
 });

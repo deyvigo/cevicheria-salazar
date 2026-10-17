@@ -3,7 +3,7 @@ import { Layout } from '@/components/layout';
 import { AdminGuard } from '@/features/admin/admin-guard';
 import { AdminLayout } from '@/features/admin/admin-layout';
 import { AdminNotFound } from '@/features/admin/admin-not-found';
-import { ADMIN_SECTIONS } from '@/features/admin/admin-sections';
+import { ADMIN_ACCOUNT_SECTION, ADMIN_SECTIONS } from '@/features/admin/admin-sections';
 import { AdminSectionPage } from '@/features/admin/components/admin-section-page';
 import { CartPage } from '@/features/carrito/cart-page';
 import { ForgotPasswordPage } from '@/features/auth/forgot-password-page';
@@ -56,6 +56,7 @@ export const router = createBrowserRouter([
             path: section.path,
             element: <AdminSectionPage title={section.label} />,
           })),
+          { path: ADMIN_ACCOUNT_SECTION.path, element: <MyInformationPage /> },
           { path: '*', element: <AdminNotFound /> },
         ],
       },
