@@ -58,6 +58,15 @@ public class ApiExceptionHandler {
                         Instant.now(), HttpStatus.CONFLICT.value(), "Conflicto", List.of(fieldError), ex.getMessage()));
     }
 
+    @ExceptionHandler(FieldInvalidException.class)
+    public ResponseEntity<ApiError> handleFieldInvalid(FieldInvalidException ex) {
+        return ResponseEntity.badRequest()
+                .body(ApiError.ofFieldErrors(
+                        HttpStatus.BAD_REQUEST.value(),
+                        "Validación fallida",
+                        List.of(new ApiError.FieldError(ex.getField(), ex.getMessage()))));
+    }
+
     @ExceptionHandler(InvalidCredentialsException.class)
     public ResponseEntity<ApiError> handleInvalidCredentials(InvalidCredentialsException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)

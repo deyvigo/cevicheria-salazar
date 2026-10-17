@@ -102,8 +102,15 @@ public class User {
         this.active = false;
     }
 
-    void changePassword(String passwordHash) {
+    public void changePassword(String passwordHash) {
         this.passwordHash = passwordHash;
+        this.updatedAt = Instant.now();
+    }
+
+    public void updateProfile(String firstName, String lastName, String phone) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phone = phone;
         this.updatedAt = Instant.now();
     }
 
