@@ -6,6 +6,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Layout } from '@/components/layout';
 import { AuthProvider, type AuthUser } from '@/context/auth-context';
 import * as authApi from '@/features/auth/auth-api';
+import * as addressApi from '@/features/perfil/address-api';
+import { MyAddressesPage } from '@/features/perfil/my-addresses-page';
 import { MyInformationPage } from '@/features/perfil/my-information-page';
 import { ProfileGuard } from '@/features/perfil/profile-guard';
 import { ProfileLayout } from '@/features/perfil/profile-layout';
@@ -13,6 +15,7 @@ import { ProfileNotFound } from '@/features/perfil/profile-not-found';
 import { Navigate } from 'react-router-dom';
 
 vi.mock('@/features/auth/auth-api');
+vi.mock('@/features/perfil/address-api');
 
 const maria: AuthUser = {
   id: 1,
@@ -39,6 +42,7 @@ function renderAt(path: string) {
                 children: [
                   { index: true, element: <Navigate to="/perfil/mi-informacion" replace /> },
                   { path: 'mi-informacion', element: <MyInformationPage /> },
+                  { path: 'mis-direcciones', element: <MyAddressesPage /> },
                   { path: '*', element: <ProfileNotFound /> },
                 ],
               },
@@ -100,6 +104,23 @@ describe('Perfil', () => {
 
     expect(await screen.findByText('Login')).toBeInTheDocument();
     expect(router.state.location.state).toEqual({ from: '/perfil/mi-informacion' });
+  });
+
+  it('abre "Mis direcciones" por su URL con la pestaña activa', async () => {
+    vi.mocked(authApi.me).mockResolvedValue(maria);
+    vi.mocked(addressApi.listAddresses).mockResolvedValue([]);
+    renderAt('/perfil/mis-direcciones');
+
+    expect(await screen.findByRole('heading', { name: 'Mis direcciones' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Mis direcciones' })).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('lleva a iniciar sesión a un visitante de "Mis direcciones", recordando la pestaña', async () => {
+    vi.mocked(authApi.me).mockRejectedValue(new Error('401'));
+    const router = renderAt('/perfil/mis-direcciones');
+
+    expect(await screen.findByText('Login')).toBeInTheDocument();
+    expect(router.state.location.state).toEqual({ from: '/perfil/mis-direcciones' });
   });
 
   it('muestra la página 404 a un administrador', async () => {
