@@ -62,6 +62,18 @@ describe('Dialog', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
+  it('tiene una X que cierra el diálogo', async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+    render(<Harness onClose={onClose} />);
+    await user.click(screen.getByRole('button', { name: 'Abrir' }));
+
+    await user.click(screen.getByRole('button', { name: 'Cerrar' }));
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
   it('mantiene el foco dentro con Tab', async () => {
     const user = userEvent.setup();
     render(<Harness />);
@@ -69,6 +81,8 @@ describe('Dialog', () => {
 
     await user.tab();
     expect(screen.getByRole('button', { name: 'Aceptar' })).toHaveFocus();
+    await user.tab();
+    expect(screen.getByRole('button', { name: 'Cerrar' })).toHaveFocus();
     await user.tab();
     expect(screen.getByLabelText('Campo')).toHaveFocus();
   });

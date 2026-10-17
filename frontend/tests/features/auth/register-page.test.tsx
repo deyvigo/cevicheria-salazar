@@ -62,6 +62,13 @@ describe('RegisterPage', () => {
     useCartStore.setState({ items: CART, lastAdded: null, lastRemoved: null });
   });
 
+  it('muestra las condiciones de la contraseña', () => {
+    renderPage();
+
+    expect(screen.getByText('La contraseña debe cumplir:')).toBeInTheDocument();
+    expect(screen.getByText('Incluir al menos un número.')).toBeInTheDocument();
+  });
+
   it('muestra los campos obligatorios vacíos al enviar sin completar nada', async () => {
     const user = userEvent.setup();
     renderPage();

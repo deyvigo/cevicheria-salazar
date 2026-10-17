@@ -4,10 +4,11 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
   error?: string;
   hint?: string;
+  fullWidth?: boolean;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
-  { label, error, hint, id, className, type, ...props },
+  { label, error, hint, fullWidth, id, className, type, ...props },
   ref,
 ) {
   const [visible, setVisible] = useState(false);
@@ -15,7 +16,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   const isPassword = type === 'password';
 
   return (
-    <div className="flex w-full max-w-[340px] flex-col gap-2 text-left">
+    <div className={`flex w-full flex-col gap-2 text-left ${fullWidth ? '' : 'max-w-[340px]'}`}>
       <label htmlFor={inputId} className="text-sm font-bold text-ink">
         {label}
       </label>

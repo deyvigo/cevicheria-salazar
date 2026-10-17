@@ -64,6 +64,8 @@ describe('ResetPasswordPage', () => {
 
     expect(await screen.findByLabelText('Nueva contraseña')).toBeInTheDocument();
     expect(screen.getByLabelText('Confirmar contraseña')).toBeInTheDocument();
+    expect(screen.getByText('La contraseña debe cumplir:')).toBeInTheDocument();
+    expect(screen.getByText('Incluir al menos una letra.')).toBeInTheDocument();
   });
 
   it('valida las reglas de contraseña y la coincidencia sin enviar la solicitud', async () => {

@@ -65,15 +65,16 @@ export function EditProfileDialog({ open, user, onClose, onSaved }: EditProfileD
 
   return (
     <Dialog open={open} title="Editar datos" onClose={onClose}>
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-center gap-5" noValidate>
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5" noValidate>
         {errors.root ? (
           <p role="alert" className="text-sm font-bold text-error-text">
             {errors.root.message}
           </p>
         ) : null}
-        <Input label="Nombres" autoComplete="given-name" error={errors.firstName?.message} {...register('firstName')} />
-        <Input label="Apellidos" autoComplete="family-name" error={errors.lastName?.message} {...register('lastName')} />
+        <Input fullWidth label="Nombres" autoComplete="given-name" error={errors.firstName?.message} {...register('firstName')} />
+        <Input fullWidth label="Apellidos" autoComplete="family-name" error={errors.lastName?.message} {...register('lastName')} />
         <Input
+          fullWidth
           label="Teléfono"
           type="tel"
           inputMode="numeric"
@@ -81,12 +82,12 @@ export function EditProfileDialog({ open, user, onClose, onSaved }: EditProfileD
           error={errors.phone?.message}
           {...register('phone')}
         />
-        <div className="flex justify-center gap-3">
-          <Button type="submit" disabled={!isDirty || isSubmitting}>
-            Guardar
-          </Button>
+        <div className="flex justify-end gap-3">
           <Button type="button" variant="outline" onClick={onClose}>
             Cancelar
+          </Button>
+          <Button type="submit" disabled={!isDirty || isSubmitting}>
+            Guardar
           </Button>
         </div>
       </form>

@@ -22,7 +22,8 @@ export function Dialog({ open, title, onClose, children }: DialogProps) {
     if (!open) return;
     const previouslyFocused = document.activeElement as HTMLElement | null;
     const panel = panelRef.current;
-    (panel?.querySelector<HTMLElement>(FOCUSABLE) ?? panel)?.focus();
+    (panel?.querySelector<HTMLElement>('input, select, textarea') ?? panel?.querySelector<HTMLElement>(FOCUSABLE) ?? panel)
+      ?.focus();
 
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') {
@@ -64,11 +65,32 @@ export function Dialog({ open, title, onClose, children }: DialogProps) {
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className="w-full max-w-md rounded-xl bg-surface p-6 text-center shadow-lg focus:outline-none"
+        className="w-full max-w-md rounded-xl bg-surface p-6 shadow-lg focus:outline-none"
       >
-        <h2 id={titleId} className="font-display text-ink text-[22px] leading-7 font-semibold">
-          {title}
-        </h2>
+        <div className="flex items-center justify-between gap-4">
+          <h2 id={titleId} className="font-display text-ink text-left text-[22px] leading-7 font-semibold">
+            {title}
+          </h2>
+          <button
+            type="button"
+            aria-label="Cerrar"
+            onClick={onClose}
+            className="flex h-10 w-10 flex-none items-center justify-center rounded-md text-ink hover:bg-surface-celeste focus-visible:shadow-focus focus-visible:outline-none"
+          >
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              className="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M6 6l12 12M18 6 6 18" />
+            </svg>
+          </button>
+        </div>
         <div className="mt-4">{children}</div>
       </div>
     </div>
