@@ -28,7 +28,7 @@ export function MyInformationPage() {
   ];
 
   return (
-    <div className="flex max-w-2xl flex-col gap-6">
+    <div className="flex flex-col gap-6">
       <h1 className="font-display text-ink text-[32px] leading-[40px] font-semibold">Mi información</h1>
 
       <Card className="flex flex-col gap-4">
