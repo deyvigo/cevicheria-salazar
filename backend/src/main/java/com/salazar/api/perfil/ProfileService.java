@@ -3,14 +3,12 @@ package com.salazar.api.perfil;
 import com.salazar.api.auth.RefreshTokenRepository;
 import com.salazar.api.auth.User;
 import com.salazar.api.auth.UserRepository;
-import com.salazar.api.auth.UserRole;
 import com.salazar.api.auth.dto.UserResponse;
 import com.salazar.api.common.exception.FieldInvalidException;
 import com.salazar.api.common.security.TokenHasher;
 import com.salazar.api.perfil.dto.ChangePasswordRequest;
 import com.salazar.api.perfil.dto.UpdateProfileRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,14 +25,14 @@ public class ProfileService {
 
     @Transactional
     public UserResponse updateProfile(Long userId, UpdateProfileRequest request) {
-        User user = loadCustomer(userId);
+        User user = loadUser(userId);
         user.updateProfile(request.firstName(), request.lastName(), request.phone());
         return UserResponse.from(user);
     }
 
     @Transactional
     public void changePassword(Long userId, ChangePasswordRequest request, String currentRefreshToken) {
-        User user = loadCustomer(userId);
+        User user = loadUser(userId);
 
         if (user.getPasswordHash() != null) {
             attemptService.checkNotBlocked(userId);
@@ -61,14 +59,10 @@ public class ProfileService {
         }
     }
 
-    private User loadCustomer(Long userId) {
-        User user = userRepository
+    private User loadUser(Long userId) {
+        return userRepository
                 .findById(userId)
                 .filter(User::isActive)
                 .orElseThrow(() -> new InsufficientAuthenticationException("Usuario no encontrado."));
-        if (user.getRole() != UserRole.CLIENTE) {
-            throw new AccessDeniedException("Solo los clientes tienen perfil.");
-        }
-        return user;
     }
 }

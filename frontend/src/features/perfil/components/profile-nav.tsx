@@ -2,15 +2,11 @@ import { useState, type ReactNode } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Notification } from '@/components/notification';
 import { useLogout } from '@/features/auth/use-auth-mutations';
+import { PERSON_ICON_PATHS } from '@/features/perfil/components/person-icon';
 import { PROFILE_SECTIONS } from '@/features/perfil/profile-sections';
 
 const SECTION_ICONS: Record<(typeof PROFILE_SECTIONS)[number]['path'], ReactNode> = {
-  'mi-informacion': (
-    <>
-      <circle cx="12" cy="8" r="4" />
-      <path d="M4 21a8 8 0 0 1 16 0" />
-    </>
-  ),
+  'mi-informacion': PERSON_ICON_PATHS,
 };
 
 const ITEM_CLASSES =

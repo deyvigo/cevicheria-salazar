@@ -99,12 +99,33 @@ class ProfileControllerIT {
     }
 
     @Test
-    void anAdministratorIsForbidden() throws Exception {
+    void anAdministratorEditsTheirOwnDataAndPassword() throws Exception {
+        Session current = register();
+        jdbcTemplate.update("UPDATE users SET role = 'ADMINISTRADOR' WHERE email = ?", current.email());
+        Session other = login(current.email(), "clave1234");
+
+        updateProfile(current, Map.of("firstName", "Rosa", "lastName", "Salazar", "phone", "912345678"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.role").value("ADMINISTRADOR"))
+                .andExpect(jsonPath("$.firstName").value("Rosa"));
+        mockMvc.perform(get("/api/auth/me").cookie(current.access()))
+                .andExpect(jsonPath("$.phone").value("912345678"));
+
+        changePassword(current, Map.of("currentPassword", "clave1234", "newPassword", "nueva5678"))
+                .andExpect(status().isNoContent());
+
+        refresh(current).andExpect(status().isOk());
+        refresh(other).andExpect(status().isUnauthorized());
+        login(current.email(), "nueva5678");
+    }
+
+    @Test
+    void aDeactivatedAccountCannotEdit() throws Exception {
         Session session = register();
-        jdbcTemplate.update("UPDATE users SET role = 'ADMINISTRADOR' WHERE email = ?", session.email());
+        jdbcTemplate.update("UPDATE users SET is_active = false WHERE email = ?", session.email());
 
         updateProfile(session, Map.of("firstName", "A", "lastName", "B", "phone", "912345678"))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test

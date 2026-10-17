@@ -23,8 +23,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class ProfileServiceTest {
@@ -77,12 +78,37 @@ class ProfileServiceTest {
     }
 
     @Test
-    void anAdministratorHasNoProfile() {
-        User admin = User.administrator("admin@correo.com", "hash", "Admin", "Salazar", "987654321");
+    void anAdministratorCanUpdateTheirOwnProfile() {
+        User admin = User.administrator("admin@correo.com", "hash", "Admin", "Salazar", null);
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(admin));
 
+        service().updateProfile(USER_ID, new UpdateProfileRequest("Rosa", "Salazar", "912345678"));
+
+        assertThat(admin.getFirstName()).isEqualTo("Rosa");
+        assertThat(admin.getPhone()).isEqualTo("912345678");
+    }
+
+    @Test
+    void anAdministratorCanChangeTheirPassword() {
+        User admin = User.administrator("admin@correo.com", "hash", "Admin", "Salazar", null);
+        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(admin));
+        when(passwordEncoder.matches("clave1234", "hash")).thenReturn(true);
+        when(passwordEncoder.matches("nueva5678", "hash")).thenReturn(false);
+        when(passwordEncoder.encode("nueva5678")).thenReturn("new-hash");
+
+        service().changePassword(USER_ID, new ChangePasswordRequest("clave1234", "nueva5678"), "raw-refresh");
+
+        assertThat(admin.getPasswordHash()).isEqualTo("new-hash");
+        verify(refreshTokenRepository).revokeAllByUserIdExcept(USER_ID, tokenHasher.hash("raw-refresh"));
+    }
+
+    @Test
+    void anInactiveAccountIsRejected() {
+        User inactive = customer("hash");
+        ReflectionTestUtils.setField(inactive, "active", false);
+
         assertThatThrownBy(() -> service().updateProfile(USER_ID, new UpdateProfileRequest("A", "B", "912345678")))
-                .isInstanceOf(AccessDeniedException.class);
+                .isInstanceOf(InsufficientAuthenticationException.class);
     }
 
     @Test

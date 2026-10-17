@@ -17,7 +17,7 @@ function renderNav(path: string, signOut = vi.fn().mockResolvedValue(undefined))
 }
 
 describe('AdminNav', () => {
-  it('lista las cuatro secciones con su ruta', () => {
+  it('lista las secciones con su ruta y deja "Mi información" como la última', () => {
     renderNav('/admin/platos');
 
     const nav = screen.getByRole('navigation', { name: 'Panel de administración' });
@@ -26,6 +26,17 @@ describe('AdminNav', () => {
     expect(screen.getByRole('link', { name: 'Categorías' })).toHaveAttribute('href', '/admin/categorias');
     expect(screen.getByRole('link', { name: 'Pedidos' })).toHaveAttribute('href', '/admin/pedidos');
     expect(screen.getByRole('link', { name: 'Reportes' })).toHaveAttribute('href', '/admin/reportes');
+    expect(screen.getByRole('link', { name: 'Mi información' })).toHaveAttribute('href', '/admin/mi-informacion');
+    const links = screen.getAllByRole('link');
+    expect(links[links.length - 1]).toHaveAccessibleName('Mi información');
+  });
+
+  it('"Cerrar sesión" es un botón aparte, fuera de la lista de secciones', () => {
+    renderNav('/admin/mi-informacion');
+
+    const nav = screen.getByRole('navigation', { name: 'Panel de administración' });
+    expect(nav).not.toContainElement(screen.getByRole('button', { name: 'Cerrar sesión' }));
+    expect(screen.getByRole('link', { name: 'Mi información' })).toHaveAttribute('aria-current', 'page');
   });
 
   it('marca solo la sección actual con aria-current', () => {

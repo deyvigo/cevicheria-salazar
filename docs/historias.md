@@ -100,3 +100,4 @@ El carrito no requiere cuenta. El inicio de sesión se exige recién al realizar
 | HU-32 | Como administrador, quiero ver los pedidos entrantes en tiempo real para prepararlos a tiempo.                                   | Alta      |
 | HU-33 | Como administrador, quiero cambiar el estado de un pedido para que el cliente vea su avance.                                     | Alta      |
 | HU-34 | Como administrador, quiero ver un reporte de ventas por día y por método de pago para controlar los ingresos.                    | Baja      |
+| HU-36 | Como administrador, quiero ver y editar mis datos personales y cambiar mi contraseña desde el panel para mantener mi cuenta actualizada y segura. | Media     |

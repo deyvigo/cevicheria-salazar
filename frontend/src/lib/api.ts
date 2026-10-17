@@ -1,4 +1,5 @@
 import axios, { type InternalAxiosRequestConfig } from 'axios';
+import type { AuthUser } from '@/context/auth-context';
 import { ME_QUERY_KEY } from '@/features/auth/me-query-key';
 import { queryClient } from '@/lib/query-client';
 
@@ -11,7 +12,11 @@ export const api = axios.create({
 
 const NO_REFRESH_PATHS = ['/auth/login', '/auth/register', '/auth/refresh', '/auth/logout'];
 
-const isAdminRequest = (url?: string) => url?.startsWith('/admin') ?? false;
+// /perfil is shared with customers, who keep their own session handling
+const isAdminRequest = (url?: string) =>
+  (url?.startsWith('/admin') ?? false) ||
+  ((url?.startsWith('/perfil') ?? false) &&
+    queryClient.getQueryData<AuthUser | null>(ME_QUERY_KEY)?.role === 'ADMINISTRADOR');
 
 let refreshInFlight: Promise<unknown> | null = null;
 

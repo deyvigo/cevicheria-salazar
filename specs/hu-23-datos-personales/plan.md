@@ -11,7 +11,7 @@
 | `PUT /api/perfil` | `{ firstName, lastName, phone }` | `200` con `UserResponse` actualizado |
 | `PUT /api/perfil/contrasena` | `{ currentPassword?, newPassword }` | `204` |
 
-Reglas comunes: sin sesión `401`; administrador `403` (`AccessDeniedException`, ya mapeada). El usuario sale siempre del `Authentication` (`userId`), nunca del cuerpo. `GET /api/auth/me` ya devuelve los datos para mostrarlos, así que no se agrega un `GET`.
+Reglas comunes: sin sesión `401`; el administrador también puede usarlos para su propia cuenta (HU-36). El usuario sale siempre del `Authentication` (`userId`), nunca del cuerpo. `GET /api/auth/me` ya devuelve los datos para mostrarlos, así que no se agrega un `GET`.
 
 **`PUT /api/perfil`**
 - Validación en `UpdateProfileRequest`: nombres y apellidos obligatorios (`@NotBlank`, `@Size(max = 80)`, por la columna `VARCHAR(80)`), teléfono obligatorio con `^9[0-9]{8}$` y el mismo mensaje de `RegisterRequest`. Se hace `trim` en el constructor compacto, como en `RegisterRequest`. El patrón del teléfono pasa a una constante compartida `PhoneRules` (junto a `PasswordRules`) para no duplicarlo.
@@ -71,7 +71,7 @@ Dentro del `Layout` de la tienda, para conservar el header:
 - El usuario se toma del JWT, nunca del cuerpo: no se puede editar a otra persona.
 - La contraseña actual se verifica en el servidor con `PasswordEncoder.matches`, con límite de intentos por usuario, para que una sesión robada no sirva para probar contraseñas ilimitadamente ni para cambiarla sin conocerla (salvo cuentas Google sin contraseña, donde la sesión es la única prueba).
 - Al cambiar la contraseña se revocan los refresh tokens de las demás sesiones; los `access_token` ya emitidos viven hasta 15 minutos (riesgo aceptado, igual que HU-05).
-- El guard del frontend es solo UX; el servidor rechaza visitante (`401`) y administrador (`403`).
+- El guard del frontend es solo UX; el servidor rechaza al visitante (`401`).
 - Ni `password`, `currentPassword` ni `newPassword` aparecen en `toString()` de los DTO (patrón de `LoginRequest`).
 
 ## Decisiones

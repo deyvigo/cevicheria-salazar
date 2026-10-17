@@ -1,8 +1,9 @@
 import { useState, type ReactNode } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Notification } from '@/components/notification';
-import { ADMIN_SECTIONS } from '@/features/admin/admin-sections';
+import { ADMIN_ACCOUNT_SECTION, ADMIN_SECTIONS } from '@/features/admin/admin-sections';
 import { useAdminSession } from '@/features/admin/admin-session';
+import { PERSON_ICON_PATHS } from '@/features/perfil/components/person-icon';
 
 const ITEM_CLASSES =
   'flex min-h-12 w-full items-center gap-3 rounded-md text-left text-base focus-visible:shadow-focus focus-visible:outline-none';
@@ -24,7 +25,7 @@ function Icon({ children }: { children: ReactNode }) {
   );
 }
 
-const SECTION_ICONS: Record<(typeof ADMIN_SECTIONS)[number]['path'], ReactNode> = {
+const SECTION_ICONS: Record<(typeof ADMIN_SECTIONS)[number]['path'] | typeof ADMIN_ACCOUNT_SECTION.path, ReactNode> = {
   platos: (
     <>
       <path d="M4 15h16a8 8 0 0 0-16 0Z" />
@@ -44,6 +45,7 @@ const SECTION_ICONS: Record<(typeof ADMIN_SECTIONS)[number]['path'], ReactNode> 
     </>
   ),
   reportes: <path d="M4 20V10M10 20V4M16 20v-8M22 20H2" />,
+  'mi-informacion': PERSON_ICON_PATHS,
 };
 
 export function AdminNav() {
@@ -90,7 +92,7 @@ export function AdminNav() {
 
         <nav aria-label="Panel de administración" className="mt-2">
           <ul className="flex flex-col gap-1">
-            {ADMIN_SECTIONS.map((section) => (
+            {[...ADMIN_SECTIONS, ADMIN_ACCOUNT_SECTION].map((section) => (
               <li key={section.path}>
                 <NavLink
                   to={`/admin/${section.path}`}
