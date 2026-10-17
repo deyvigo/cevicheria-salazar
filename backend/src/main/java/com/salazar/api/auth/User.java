@@ -85,6 +85,12 @@ public class User {
         return new User(email, googleId, firstName, lastName);
     }
 
+    public static User administrator(String email, String passwordHash, String firstName, String lastName, String phone) {
+        User user = new User(email, passwordHash, firstName, lastName, phone, UserRole.ADMINISTRADOR);
+        user.emailVerified = true;
+        return user;
+    }
+
     @PrePersist
     void onCreate() {
         Instant now = Instant.now();

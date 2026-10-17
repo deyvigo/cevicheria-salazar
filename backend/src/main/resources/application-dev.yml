@@ -13,6 +13,10 @@ spring:
       host: localhost
       port: 6379
 
+app:
+  default-admin:
+    email: ${APP_DEFAULT_ADMIN_EMAIL:admin@cevicheria-salazar.com}
+
 logging:
   level:
     com.salazar.api: DEBUG

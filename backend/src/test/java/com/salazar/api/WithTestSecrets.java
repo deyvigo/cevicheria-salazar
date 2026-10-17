@@ -14,6 +14,7 @@ import org.springframework.test.context.TestPropertySource;
             "spring.security.oauth2.client.registration.google.client-id=test-client-id",
             "spring.security.oauth2.client.registration.google.client-secret=test-client-secret",
             "app.storage.access-key=GKtestaccesskey",
-            "app.storage.secret-key=test-storage-secret"
+            "app.storage.secret-key=test-storage-secret",
+            "app.default-admin.enabled=false"
         })
 public @interface WithTestSecrets {}

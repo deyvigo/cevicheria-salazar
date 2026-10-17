@@ -37,7 +37,7 @@ fi
 while IFS= read -r line; do
   key="${line%%=*}"
   grep -q "^$key=" "$BACKEND_DIR/.env" || echo "$line" >> "$BACKEND_DIR/.env"
-done < <(grep -E '^(STORAGE_|GARAGE_)[A-Z_]+=' "$BACKEND_DIR/.env.example")
+done < <(grep -E '^(STORAGE_|GARAGE_|APP_DEFAULT_ADMIN_)[A-Z_]+=' "$BACKEND_DIR/.env.example")
 sed -i '' '/^MINIO_/d' "$BACKEND_DIR/.env"
 
 ensure_secret() {
@@ -47,15 +47,25 @@ ensure_secret() {
     sed -i '' "s|^$name=.*|$name=$value|" "$BACKEND_DIR/.env"
   fi
 }
+ADMIN_PASSWORD_IS_NEW=false
+[ -z "$(grep '^APP_DEFAULT_ADMIN_PASSWORD=' "$BACKEND_DIR/.env" | cut -d'=' -f2-)" ] && ADMIN_PASSWORD_IS_NEW=true
 ensure_secret APP_JWT_SECRET "$(openssl rand -hex 32)"
 ensure_secret GARAGE_RPC_SECRET "$(openssl rand -hex 32)"
 ensure_secret STORAGE_ACCESS_KEY "GK$(openssl rand -hex 12)"
 ensure_secret STORAGE_SECRET_KEY "$(openssl rand -hex 32)"
+ensure_secret APP_DEFAULT_ADMIN_EMAIL "admin@cevicheria-salazar.com"
+ensure_secret APP_DEFAULT_ADMIN_PASSWORD "Adm$(openssl rand -hex 8)1"
 
 set -a
 # shellcheck disable=SC1091
 source "$BACKEND_DIR/.env"
 set +a
+
+if [ "$ADMIN_PASSWORD_IS_NEW" = true ]; then
+  echo "==> Cuenta de administrador de desarrollo (se muestra solo esta vez; queda en backend/.env):"
+  echo "    correo:     $APP_DEFAULT_ADMIN_EMAIL"
+  echo "    contraseña: $APP_DEFAULT_ADMIN_PASSWORD"
+fi
 
 echo "==> Levantando Postgres, Redis y Garage..."
 docker compose -f "$ROOT_DIR/docker-compose.dev.yml" up -d postgres redis garage
