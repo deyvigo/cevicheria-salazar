@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { AuthUser } from '@/context/auth-context';
-import { ME_QUERY_KEY, forgotPassword, login, logout, register, resetPassword } from './auth-api';
+import { forgotPassword, login, logout, register, resetPassword } from './auth-api';
+import { ME_QUERY_KEY } from './me-query-key';
 
 export function useLogin() {
   const queryClient = useQueryClient();

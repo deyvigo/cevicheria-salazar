@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { rememberReturnPath, returnPathFromState, safeReturnPath, takeReturnPath } from '@/features/auth/return-path';
 
 describe('safeReturnPath', () => {
-  it.each(['/cart', '/menu?q=ceviche', '/menu/ceviches', '/products/12'])('acepta %s', (path) => {
+  it.each(['/cart', '/menu?q=ceviche', '/menu/ceviches', '/products/12', '/administrador'])('acepta %s', (path) => {
     expect(safeReturnPath(path)).toBe(path);
   });
 
@@ -15,6 +15,9 @@ describe('safeReturnPath', () => {
     ['la pantalla de inicio de sesión', '/iniciar-sesion'],
     ['el registro con parámetros', '/registro?x=1'],
     ['restablecer contraseña', '/restablecer-contrasena?token=abc'],
+    ['el panel de administración', '/admin'],
+    ['una sección del panel', '/admin/pedidos'],
+    ['el panel con parámetros', '/admin?x=1'],
   ])('rechaza %s', (_name, value) => {
     expect(safeReturnPath(value)).toBeNull();
   });

@@ -1,8 +1,6 @@
 import type { AuthUser } from '@/context/auth-context';
 import { api } from '@/lib/api';
 
-export const ME_QUERY_KEY = ['auth', 'me'] as const;
-
 export interface RegisterPayload {
   email: string;
   password: string;

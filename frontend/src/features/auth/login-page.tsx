@@ -47,9 +47,9 @@ export function LoginPage() {
 
   async function onSubmit(values: LoginFormValues) {
     try {
-      await loginMutation.mutateAsync(values);
+      const user = await loginMutation.mutateAsync(values);
       rememberReturnPath(null);
-      navigate(returnPath ?? '/', { replace: true });
+      navigate(user.role === 'ADMINISTRADOR' ? '/admin' : (returnPath ?? '/'), { replace: true });
     } catch (error) {
       const message = isAxiosError<ApiErrorResponse>(error) ? error.response?.data.message : undefined;
       setError('root', {

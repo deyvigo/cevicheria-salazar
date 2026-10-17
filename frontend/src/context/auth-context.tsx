@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { createContext, useContext, type ReactNode } from 'react';
-import { ME_QUERY_KEY, me } from '@/features/auth/auth-api';
+import { me } from '@/features/auth/auth-api';
+import { ME_QUERY_KEY } from '@/features/auth/me-query-key';
 
 export interface AuthUser {
   id: number;

@@ -142,6 +142,44 @@ describe('LoginPage', () => {
     await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent(/^\/$/));
   });
 
+  it('un administrador llega al panel aunque viniera de otra pantalla', async () => {
+    vi.mocked(authApi.login).mockResolvedValue({
+      id: 1,
+      email: 'admin@correo.com',
+      firstName: 'Admin',
+      lastName: 'Salazar',
+      phone: '987654321',
+      role: 'ADMINISTRADOR',
+    });
+    const user = userEvent.setup();
+    renderPage([{ pathname: '/iniciar-sesion', state: { from: '/cart' } }]);
+
+    await user.type(screen.getByLabelText('Correo'), 'admin@correo.com');
+    await user.type(screen.getByLabelText('Contraseña'), 'clave1234');
+    await user.click(screen.getByRole('button', { name: /iniciar sesión/i }));
+
+    await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent(/^\/admin$/));
+  });
+
+  it('un cliente con pantalla de origen vuelve a ella y no al panel', async () => {
+    vi.mocked(authApi.login).mockResolvedValue({
+      id: 1,
+      email: 'maria@correo.com',
+      firstName: 'María',
+      lastName: 'Quispe',
+      phone: '987654321',
+      role: 'CLIENTE',
+    });
+    const user = userEvent.setup();
+    renderPage([{ pathname: '/iniciar-sesion', state: { from: '/admin/pedidos' } }]);
+
+    await user.type(screen.getByLabelText('Correo'), 'maria@correo.com');
+    await user.type(screen.getByLabelText('Contraseña'), 'clave1234');
+    await user.click(screen.getByRole('button', { name: /iniciar sesión/i }));
+
+    await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent(/^\/$/));
+  });
+
   it('con credenciales inválidas se queda en la pantalla de inicio de sesión', async () => {
     vi.mocked(authApi.login).mockRejectedValue(apiError(401, 'Correo o contraseña incorrectos.'));
     const user = userEvent.setup();

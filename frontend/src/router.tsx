@@ -1,5 +1,10 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { Navigate, createBrowserRouter } from 'react-router-dom';
 import { Layout } from '@/components/layout';
+import { AdminGuard } from '@/features/admin/admin-guard';
+import { AdminLayout } from '@/features/admin/admin-layout';
+import { AdminNotFound } from '@/features/admin/admin-not-found';
+import { ADMIN_SECTIONS } from '@/features/admin/admin-sections';
+import { AdminSectionPage } from '@/features/admin/components/admin-section-page';
 import { CartPage } from '@/features/carrito/cart-page';
 import { ForgotPasswordPage } from '@/features/auth/forgot-password-page';
 import { LoginPage } from '@/features/auth/login-page';
@@ -18,6 +23,23 @@ export const router = createBrowserRouter([
       { path: '/menu/:category', element: <CatalogPage /> },
       { path: '/products/:id', element: <ProductDetailPage /> },
       { path: '/cart', element: <CartPage /> },
+    ],
+  },
+  {
+    path: '/admin',
+    element: <AdminGuard />,
+    children: [
+      {
+        element: <AdminLayout />,
+        children: [
+          { index: true, element: <Navigate to={`/admin/${ADMIN_SECTIONS[0].path}`} replace /> },
+          ...ADMIN_SECTIONS.map((section) => ({
+            path: section.path,
+            element: <AdminSectionPage title={section.label} />,
+          })),
+          { path: '*', element: <AdminNotFound /> },
+        ],
+      },
     ],
   },
   {
