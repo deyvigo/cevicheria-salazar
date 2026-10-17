@@ -49,12 +49,24 @@ describe('ChangePasswordDialog', () => {
     expect(screen.queryByLabelText('Contraseña actual')).not.toBeInTheDocument();
   });
 
+  it('lista las condiciones de la contraseña, con la de ser distinta solo si ya tiene una', async () => {
+    const view = renderDialog(true).view;
+
+    expect(await screen.findAllByRole('listitem')).toHaveLength(4);
+    expect(screen.getByText('Ser distinta de tu contraseña actual.')).toBeInTheDocument();
+    view.unmount();
+
+    renderDialog(false);
+    expect(await screen.findAllByRole('listitem')).toHaveLength(3);
+    expect(screen.queryByText('Ser distinta de tu contraseña actual.')).not.toBeInTheDocument();
+  });
+
   it('no envía si incumple las reglas o no coincide', async () => {
     renderDialog();
 
     await fill('clave1234', 'corta', 'otra');
 
-    expect(await screen.findByText(/al menos 8 caracteres/)).toBeInTheDocument();
+    expect(await screen.findByText('La contraseña debe tener al menos 8 caracteres, con letras y números.')).toBeInTheDocument();
     expect(screen.getByText('Las contraseñas no coinciden.')).toBeInTheDocument();
     expect(profileApi.changePassword).not.toHaveBeenCalled();
   });

@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { Button } from '@/components/button';
 import { Dialog } from '@/components/dialog';
 import { Input } from '@/components/input';
+import { PasswordRequirements } from '@/features/auth/components/password-requirements';
 import { passwordSchema } from '@/features/auth/password-schema';
 import { useChangePassword } from '@/features/perfil/use-profile-mutations';
 import type { ApiErrorResponse } from '@/lib/api';
@@ -79,7 +80,7 @@ export function ChangePasswordDialog({ open, hasPassword, onClose, onSaved }: Ch
 
   return (
     <Dialog open={open} title={hasPassword ? 'Cambiar contraseña' : 'Crear contraseña'} onClose={onClose}>
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-center gap-5" noValidate>
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5" noValidate>
         {errors.root ? (
           <p role="alert" className="text-sm font-bold text-error-text">
             {errors.root.message}
@@ -87,6 +88,7 @@ export function ChangePasswordDialog({ open, hasPassword, onClose, onSaved }: Ch
         ) : null}
         {hasPassword ? (
           <Input
+          fullWidth
             label="Contraseña actual"
             type="password"
             autoComplete="current-password"
@@ -94,7 +96,9 @@ export function ChangePasswordDialog({ open, hasPassword, onClose, onSaved }: Ch
             {...register('currentPassword')}
           />
         ) : null}
+        <PasswordRequirements differentFromCurrent={hasPassword} />
         <Input
+          fullWidth
           label="Nueva contraseña"
           type="password"
           autoComplete="new-password"
@@ -102,18 +106,19 @@ export function ChangePasswordDialog({ open, hasPassword, onClose, onSaved }: Ch
           {...register('newPassword')}
         />
         <Input
+          fullWidth
           label="Confirmar contraseña"
           type="password"
           autoComplete="new-password"
           error={errors.confirmPassword?.message}
           {...register('confirmPassword')}
         />
-        <div className="flex justify-center gap-3">
-          <Button type="submit" disabled={isSubmitting}>
-            Guardar
-          </Button>
+        <div className="flex justify-end gap-3">
           <Button type="button" variant="outline" onClick={onClose}>
             Cancelar
+          </Button>
+          <Button type="submit" disabled={isSubmitting}>
+            Guardar
           </Button>
         </div>
       </form>

@@ -9,6 +9,7 @@ import { Divider } from '@/components/divider';
 import { Input } from '@/components/input';
 import { Notification } from '@/components/notification';
 import type { ApiErrorResponse } from '@/lib/api';
+import { PasswordRequirements } from './components/password-requirements';
 import { AuthShell } from './components/auth-shell';
 import { GoogleLoginButton } from './components/google-login-button';
 import { passwordSchema } from './password-schema';
@@ -88,6 +89,7 @@ export function RegisterPage() {
           {...register('email')}
         />
         <Input label="Teléfono" placeholder="987654321" error={errors.phone?.message} {...register('phone')} />
+        <PasswordRequirements />
         <Input label="Contraseña" type="password" error={errors.password?.message} {...register('password')} />
         <Input
           label="Confirmar contraseña"

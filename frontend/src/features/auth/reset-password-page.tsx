@@ -8,6 +8,7 @@ import { Button } from '@/components/button';
 import { Input } from '@/components/input';
 import type { ApiErrorResponse } from '@/lib/api';
 import { validateResetToken } from './auth-api';
+import { PasswordRequirements } from './components/password-requirements';
 import { AuthShell } from './components/auth-shell';
 import { passwordSchema } from './password-schema';
 import { useResetPassword } from './use-auth-mutations';
@@ -97,6 +98,7 @@ export function ResetPasswordPage() {
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5" noValidate>
             {errors.root ? <p className="text-sm font-bold text-error-text">{errors.root.message}</p> : null}
 
+            <PasswordRequirements />
             <Input
               label="Nueva contraseña"
               type="password"
