@@ -3,9 +3,9 @@ import { ProfileNav } from '@/features/perfil/components/profile-nav';
 
 export function ProfileLayout() {
   return (
-    <div className="flex flex-1">
+    <div className="mx-auto flex w-full max-w-6xl flex-1 items-start gap-6 px-6 py-6">
       <ProfileNav />
-      <main className="min-w-0 flex-1 p-6">
+      <main className="min-w-0 flex-1">
         <Outlet />
       </main>
     </div>
