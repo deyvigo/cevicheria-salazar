@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, type ReactNode } from 'react';
+import { CloseIcon } from '@/components/icons/close-icon';
 
 export interface DialogProps {
   open: boolean;
@@ -77,18 +78,7 @@ export function Dialog({ open, title, onClose, children }: DialogProps) {
             onClick={onClose}
             className="flex h-10 w-10 flex-none items-center justify-center rounded-md text-ink hover:bg-surface-celeste focus-visible:shadow-focus focus-visible:outline-none"
           >
-            <svg
-              aria-hidden="true"
-              viewBox="0 0 24 24"
-              className="h-5 w-5"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M6 6l12 12M18 6 6 18" />
-            </svg>
+            <CloseIcon />
           </button>
         </div>
         <div className="mt-4">{children}</div>

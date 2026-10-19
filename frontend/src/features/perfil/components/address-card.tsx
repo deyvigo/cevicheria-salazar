@@ -1,5 +1,7 @@
 import { Button } from '@/components/button';
 import { Card } from '@/components/card';
+import { PencilIcon } from '@/components/icons/pencil-icon';
+import { TrashIcon } from '@/components/icons/trash-icon';
 import type { Address } from '@/features/perfil/address-api';
 
 interface AddressCardProps {
@@ -20,11 +22,21 @@ export function AddressCard({ address, onEdit, onDelete, leaving = false }: Addr
         {address.reference ? <p className="text-base text-ink-muted break-words">{address.reference}</p> : null}
       </div>
       <div className="flex gap-3">
-        <Button variant="outline" onClick={onEdit} aria-label={`Editar ${address.label}`}>
-          Editar
+        <Button
+          variant="outline"
+          onClick={onEdit}
+          aria-label={`Editar ${address.label}`}
+          className="w-12 flex-none px-0!"
+        >
+          <PencilIcon />
         </Button>
-        <Button variant="outline" onClick={onDelete} aria-label={`Eliminar ${address.label}`}>
-          Eliminar
+        <Button
+          variant="outline"
+          onClick={onDelete}
+          aria-label={`Eliminar ${address.label}`}
+          className="w-12 flex-none px-0!"
+        >
+          <TrashIcon />
         </Button>
       </div>
     </Card>

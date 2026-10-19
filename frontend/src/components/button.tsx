@@ -7,7 +7,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 const VARIANT_CLASSES: Record<NonNullable<ButtonProps['variant']>, string> = {
   primary: 'bg-action text-on-action hover:bg-action-hover active:bg-action-pressed',
   secondary: 'bg-action-secondary text-ink hover:bg-action-secondary-hover',
-  outline: 'border-2 border-action-secondary bg-transparent text-ink shadow-none hover:border-action-secondary-hover',
+  outline: 'border border-ink bg-transparent text-ink shadow-none hover:border-ink/60',
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(

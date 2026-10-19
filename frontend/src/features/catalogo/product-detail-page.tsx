@@ -8,6 +8,7 @@ import { ProductGallery } from '@/features/catalogo/components/product-gallery';
 import { formatPrice } from '@/features/catalogo/format';
 import { sharedName } from '@/features/catalogo/transition-names';
 import { useProduct } from '@/features/catalogo/use-catalog-queries';
+import { ChevronLeftIcon } from '@/components/icons/chevron-left-icon';
 
 function parseId(raw: string | undefined): number | null {
   return raw && /^[1-9]\d{0,15}$/.test(raw) ? Number(raw) : null;
@@ -70,16 +71,7 @@ export function ProductDetailPage() {
         }}
         className="mb-4 inline-flex min-h-12 items-center gap-1 rounded-md text-base font-bold text-ink focus-visible:shadow-focus focus-visible:outline-none"
       >
-        <svg
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-          className="h-5 w-5 flex-none fill-none stroke-current"
-          strokeWidth={2.5}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M15 5l-7 7 7 7" />
-        </svg>
+        <ChevronLeftIcon strokeWidth={2.5} />
         <span className="underline">Volver</span>
       </Link>
       {!product ? (
