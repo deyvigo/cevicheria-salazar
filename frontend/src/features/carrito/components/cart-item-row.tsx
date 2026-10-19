@@ -9,6 +9,7 @@ import { formatPrice } from '@/features/catalogo/format';
 import { rememberScroll } from '@/features/catalogo/scroll-memory';
 import { sharedName } from '@/features/catalogo/transition-names';
 import type { Product } from '@/features/catalogo/catalog-api';
+import { TrashIcon } from '@/components/icons/trash-icon';
 
 const FADE_OUT_MS = 250;
 
@@ -111,16 +112,7 @@ export function CartItemRow({
           onClick={() => change(0)}
           className="w-12 flex-none px-0!"
         >
-          <svg
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-            className="h-5 w-5 fill-none stroke-current"
-            strokeWidth={2}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 002 2h6a2 2 0 002-2l1-12M9 7V4h6v3" />
-          </svg>
+          <TrashIcon />
         </Button>
       </div>
     </li>

@@ -1,5 +1,7 @@
 import { useEffect, useState, type CSSProperties } from 'react';
 import { Button } from '@/components/button';
+import { MinusIcon } from '@/components/icons/minus-icon';
+import { PlusIcon } from '@/components/icons/plus-icon';
 
 const MAX_DIGITS = 10;
 
@@ -57,9 +59,7 @@ export function QuantityStepper({
         onClick={() => onChange(value - 1)}
         className="w-12 flex-none px-0!"
       >
-        <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 fill-none stroke-current" strokeWidth={2.5}>
-          <path d="M5 12h14" strokeLinecap="round" />
-        </svg>
+        <MinusIcon strokeWidth={2.5} />
       </Button>
       <input
         type="text"
@@ -76,7 +76,7 @@ export function QuantityStepper({
           event.currentTarget.blur();
         }}
         onFocus={(event) => event.currentTarget.select()}
-        className={`h-12 min-w-0 rounded-md border border-border-strong px-2 text-center text-base text-ink focus:border-focus-ring focus:ring-2 focus:ring-celeste-200 focus:outline-none disabled:cursor-not-allowed disabled:bg-surface-disabled disabled:text-ink-disabled ${fullWidth ? 'flex-1' : 'w-16 flex-none'}`}
+        className={`h-12 min-w-0 rounded-md border border-border-strong px-2 text-center text-base text-ink focus:border-focus-ring focus:outline-none disabled:cursor-not-allowed disabled:bg-surface-disabled disabled:text-ink-disabled ${fullWidth ? 'flex-1' : 'w-16 flex-none'}`}
       />
       <Button
         type="button"
@@ -86,9 +86,7 @@ export function QuantityStepper({
         onClick={() => onChange(value + 1)}
         className="w-12 flex-none px-0!"
       >
-        <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 fill-none stroke-current" strokeWidth={2.5}>
-          <path d="M5 12h14M12 5v14" strokeLinecap="round" />
-        </svg>
+        <PlusIcon strokeWidth={2.5} />
       </Button>
     </div>
   );

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { selectProductCount, useCartStore } from '@/features/carrito/cart-store';
+import { CartIcon } from '@/components/icons/cart-icon';
 
 export function CartLink() {
   const count = useCartStore(selectProductCount);
@@ -11,18 +12,7 @@ export function CartLink() {
       aria-label={label}
       className="relative inline-flex h-12 w-12 items-center justify-center rounded-md text-ink hover:bg-surface-celeste focus-visible:shadow-focus focus-visible:outline-none"
     >
-      <svg
-        viewBox="0 0 24 24"
-        aria-hidden="true"
-        className="h-6 w-6 fill-none stroke-current"
-        strokeWidth={2}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M3 4h2l2.4 11.2a1 1 0 0 0 1 .8h8.7a1 1 0 0 0 1-.8L20 8H6" />
-        <circle cx="9" cy="20" r="1" />
-        <circle cx="17" cy="20" r="1" />
-      </svg>
+      <CartIcon className="h-6 w-6" />
       {count > 0 ? (
         <span
           aria-hidden="true"
