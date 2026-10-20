@@ -74,6 +74,12 @@ public class ApiExceptionHandler {
                 .body(ApiError.of(HttpStatus.NOT_FOUND.value(), "No encontrado", ex.getMessage()));
     }
 
+    @ExceptionHandler(DeliveryZoneNotFoundException.class)
+    public ResponseEntity<ApiError> handleDeliveryZoneNotFound(DeliveryZoneNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiError.of(HttpStatus.NOT_FOUND.value(), "No encontrado", ex.getMessage()));
+    }
+
     @ExceptionHandler(CategoryInUseException.class)
     public ResponseEntity<ApiError> handleCategoryInUse(CategoryInUseException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)

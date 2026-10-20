@@ -1,4 +1,6 @@
-import type { ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
+
+export const NOTIFICATION_DURATION_MS = 2000;
 
 export interface NotificationProps {
   variant: 'success' | 'error';
@@ -19,6 +21,19 @@ const VARIANT_ICON: Record<NotificationProps['variant'], string> = {
 };
 
 export function Notification({ variant, title, message, onClose, action }: NotificationProps) {
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  });
+
+  // Dismissible notifications close themselves; the ones without onClose carry information that must stay
+  const dismissible = onClose !== undefined;
+  useEffect(() => {
+    if (!dismissible) return;
+    const timer = setTimeout(() => onCloseRef.current?.(), NOTIFICATION_DURATION_MS);
+    return () => clearTimeout(timer);
+  }, [dismissible, title, message]);
+
   return (
     <div
       role={variant === 'error' ? 'alert' : 'status'}

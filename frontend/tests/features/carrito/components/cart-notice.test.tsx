@@ -39,7 +39,7 @@ describe('CartNotice', () => {
     expect(screen.getByRole('link', { name: 'Ver carrito' })).toHaveAttribute('href', '/cart');
 
     act(() => {
-      vi.advanceTimersByTime(4000);
+      vi.advanceTimersByTime(2000);
     });
     expect(screen.queryByText('Agregamos Ceviche clásico a tu carrito')).not.toBeInTheDocument();
   });

@@ -23,7 +23,7 @@ function DeleteAction({ category, onDelete }: { category: AdminCategory; onDelet
       disabled={inUse}
       aria-describedby={inUse ? reasonId : undefined}
       aria-label={`Eliminar ${category.name}`}
-      className="w-12 flex-none px-0!"
+      className="w-10 flex-none px-0!"
     >
       <TrashIcon />
     </Button>
@@ -80,7 +80,7 @@ export function CategoryTable({ categories, onEdit, onDelete }: CategoryTablePro
                     variant="outline"
                     onClick={() => onEdit(category)}
                     aria-label={`Editar ${category.name}`}
-                    className="w-12 flex-none px-0!"
+                    className="w-10 flex-none px-0!"
                   >
                     <PencilIcon />
                   </Button>

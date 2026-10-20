@@ -130,6 +130,7 @@ Duración de cada sprint: 3 semanas (lunes a viernes). Historias en [historias.m
 | HU-31 | Gestionar las categorías del catálogo                     | Usuario | Media     | 1      | ✓ |
 | HU-29 | Crear, editar y eliminar platos (con imágenes, precio y categoría) | Usuario | Alta | 1 | ✓ |
 | HU-30 | Marcar platos como disponibles o agotados                 | Usuario | Alta      | 1      | ✓ |
+| HU-37 | Gestionar las zonas de precio del delivery sobre un mapa | Usuario | Media     | 1      |✓ |
 
 ### Eventos Scrum
 

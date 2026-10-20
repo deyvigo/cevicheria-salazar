@@ -60,6 +60,14 @@ Por ahora modela el dominio de **autenticación y registro** (épica [E1](epicas
   - `deleted_at`: borrado lógico (soft delete). Una dirección eliminada deja de ser visible para el cliente pero la fila se conserva; las consultas filtran `deleted_at IS NULL`. El cliente puede tener hasta 10 direcciones activas.
   - `created_at`, `updated_at`: trazabilidad estándar.
 
+- **delivery_zones**: zonas de precio del delivery que el administrador dibuja sobre un mapa (HU-37).
+  - `name`: nombre de la zona, hasta 60 caracteres, único sin distinguir mayúsculas (`uq_delivery_zones_name_lower`).
+  - `price`: tarifa de delivery en soles (`NUMERIC(4,2)`, mayor que 0 y hasta 99.99).
+  - `color`: id del color de la paleta del design system con que se dibuja la zona (`celeste`, `naranja`, `lima`, `aji`, `coral`, `grafito`).
+  - `area`: polígono de la zona (`geometry(Polygon, 4326)` de PostGIS, latitud/longitud WGS 84) con índice GIST; un `CHECK (ST_IsValid(area))` impide polígonos con lados cruzados. Las zonas pueden superponerse.
+  - `active`: si la zona se usa para cobrar el delivery (por defecto `true`). Una zona inactiva conserva su dibujo y tarifa.
+  - `created_at`, `updated_at`: trazabilidad estándar. Eliminar una zona borra la fila (todavía nada la referencia).
+
 ### Relaciones
 
 - `users (1) — (N) refresh_tokens`: un usuario puede tener varias sesiones/dispositivos activos a la vez.
@@ -69,3 +77,5 @@ Por ahora modela el dominio de **autenticación y registro** (épica [E1](epicas
 - `products (1) — (N) product_images`: un plato tiene una o más imágenes; la de menor `position` es la principal.
 
 La búsqueda de platos por nombre (HU-09) usa la extensión `unaccent` de PostgreSQL (migración `V4__product_search.sql`) para no distinguir tildes; no agrega tablas ni columnas.
+
+Las zonas de delivery (HU-37) usan la extensión **PostGIS** (migración `V8__postgis.sql`), por lo que la base corre sobre una imagen de PostgreSQL con PostGIS (`docker/postgres/Dockerfile`).

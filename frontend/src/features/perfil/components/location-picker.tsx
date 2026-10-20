@@ -2,6 +2,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useEffect, useMemo, useRef } from 'react';
 import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from 'react-leaflet';
+import { TILE_ATTRIBUTION, TILE_URL } from '@/lib/map-config';
 
 export interface Location {
   latitude: number;
@@ -14,7 +15,6 @@ interface LocationPickerProps {
   onTilesFailed: () => void;
 }
 
-const TILE_URL = import.meta.env.VITE_MAP_TILE_URL ?? 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 const ZOOM = 16;
 
 // The default Leaflet marker images break once the bundler hashes the asset paths
@@ -58,7 +58,7 @@ export function LocationPicker({ value, onChange, onTilesFailed }: LocationPicke
     >
       <TileLayer
         url={TILE_URL}
-        attribution="&copy; OpenStreetMap contributors"
+        attribution={TILE_ATTRIBUTION}
         eventHandlers={{
           tileload: () => {
             anyTileLoaded.current = true;

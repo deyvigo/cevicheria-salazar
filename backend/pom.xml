@@ -89,6 +89,11 @@
 		</dependency>
 
 		<dependency>
+			<!-- Columna geometry de PostGIS para las zonas de delivery (ver specs/hu-37-zonas-delivery/plan.md) -->
+			<groupId>org.hibernate.orm</groupId>
+			<artifactId>hibernate-spatial</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<scope>runtime</scope>

@@ -21,7 +21,7 @@ Backend único que atiende a la app web, organizado en capas:
 
 ### Almacenamiento
 
-- **PostgreSQL (base de datos)**: persiste usuarios, catálogo, carritos, pedidos y direcciones; es el modelo entidad-relación de la historia técnica HT-06. Soporta el historial de pedidos (HU-25) y el seguimiento de su estado (HU-26).
+- **PostgreSQL (base de datos)**: con la extensión PostGIS para las zonas de delivery (HU-37); persiste usuarios, catálogo, carritos, pedidos, direcciones y zonas de delivery; es el modelo entidad-relación de la historia técnica HT-06. Soporta el historial de pedidos (HU-25) y el seguimiento de su estado (HU-26).
 - **Garage (imágenes de platos)**: almacenamiento de objetos compatible con S3 que guarda las fotos de los platos que se muestran en el catálogo (HU-07, HU-08) y que el administrador sube o reemplaza al crear/editar un plato (HU-29). La API accede a él con el SDK de AWS S3 (HT-10); los navegadores leen las imágenes directamente de su endpoint web público.
 - **Redis (intentos y caché)**: almacén en memoria de dos usos — registrar intentos de login para mitigar ataques de fuerza bruta (seguridad de HU-02) y cachear resultados de la capa de servicios para acelerar las lecturas más frecuentes del catálogo.
 

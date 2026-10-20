@@ -11,8 +11,6 @@ import { decodeCart } from '@/features/carrito/share-code';
 import { useCartProducts } from '@/features/carrito/use-cart-products';
 import { takeScroll } from '@/features/catalogo/scroll-memory';
 
-const TOAST_DURATION_MS = 4000;
-
 type SharedNotice = 'loaded' | 'invalid' | null;
 
 export function CartPage() {
@@ -25,12 +23,6 @@ export function CartPage() {
   const [sharedNotice, setSharedNotice] = useState<SharedNotice>(() =>
     code === null ? null : decodeCart(code).ok ? 'loaded' : 'invalid',
   );
-
-  useEffect(() => {
-    if (sharedNotice === null) return;
-    const timer = setTimeout(() => setSharedNotice(null), TOAST_DURATION_MS);
-    return () => clearTimeout(timer);
-  }, [sharedNotice]);
 
   useEffect(() => {
     if (code === null) return;
