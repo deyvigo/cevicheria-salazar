@@ -44,6 +44,10 @@ public class ProductImage {
         this.position = position;
     }
 
+    public void moveTo(int position) {
+        this.position = position;
+    }
+
     @PrePersist
     void onCreate() {
         this.createdAt = Instant.now();

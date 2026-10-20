@@ -47,7 +47,7 @@ public class Product {
     @Column(precision = 2, scale = 1)
     private BigDecimal rating;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("position ASC")
     @BatchSize(size = 20)
     private List<ProductImage> images = new ArrayList<>();
@@ -64,6 +64,9 @@ public class Product {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
+    @Column(name = "deleted_at")
+    private Instant deletedAt;
+
     public Product(
             String name, String description, BigDecimal price, Category category, BigDecimal rating, int stock) {
         this.name = name;
@@ -78,6 +81,28 @@ public class Product {
 
     public void addImage(String path, int position) {
         images.add(new ProductImage(this, path, position));
+    }
+
+    public void update(
+            String name,
+            String description,
+            BigDecimal price,
+            Category category,
+            int stock,
+            boolean active,
+            boolean available) {
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.category = category;
+        this.stock = stock;
+        this.active = active;
+        this.available = available;
+    }
+
+    // Soft delete keeps the row so past orders can still point at it
+    public void softDelete() {
+        this.deletedAt = Instant.now();
     }
 
     public void deactivate() {

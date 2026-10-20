@@ -5,11 +5,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { QueryWrapper } from '@tests/utils/query-wrapper';
 import { AuthProvider } from '@/context/auth-context';
 import * as categoryApi from '@/features/admin/admin-category-api';
+import * as productApi from '@/features/admin/admin-product-api';
 import * as authApi from '@/features/auth/auth-api';
 import { router as appRouter } from '@/router';
 
 vi.mock('@/features/auth/auth-api');
 vi.mock('@/features/admin/admin-category-api');
+vi.mock('@/features/admin/admin-product-api');
 
 function renderPanel(path: string) {
   // Same route objects as the app, on an in-memory history
@@ -77,8 +79,36 @@ describe('Panel de administración', () => {
     expect(screen.getByRole('link', { name: 'Categorías' })).toHaveAttribute('aria-current', 'page');
   });
 
-  it.each(['Platos', 'Pedidos', 'Reportes'])('la sección %s muestra su estado vacío', async (name) => {
-    const path = { Platos: 'platos', Pedidos: 'pedidos', Reportes: 'reportes' }[name];
+  it('la sección Platos muestra la gestión de platos dentro del panel', async () => {
+    vi.mocked(productApi.listAdminProducts).mockResolvedValue({
+      items: [
+        {
+          id: 1,
+          name: 'Ceviche mixto',
+          description: 'Fresco',
+          price: 32,
+          rating: null,
+          categoryId: 2,
+          categoryName: 'Ceviches',
+          stock: 5,
+          active: true,
+          available: true,
+          images: [],
+        },
+      ],
+      page: 1,
+      pageSize: 20,
+      totalItems: 1,
+      totalPages: 1,
+    });
+    renderPanel('/admin/platos');
+
+    expect(await screen.findByRole('heading', { name: 'Platos' })).toBeInTheDocument();
+    expect(await screen.findByText('Ceviche mixto')).toBeInTheDocument();
+  });
+
+  it.each(['Pedidos', 'Reportes'])('la sección %s muestra su estado vacío', async (name) => {
+    const path = { Pedidos: 'pedidos', Reportes: 'reportes' }[name];
     renderPanel(`/admin/${path}`);
 
     expect(await screen.findByRole('heading', { name })).toBeInTheDocument();

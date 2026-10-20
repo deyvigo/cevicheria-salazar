@@ -3,6 +3,8 @@ package com.salazar.api.common.config;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.salazar.api.catalogo.ImageStorage;
+import com.salazar.api.catalogo.ImageType;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -118,5 +120,23 @@ class StorageIT {
         assertThat(byBucketHost.headers().firstValue("content-type")).contains("image/svg+xml");
         assertThat(byDomain.statusCode()).isEqualTo(200);
         assertThat(missing.statusCode()).isEqualTo(404);
+    }
+
+    @Test
+    void imageStorageUploadsWithAGeneratedKeyAndDeletesIt() throws Exception {
+        var properties = new StorageProperties("unused", "garage", ACCESS_KEY, SECRET_KEY, BUCKET, "unused");
+        var storage = new ImageStorage(s3, properties);
+
+        String key = storage.upload(new byte[] {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, 1}, ImageType.JPEG);
+
+        assertThat(key).matches("products/[0-9a-f-]{36}\\.jpg");
+        assertThat(s3.headObject(HeadObjectRequest.builder().bucket(BUCKET).key(key).build()).contentType())
+                .isEqualTo("image/jpeg");
+        assertThat(publicGet("platos.web.garage.localhost", "/" + key).statusCode()).isEqualTo(200);
+
+        storage.deleteQuietly(key);
+        assertThatThrownBy(() -> s3.headObject(HeadObjectRequest.builder().bucket(BUCKET).key(key).build()))
+                .isInstanceOf(NoSuchKeyException.class);
+        storage.deleteQuietly(key);
     }
 }

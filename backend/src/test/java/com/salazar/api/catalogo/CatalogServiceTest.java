@@ -134,7 +134,7 @@ class CatalogServiceTest {
         Product dish = product("Con fotos", new BigDecimal("4.5"));
         dish.addImage("platos/principal.jpg", 0);
         dish.addImage("platos/secundaria.jpg", 1);
-        when(productRepository.findByIdAndActiveTrue(7L)).thenReturn(Optional.of(dish));
+        when(productRepository.findByIdAndActiveTrueAndDeletedAtIsNull(7L)).thenReturn(Optional.of(dish));
 
         ProductDetailResponse detail = service().getProduct(7L);
 
@@ -146,7 +146,7 @@ class CatalogServiceTest {
 
     @Test
     void detailOfProductWithoutImagesOrRatingHasEmptyImagesAndNullRating() {
-        when(productRepository.findByIdAndActiveTrue(8L)).thenReturn(Optional.of(product("Sin foto", null)));
+        when(productRepository.findByIdAndActiveTrueAndDeletedAtIsNull(8L)).thenReturn(Optional.of(product("Sin foto", null)));
 
         ProductDetailResponse detail = service().getProduct(8L);
 
@@ -156,7 +156,7 @@ class CatalogServiceTest {
 
     @Test
     void detailOfMissingOrInactiveProductThrowsNotFound() {
-        when(productRepository.findByIdAndActiveTrue(99L)).thenReturn(Optional.empty());
+        when(productRepository.findByIdAndActiveTrueAndDeletedAtIsNull(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service().getProduct(99L)).isInstanceOf(ProductNotFoundException.class);
     }
@@ -167,8 +167,8 @@ class CatalogServiceTest {
         Product soldOut = product("Agotado", new BigDecimal("4.0"));
         soldOut.markUnavailable();
         soldOut.addImage("platos/agotado.jpg", 0);
-        when(productRepository.findByIdAndActiveTrue(1L)).thenReturn(Optional.of(available));
-        when(productRepository.findByIdAndActiveTrue(2L)).thenReturn(Optional.of(soldOut));
+        when(productRepository.findByIdAndActiveTrueAndDeletedAtIsNull(1L)).thenReturn(Optional.of(available));
+        when(productRepository.findByIdAndActiveTrueAndDeletedAtIsNull(2L)).thenReturn(Optional.of(soldOut));
 
         ProductDetailResponse availableDetail = service().getProduct(1L);
         ProductDetailResponse soldOutDetail = service().getProduct(2L);
@@ -186,9 +186,9 @@ class CatalogServiceTest {
         Product empty = new Product("Vacio", "d", new BigDecimal("10.00"), CEVICHES, null, 0);
         Product switchedOff = new Product("Apagado", "d", new BigDecimal("10.00"), CEVICHES, null, 5);
         switchedOff.markUnavailable();
-        when(productRepository.findByIdAndActiveTrue(1L)).thenReturn(Optional.of(free));
-        when(productRepository.findByIdAndActiveTrue(2L)).thenReturn(Optional.of(empty));
-        when(productRepository.findByIdAndActiveTrue(3L)).thenReturn(Optional.of(switchedOff));
+        when(productRepository.findByIdAndActiveTrueAndDeletedAtIsNull(1L)).thenReturn(Optional.of(free));
+        when(productRepository.findByIdAndActiveTrueAndDeletedAtIsNull(2L)).thenReturn(Optional.of(empty));
+        when(productRepository.findByIdAndActiveTrueAndDeletedAtIsNull(3L)).thenReturn(Optional.of(switchedOff));
 
         ProductDetailResponse freeDetail = service().getProduct(1L);
 
@@ -215,13 +215,13 @@ class CatalogServiceTest {
 
     @Test
     void lookupByIdsDeduplicatesAndOnlyAsksForDistinctIds() {
-        when(productRepository.findAllByIdInAndActiveTrueOrderByIdAsc(any()))
+        when(productRepository.findAllByIdInAndActiveTrueAndDeletedAtIsNullOrderByIdAsc(any()))
                 .thenReturn(List.of(product("A", null)));
 
         List<ProductResponse> result = service().getProductsByIds(List.of(5L, 5L, 7L));
 
         ArgumentCaptor<java.util.Collection<Long>> captor = ArgumentCaptor.forClass(java.util.Collection.class);
-        verify(productRepository).findAllByIdInAndActiveTrueOrderByIdAsc(captor.capture());
+        verify(productRepository).findAllByIdInAndActiveTrueAndDeletedAtIsNullOrderByIdAsc(captor.capture());
         assertThat(captor.getValue()).containsExactly(5L, 7L);
         assertThat(result).hasSize(1);
     }
@@ -232,7 +232,7 @@ class CatalogServiceTest {
 
         assertThatThrownBy(() -> service().getProductsByIds(ids)).isInstanceOf(TooManyIdsException.class);
 
-        verify(productRepository, never()).findAllByIdInAndActiveTrueOrderByIdAsc(any());
+        verify(productRepository, never()).findAllByIdInAndActiveTrueAndDeletedAtIsNullOrderByIdAsc(any());
     }
 
     @Test

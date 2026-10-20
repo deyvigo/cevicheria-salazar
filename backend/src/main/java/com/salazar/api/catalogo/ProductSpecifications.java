@@ -2,11 +2,25 @@ package com.salazar.api.catalogo;
 
 import org.springframework.data.jpa.domain.Specification;
 
-final class ProductSpecifications {
+public final class ProductSpecifications {
     private ProductSpecifications() {}
 
     static Specification<Product> active() {
-        return (root, query, cb) -> cb.isTrue(root.get("active"));
+        return notDeleted().and((root, query, cb) -> cb.isTrue(root.get("active")));
+    }
+
+    public static Specification<Product> notDeleted() {
+        return (root, query, cb) -> cb.isNull(root.get("deletedAt"));
+    }
+
+    // Loads the category in the same query for the admin table; the count query can't fetch
+    public static Specification<Product> fetchingCategory() {
+        return (root, query, cb) -> {
+            if (query != null && query.getResultType() != Long.class && query.getResultType() != long.class) {
+                root.fetch("category");
+            }
+            return cb.conjunction();
+        };
     }
 
     static Specification<Product> inCategory(String slug) {
@@ -14,7 +28,7 @@ final class ProductSpecifications {
     }
 
     // Keep in sync with CategoryRepository.findAllWithActiveMatch
-    static Specification<Product> nameMatches(String pattern) {
+    public static Specification<Product> nameMatches(String pattern) {
         return (root, query, cb) -> cb.like(
                 cb.function("unaccent", String.class, cb.lower(root.get("name"))), pattern, '!');
     }
