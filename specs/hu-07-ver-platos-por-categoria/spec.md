@@ -43,7 +43,7 @@ Clase aparte. Agrupa platos. Sin orden propio ni estado.
 | -------- | --------------------------------------------------------------------------------------------------- |
 | `id`     | Identificador.                                                                                      |
 | `name`   | Nombre visible de la categoría (único, sin distinguir mayúsculas).                                  |
-| `slug`   | Identificador para la URL (único): minúsculas, sin tildes ni espacios (`chicharrones`). No cambia aunque se renombre la categoría. |
+| `slug`   | Identificador para la URL (único): minúsculas, sin tildes ni espacios (`chicharrones`). Renombrar la categoría no lo cambia; el administrador puede editarlo (HU-31). |
 
 Categorías iniciales (migración de semilla), con su `slug`: Entradas (`entradas`), Ceviches (`ceviches`), Chicharrones (`chicharrones`), Fondos (`fondos`), Bebidas (`bebidas`).
 
@@ -98,7 +98,7 @@ Layout (de izquierda a derecha, bajo el header de la app):
 - Un `path` de imagen que ya no existe en MinIO: el frontend muestra la imagen de reemplazo; no debe romper la grilla.
 - Dos categorías con el mismo nombre en distinto formato (`Bebidas` / `bebidas`): la unicidad debe ser insensible a mayúsculas.
 - La ruta `/{category}` compite con rutas fijas (`/registro`, `/iniciar-sesion`, `/olvide-contrasena`, `/restablecer-contrasena`, `/admin`, etc.): las rutas fijas tienen prioridad y sus nombres no pueden usarse como `slug`.
-- Un `slug` es estable: si el negocio renombra una categoría, el enlace sigue funcionando.
+- Renombrar una categoría no cambia su `slug`: el enlace sigue funcionando. El `slug` solo cambia si el administrador lo edita (HU-31), y entonces el enlace con el `slug` que tenía antes deja de resolver.
 - Orden del listado: ante empate en el criterio elegido (mismo precio, mismo rating) se desempata por nombre y luego por `id`, de modo que la paginación sea estable entre páginas.
 - "Popularidad" ordena por `rating` (ascendente: de menor a mayor; descendente: de mayor a menor) y en ambos sentidos deja al final los platos sin calificación (`null`), porque no tener calificación no es lo mismo que tener la peor.
 - Valor de `sort` desconocido en la URL (`?sort=xyz`): se usa el orden por defecto, sin error.
