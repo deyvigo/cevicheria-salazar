@@ -7,11 +7,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
@@ -29,6 +32,22 @@ public class ApiExceptionHandler {
         return ResponseEntity.badRequest()
                 .body(ApiError.of(
                         HttpStatus.BAD_REQUEST.value(), "Solicitud no válida", "Hay parámetros inválidos o faltantes."));
+    }
+
+    @ExceptionHandler({MissingServletRequestPartException.class, HttpMessageNotReadableException.class})
+    public ResponseEntity<ApiError> handleUnreadableBody(Exception ex) {
+        return ResponseEntity.badRequest()
+                .body(ApiError.of(
+                        HttpStatus.BAD_REQUEST.value(), "Solicitud no válida", "El cuerpo de la solicitud no es válido."));
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ApiError> handleUploadTooLarge(MaxUploadSizeExceededException ex) {
+        return ResponseEntity.badRequest()
+                .body(ApiError.ofFieldErrors(
+                        HttpStatus.BAD_REQUEST.value(),
+                        "Validación fallida",
+                        List.of(new ApiError.FieldError("images", "Solo JPG, PNG o WebP de hasta 5 MB."))));
     }
 
     @ExceptionHandler(TooManyIdsException.class)

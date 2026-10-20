@@ -53,7 +53,7 @@ public class CatalogService {
 
     @Transactional(readOnly = true)
     public ProductDetailResponse getProduct(Long id) {
-        Product product = productRepository.findByIdAndActiveTrue(id).orElseThrow(ProductNotFoundException::new);
+        Product product = productRepository.findByIdAndActiveTrueAndDeletedAtIsNull(id).orElseThrow(ProductNotFoundException::new);
         List<String> images = product.getImages().stream()
                 .map(image -> imageUrlResolver.resolve(image.getPath()))
                 .toList();
@@ -78,7 +78,7 @@ public class CatalogService {
         if (distinct.isEmpty()) {
             return List.of();
         }
-        return productRepository.findAllByIdInAndActiveTrueOrderByIdAsc(distinct).stream()
+        return productRepository.findAllByIdInAndActiveTrueAndDeletedAtIsNullOrderByIdAsc(distinct).stream()
                 .map(this::toResponse)
                 .toList();
     }

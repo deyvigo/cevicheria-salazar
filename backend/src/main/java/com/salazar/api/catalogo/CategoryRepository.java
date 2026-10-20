@@ -51,6 +51,7 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
                 select 1 from Product p
                 where p.category = c
                   and p.active = true
+                  and p.deletedAt is null
                   and cast(function('unaccent', lower(p.name)) as String) like :pattern escape '!'
             )
             order by c.id
