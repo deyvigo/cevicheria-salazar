@@ -84,7 +84,7 @@ Administrador con sesión iniciada. Visitante y Cliente no tienen acceso (ver Se
 - **Sin slugs reservados**: las categorías viven bajo `/menu/{slug}`, así que ningún `slug` puede chocar con una ruta fija (`/admin`, `/registro`, `/perfil`, etc.).
 - **Renombrar el `slug` rompe los enlaces antiguos** compartidos por los clientes: no hay redirección desde el `slug` que tenía antes (ver Fuera de alcance). Se acepta porque las categorías cambian rara vez.
 - Un cliente con la tienda abierta en la categoría que se renombró, cambió de `slug` o se eliminó verá el cambio al recargar o navegar; la pantalla muestra "No se encontraron productos" si ya no existe.
-- La cuenta de platos asociados incluye platos inactivos: un plato inactivo sigue referenciando la categoría y bloquea su eliminación.
+- La cuenta de platos asociados incluye platos inactivos y platos eliminados lógicamente (HU-29): siguen referenciando la categoría y bloquean su eliminación, aunque el panel de platos ya no los muestre.
 - Carrera entre eliminar y asignar un plato: la restricción la garantiza el servidor al eliminar (409), no solo la pantalla; la base de datos mantiene la clave foránea de `products.category_id`.
 - Dos administradores (o dos pestañas) editando la misma categoría: gana el último guardado; si uno la eliminó, el otro recibe 404 al guardar y ve el mensaje de error genérico.
 - La sesión vence con un diálogo abierto: se renueva sola (HU-04); si ya no se puede, soy llevado a iniciar sesión y se pierden las ediciones no guardadas.
