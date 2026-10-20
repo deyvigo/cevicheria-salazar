@@ -59,4 +59,19 @@ class ApiExceptionHandlerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @Test
+    void categoryNotFoundReturns404() {
+        ResponseEntity<ApiError> response = handler.handleCategoryNotFound(new CategoryNotFoundException());
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void categoryInUseReturns409() {
+        ResponseEntity<ApiError> response = handler.handleCategoryInUse(new CategoryInUseException());
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(response.getBody().message()).isEqualTo("No se puede eliminar: tiene platos asociados.");
+    }
 }
