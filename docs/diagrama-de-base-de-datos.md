@@ -44,10 +44,11 @@ Por ahora modela el dominio de **autenticación y registro** (épica [E1](epicas
   - `is_available`: si el plato se puede pedir hoy (por defecto `true`). Un plato agotado sigue visible en el catálogo y su detalle lo indica (HU-10); el administrador lo cambia en HU-30.
   - `stock`: unidades que se pueden pedir hoy (entero mayor o igual que 0, por defecto 0). Un plato se puede pedir solo si `is_available` es `true` y `stock > 0`; la cantidad máxima en el carrito es el stock (HU-12). El administrador lo cambia en HU-29/HU-30 y el checkout lo descontará.
   - `created_at`: fecha de creación.
+  - `deleted_at`: borrado lógico (soft delete, HU-29). Un plato eliminado deja de aparecer en la tienda y en el panel, pero la fila y sus imágenes se conservan para los pedidos históricos; las consultas filtran `deleted_at IS NULL`. Sigue referenciando su categoría, así que cuenta para impedir eliminarla (HU-31).
 
 - **product_images**: imágenes de un plato, guardadas en el almacenamiento de objetos S3 (Garage; HU-07, HU-08).
   - `product_id`: plato al que pertenece; se borran en cascada con el plato.
-  - `path`: clave del objeto dentro del bucket de imágenes, no la URL completa (la URL pública la arma el backend).
+  - `path`: clave del objeto dentro del bucket de imágenes (`products/{uuid}.{ext}`, generada por el backend al subirla en HU-29), no la URL completa (la URL pública la arma el backend).
   - `position`: orden dentro del plato; la de menor posición es la imagen principal.
   - `created_at`: fecha en que se registró la imagen.
 
