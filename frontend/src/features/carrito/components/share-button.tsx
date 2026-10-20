@@ -6,17 +6,9 @@ import { buildShareUrl, type CartItem } from '@/features/carrito/share-code';
 
 type Outcome = { kind: 'copied' } | { kind: 'manual'; url: string } | { kind: 'too-long' } | null;
 
-const TOAST_DURATION_MS = 4000;
-
 export function ShareButton({ items }: { items: CartItem[] }) {
   const [outcome, setOutcome] = useState<Outcome>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (outcome?.kind !== 'copied' && outcome?.kind !== 'too-long') return;
-    const timer = setTimeout(() => setOutcome(null), TOAST_DURATION_MS);
-    return () => clearTimeout(timer);
-  }, [outcome]);
 
   useEffect(() => {
     if (outcome?.kind === 'manual') inputRef.current?.select();

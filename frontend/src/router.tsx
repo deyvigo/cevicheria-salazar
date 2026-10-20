@@ -1,6 +1,7 @@
 import { Navigate, createBrowserRouter } from 'react-router-dom';
 import { Layout } from '@/components/layout';
 import { AdminCategoriesPage } from '@/features/admin/admin-categories-page';
+import { AdminDeliveryZonesPage } from '@/features/admin/admin-delivery-zones-page';
 import { AdminProductsPage } from '@/features/admin/admin-products-page';
 import { AdminGuard } from '@/features/admin/admin-guard';
 import { AdminLayout } from '@/features/admin/admin-layout';
@@ -58,7 +59,8 @@ export const router = createBrowserRouter([
           { index: true, element: <Navigate to="/admin/platos" replace /> },
           { path: 'platos', element: <AdminProductsPage /> },
           { path: 'categorias', element: <AdminCategoriesPage /> },
-          ...ADMIN_SECTIONS.filter((section) => section.path !== 'categorias' && section.path !== 'platos').map((section) => ({
+          { path: 'zonas-delivery', element: <AdminDeliveryZonesPage /> },
+          ...ADMIN_SECTIONS.filter((section) => !['categorias', 'platos', 'zonas-delivery'].includes(section.path)).map((section) => ({
             path: section.path,
             element: <AdminSectionPage title={section.label} />,
           })),

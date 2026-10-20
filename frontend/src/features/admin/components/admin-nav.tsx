@@ -38,6 +38,12 @@ const SECTION_ICONS: Record<(typeof ADMIN_SECTIONS)[number]['path'] | typeof ADM
       <path d="m3 13 9 5 9-5" />
     </>
   ),
+  'zonas-delivery': (
+    <>
+      <path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12Z" />
+      <circle cx="12" cy="9" r="2.5" />
+    </>
+  ),
   pedidos: (
     <>
       <rect x="5" y="4" width="14" height="17" rx="2" />
