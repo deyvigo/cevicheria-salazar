@@ -6,11 +6,12 @@ export interface DialogProps {
   title: string;
   onClose: () => void;
   children: ReactNode;
+  wide?: boolean;
 }
 
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])';
 
-export function Dialog({ open, title, onClose, children }: DialogProps) {
+export function Dialog({ open, title, onClose, children, wide }: DialogProps) {
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
   const onCloseRef = useRef(onClose);
@@ -66,7 +67,7 @@ export function Dialog({ open, title, onClose, children }: DialogProps) {
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className="w-full max-w-md rounded-xl bg-surface p-6 shadow-lg focus:outline-none"
+        className={`max-h-[90vh] w-full overflow-y-auto rounded-xl bg-surface p-6 shadow-lg focus:outline-none ${wide ? 'max-w-2xl' : 'max-w-md'}`}
       >
         <div className="flex items-center justify-between gap-4">
           <h2 id={titleId} className="font-display text-ink text-left text-[22px] leading-7 font-semibold">
