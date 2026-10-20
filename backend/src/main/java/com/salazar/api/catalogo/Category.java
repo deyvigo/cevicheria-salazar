@@ -29,4 +29,9 @@ public class Category {
         this.name = name;
         this.slug = slug;
     }
+
+    public void update(String name, String slug) {
+        this.name = name;
+        this.slug = slug;
+    }
 }

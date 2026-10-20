@@ -34,7 +34,7 @@ Por ahora modela el dominio de **autenticación y registro** (épica [E1](epicas
 
 - **categories**: agrupa los platos de la carta (HU-07).
   - `name`: nombre visible (único sin distinguir mayúsculas).
-  - `slug`: identificador único para la URL del frontend (`/ceviches`); no cambia aunque se renombre la categoría.
+  - `slug`: identificador único para la URL del frontend (`/menu/ceviches`). El administrador puede editarlo (HU-31); renombrar la categoría no lo cambia, y el `slug` que tenía antes deja de resolver (sin redirección).
 
 - **products**: platos que se muestran en el catálogo (HU-07).
   - `name`, `description`, `price`: datos que ve el cliente (`price` en soles con dos decimales).

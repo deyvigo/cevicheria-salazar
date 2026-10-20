@@ -1,5 +1,6 @@
 import { Navigate, createBrowserRouter } from 'react-router-dom';
 import { Layout } from '@/components/layout';
+import { AdminCategoriesPage } from '@/features/admin/admin-categories-page';
 import { AdminGuard } from '@/features/admin/admin-guard';
 import { AdminLayout } from '@/features/admin/admin-layout';
 import { AdminNotFound } from '@/features/admin/admin-not-found';
@@ -54,7 +55,8 @@ export const router = createBrowserRouter([
         element: <AdminLayout />,
         children: [
           { index: true, element: <Navigate to={`/admin/${ADMIN_SECTIONS[0].path}`} replace /> },
-          ...ADMIN_SECTIONS.map((section) => ({
+          { path: 'categorias', element: <AdminCategoriesPage /> },
+          ...ADMIN_SECTIONS.filter((section) => section.path !== 'categorias').map((section) => ({
             path: section.path,
             element: <AdminSectionPage title={section.label} />,
           })),

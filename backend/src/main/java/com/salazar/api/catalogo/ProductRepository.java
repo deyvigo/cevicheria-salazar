@@ -9,5 +9,9 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
     Optional<Product> findByIdAndActiveTrue(Long id);
 
+    boolean existsByCategoryId(Long categoryId);
+
+    long countByCategoryId(Long categoryId);
+
     List<Product> findAllByIdInAndActiveTrueOrderByIdAsc(Collection<Long> ids);
 }

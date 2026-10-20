@@ -4,10 +4,12 @@ import { RouterProvider, createMemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { QueryWrapper } from '@tests/utils/query-wrapper';
 import { AuthProvider } from '@/context/auth-context';
+import * as categoryApi from '@/features/admin/admin-category-api';
 import * as authApi from '@/features/auth/auth-api';
 import { router as appRouter } from '@/router';
 
 vi.mock('@/features/auth/auth-api');
+vi.mock('@/features/admin/admin-category-api');
 
 function renderPanel(path: string) {
   // Same route objects as the app, on an in-memory history
@@ -60,8 +62,23 @@ describe('Panel de administración', () => {
     expect(screen.getByRole('link', { name: 'Platos' })).not.toHaveAttribute('aria-current');
   });
 
-  it.each(['Platos', 'Categorías', 'Pedidos', 'Reportes'])('la sección %s muestra su estado vacío', async (name) => {
-    const path = { Platos: 'platos', Categorías: 'categorias', Pedidos: 'pedidos', Reportes: 'reportes' }[name];
+  it('la sección Categorías muestra la gestión de categorías dentro del panel', async () => {
+    vi.mocked(categoryApi.listAdminCategories).mockResolvedValue({
+      items: [{ id: 1, name: 'Ceviches', slug: 'ceviches', productCount: 2 }],
+      page: 1,
+      pageSize: 20,
+      totalItems: 1,
+      totalPages: 1,
+    });
+    renderPanel('/admin/categorias');
+
+    expect(await screen.findByRole('heading', { name: 'Categorías' })).toBeInTheDocument();
+    expect(await screen.findByText('Ceviches')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Categorías' })).toHaveAttribute('aria-current', 'page');
+  });
+
+  it.each(['Platos', 'Pedidos', 'Reportes'])('la sección %s muestra su estado vacío', async (name) => {
+    const path = { Platos: 'platos', Pedidos: 'pedidos', Reportes: 'reportes' }[name];
     renderPanel(`/admin/${path}`);
 
     expect(await screen.findByRole('heading', { name })).toBeInTheDocument();

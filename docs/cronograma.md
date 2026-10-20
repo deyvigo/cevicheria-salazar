@@ -120,13 +120,14 @@ Duración de cada sprint: 3 semanas (lunes a viernes). Historias en [historias.m
 
 ## Sprint 2 (19/10/2026 – 06/11/2026)
 
-**Objetivo del sprint:** que el Cliente pueda guardar y gestionar sus direcciones de entrega desde su perfil. El resto del backlog del sprint se define en su Sprint Planning.
+**Objetivo del sprint:** que el Cliente pueda guardar y gestionar sus direcciones de entrega desde su perfil, y que el Administrador pueda gestionar las categorías del catálogo desde el panel. El resto del backlog del sprint se define en su Sprint Planning.
 
 ### Elementos del backlog incluidos
 
 | ID    | Elemento                                                  | Tipo    | Prioridad | Semana | Hecho |
 | ----- | --------------------------------------------------------- | ------- | --------- | ------ | ----- |
 | HU-24 | Ver, crear, editar y eliminar mis direcciones de entrega | Usuario | Media     | 1      | ✓ |
+| HU-31 | Gestionar las categorías del catálogo                     | Usuario | Media     | 1      | ✓ |
 
 ### Eventos Scrum
 
