@@ -1,7 +1,7 @@
 # Spec: HU-37 — Gestionar las zonas de precio del delivery
 
 **Épica**: [E6. Panel de administración](../../docs/epicas.md#e6)
-**Estado**: En implementación
+**Estado**: Hecha
 
 ## Objetivo
 
