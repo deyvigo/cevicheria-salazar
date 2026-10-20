@@ -110,7 +110,7 @@ export function CartItemRow({
           variant="secondary"
           aria-label={`Eliminar ${product.name} del carrito`}
           onClick={() => change(0)}
-          className="w-12 flex-none px-0!"
+          className="w-10 flex-none px-0!"
         >
           <TrashIcon />
         </Button>

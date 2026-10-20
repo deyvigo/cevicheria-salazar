@@ -57,7 +57,7 @@ export function QuantityStepper({
         aria-label={`Quitar una unidad de ${label}`}
         disabled={disabled || value <= min}
         onClick={() => onChange(value - 1)}
-        className="w-12 flex-none px-0!"
+        className="w-10 flex-none px-0!"
       >
         <MinusIcon strokeWidth={2.5} />
       </Button>
@@ -76,7 +76,7 @@ export function QuantityStepper({
           event.currentTarget.blur();
         }}
         onFocus={(event) => event.currentTarget.select()}
-        className={`h-12 min-w-0 rounded-md border border-border-strong px-2 text-center text-base text-ink focus:border-focus-ring focus:outline-none disabled:cursor-not-allowed disabled:bg-surface-disabled disabled:text-ink-disabled ${fullWidth ? 'flex-1' : 'w-16 flex-none'}`}
+        className={`h-10 min-w-0 rounded-md border border-border-strong px-2 text-center text-base text-ink focus:border-focus-ring focus:outline-none disabled:cursor-not-allowed disabled:bg-surface-disabled disabled:text-ink-disabled ${fullWidth ? 'flex-1' : 'w-16 flex-none'}`}
       />
       <Button
         type="button"
@@ -84,7 +84,7 @@ export function QuantityStepper({
         aria-label={`Agregar una unidad de ${label}`}
         disabled={disabled || value >= max}
         onClick={() => onChange(value + 1)}
-        className="w-12 flex-none px-0!"
+        className="w-10 flex-none px-0!"
       >
         <PlusIcon strokeWidth={2.5} />
       </Button>
