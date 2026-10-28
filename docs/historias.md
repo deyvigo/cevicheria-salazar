@@ -74,6 +74,7 @@ El carrito no requiere cuenta. El inicio de sesión se exige recién al realizar
 | HU-20 | Como cliente, quiero indicar si pagaré en efectivo (y con cuánto) o con POS/Yape al recibir, para que el repartidor venga preparado. | Alta      |
 | HU-21 | Como cliente, quiero recibir una confirmación con el número de pedido para tener constancia de mi compra.                            | Alta      |
 | HU-22 | Como cliente, quiero que se me informe si el pago fue rechazado para intentarlo de nuevo o cambiar de método.                        | Alta      |
+| HU-38 | Como visitante, quiero ver en el carrito los pasos de la compra (carrito, inicio de sesión si aún no entré, entrega, pago y listo) para saber en qué punto estoy y qué falta. | Media     |
 
 <a id="e5"></a>
 
