@@ -59,4 +59,11 @@ describe('share-code', () => {
     const huge = Array.from({ length: 100 }, (_, i) => ({ productId: 900_000_000_000_000 + i, quantity: 99 }));
     expect(buildShareUrl(huge)).toBeNull();
   });
+
+  it('el enlace apunta siempre a /cart y solo lleva los platos, sin paso', () => {
+    const url = new URL(buildShareUrl([{ productId: 1, quantity: 2 }])!);
+
+    expect(url.pathname).toBe('/cart');
+    expect([...url.searchParams.keys()]).toEqual(['c']);
+  });
 });

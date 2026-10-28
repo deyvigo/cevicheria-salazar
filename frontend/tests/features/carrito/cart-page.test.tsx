@@ -3,6 +3,8 @@ import userEvent from '@testing-library/user-event';
 import { RouterProvider, createMemoryRouter, useLocation } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { QueryWrapper } from '@tests/utils/query-wrapper';
+import { AuthProvider, type AuthUser } from '@/context/auth-context';
+import * as authApi from '@/features/auth/auth-api';
 import * as cartApi from '@/features/carrito/cart-api';
 import { CartPage } from '@/features/carrito/cart-page';
 import { useCartStore } from '@/features/carrito/cart-store';
@@ -10,6 +12,17 @@ import { encodeCart } from '@/features/carrito/share-code';
 import type { Product } from '@/features/catalogo/catalog-api';
 
 vi.mock('@/features/carrito/cart-api');
+vi.mock('@/features/auth/auth-api');
+
+const maria: AuthUser = {
+  id: 1,
+  email: 'maria@correo.com',
+  firstName: 'María',
+  lastName: 'Quispe',
+  phone: '987654321',
+  role: 'CLIENTE',
+  hasPassword: true,
+};
 
 const product = (id: number, overrides: Partial<Product> = {}): Product => ({
   id,
@@ -45,13 +58,16 @@ function renderCart(entry = '/cart') {
   );
   return render(
     <QueryWrapper>
-      <RouterProvider router={router} />
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
     </QueryWrapper>,
   );
 }
 
 beforeEach(() => {
   vi.mocked(cartApi.getProductsByIds).mockReset();
+  vi.mocked(authApi.me).mockReset().mockResolvedValue(null as unknown as AuthUser);
   localStorage.clear();
   useCartStore.setState({ items: [], lastAdded: null, lastRemoved: null });
 });
@@ -398,6 +414,88 @@ describe('CartPage', () => {
       renderCart();
       await screen.findByRole('button', { name: 'Reintentar' });
       expect(screen.queryByRole('region', { name: 'Resumen del pedido' })).not.toBeInTheDocument();
+    });
+  });
+
+  describe('pasos de la compra', () => {
+    const stepper = () => screen.queryByRole('navigation', { name: 'Pasos de la compra' });
+
+    beforeEach(() => {
+      useCartStore.setState({ items: [{ productId: 1, quantity: 1 }] });
+      vi.mocked(cartApi.getProductsByIds).mockResolvedValue([product(1)]);
+    });
+
+    it('como visitante muestra cinco pasos con "Carrito de compras" como actual', async () => {
+      renderCart();
+
+      const nav = await screen.findByRole('navigation', { name: 'Pasos de la compra' });
+      const items = within(nav).getAllByRole('listitem');
+      expect(items).toHaveLength(5);
+      expect(within(nav).getByText('Inicio de sesión')).toBeInTheDocument();
+      expect(items[0]).toHaveAttribute('aria-current', 'step');
+      expect(items.filter((li) => li.hasAttribute('aria-current'))).toHaveLength(1);
+    });
+
+    it('con sesión iniciada muestra cuatro pasos, sin "Inicio de sesión"', async () => {
+      vi.mocked(authApi.me).mockResolvedValue(maria);
+      renderCart();
+
+      const nav = await screen.findByRole('navigation', { name: 'Pasos de la compra' });
+      expect(within(nav).getAllByRole('listitem')).toHaveLength(4);
+      expect(within(nav).queryByText('Inicio de sesión')).not.toBeInTheDocument();
+    });
+
+    it('no se muestra mientras se verifica la sesión', async () => {
+      vi.mocked(authApi.me).mockReturnValue(new Promise(() => {}));
+      renderCart();
+
+      await screen.findByRole('link', { name: 'Plato 1' });
+      expect(stepper()).not.toBeInTheDocument();
+    });
+
+    it('no aparece con el carrito vacío ni con error de carga', async () => {
+      useCartStore.setState({ items: [] });
+      const { unmount } = renderCart();
+      await screen.findByText('Tu carrito está vacío.');
+      expect(stepper()).not.toBeInTheDocument();
+      unmount();
+
+      useCartStore.setState({ items: [{ productId: 1, quantity: 1 }] });
+      vi.mocked(cartApi.getProductsByIds).mockRejectedValue(new Error('network'));
+      renderCart();
+      await screen.findByRole('button', { name: 'Reintentar' });
+      expect(stepper()).not.toBeInTheDocument();
+    });
+
+    it('desaparece al quitar el último plato', async () => {
+      const user = userEvent.setup();
+      renderCart();
+      await screen.findByRole('navigation', { name: 'Pasos de la compra' });
+
+      await user.click(screen.getByRole('button', { name: /Eliminar/ }));
+
+      expect(await screen.findByText('Tu carrito está vacío.')).toBeInTheDocument();
+      expect(stepper()).not.toBeInTheDocument();
+    });
+
+    it('al importar un carrito compartido se muestra en el primer paso', async () => {
+      useCartStore.setState({ items: [] });
+      vi.mocked(cartApi.getProductsByIds).mockResolvedValue([product(2)]);
+      renderCart(`/cart?c=${encodeCart([{ productId: 2, quantity: 1 }])}`);
+
+      const nav = await screen.findByRole('navigation', { name: 'Pasos de la compra' });
+      expect(within(nav).getAllByRole('listitem')[0]).toHaveAttribute('aria-current', 'step');
+    });
+
+    it('hacer clic en un paso no cambia el paso actual', async () => {
+      const user = userEvent.setup();
+      renderCart();
+      const nav = await screen.findByRole('navigation', { name: 'Pasos de la compra' });
+
+      await user.click(within(nav).getByText('Pago'));
+
+      expect(within(nav).getAllByRole('listitem')[0]).toHaveAttribute('aria-current', 'step');
+      expect(screen.getByTestId('location')).toHaveTextContent('/cart');
     });
   });
 });

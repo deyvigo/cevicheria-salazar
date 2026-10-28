@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigationType, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/button';
 import { Notification } from '@/components/notification';
+import { useAuth } from '@/context/auth-context';
 import { CartItemRow } from '@/features/carrito/components/cart-item-row';
 import { OrderSummary } from '@/features/carrito/components/order-summary';
 import { ShareButton } from '@/features/carrito/components/share-button';
@@ -10,11 +11,13 @@ import { computeOrderSummary } from '@/features/carrito/order-summary';
 import { decodeCart } from '@/features/carrito/share-code';
 import { useCartProducts } from '@/features/carrito/use-cart-products';
 import { takeScroll } from '@/features/catalogo/scroll-memory';
+import { CheckoutStepper } from '@/features/checkout/components/checkout-stepper';
 
 type SharedNotice = 'loaded' | 'invalid' | null;
 
 export function CartPage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { user, isLoading: isAuthLoading } = useAuth();
   const items = useCartStore((state) => state.items);
   const importItems = useCartStore((state) => state.importItems);
   const reconcile = useCartStore((state) => state.reconcile);
@@ -108,29 +111,32 @@ export function CartPage() {
           </Button>
         </div>
       ) : (
-        <div className="grid items-start gap-6 md:grid-cols-[1fr_20rem]">
-          <ul aria-busy={query.isPending} className="flex flex-col gap-3">
-            {items.map((item) => {
-              const product = productsById.get(item.productId);
-              if (!product) {
-                return query.isPending ? (
-                  <li key={item.productId} className="h-28 animate-pulse rounded-lg bg-surface-celeste" />
-                ) : null;
-              }
-              return (
-                <CartItemRow
-                  key={item.productId}
-                  product={product}
-                  quantity={item.quantity}
-                  onRemoved={() => titleRef.current?.focus()}
-                />
-              );
-            })}
-          </ul>
-          <aside className="sticky top-24 border-l border-border pl-6">
-            <OrderSummary summary={summary} />
-          </aside>
-        </div>
+        <>
+          {isAuthLoading ? null : <CheckoutStepper currentStep="cart" isAuthenticated={user !== null} />}
+          <div className="grid items-start gap-6 md:grid-cols-[1fr_20rem]">
+            <ul aria-busy={query.isPending} className="flex flex-col gap-3">
+              {items.map((item) => {
+                const product = productsById.get(item.productId);
+                if (!product) {
+                  return query.isPending ? (
+                    <li key={item.productId} className="h-28 animate-pulse rounded-lg bg-surface-celeste" />
+                  ) : null;
+                }
+                return (
+                  <CartItemRow
+                    key={item.productId}
+                    product={product}
+                    quantity={item.quantity}
+                    onRemoved={() => titleRef.current?.focus()}
+                  />
+                );
+              })}
+            </ul>
+            <aside className="sticky top-24 border-l border-border pl-6">
+              <OrderSummary summary={summary} />
+            </aside>
+          </div>
+        </>
       )}
     </main>
   );
