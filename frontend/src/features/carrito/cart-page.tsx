@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { Link, useLocation, useNavigationType, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useNavigationType, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/button';
 import { Notification } from '@/components/notification';
 import { useAuth } from '@/context/auth-context';
@@ -11,6 +11,7 @@ import { computeOrderSummary } from '@/features/carrito/order-summary';
 import { decodeCart } from '@/features/carrito/share-code';
 import { useCartProducts } from '@/features/carrito/use-cart-products';
 import { takeScroll } from '@/features/catalogo/scroll-memory';
+import { useCheckoutStore } from '@/features/checkout/checkout-store';
 import { CheckoutStepper } from '@/features/checkout/components/checkout-stepper';
 
 type SharedNotice = 'loaded' | 'invalid' | null;
@@ -18,6 +19,9 @@ type SharedNotice = 'loaded' | 'invalid' | null;
 export function CartPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { user, isLoading: isAuthLoading } = useAuth();
+  const navigate = useNavigate();
+  const enterCheckout = useCheckoutStore((state) => state.enter);
+  const resetCheckout = useCheckoutStore((state) => state.reset);
   const items = useCartStore((state) => state.items);
   const importItems = useCartStore((state) => state.importItems);
   const reconcile = useCartStore((state) => state.reconcile);
@@ -36,6 +40,20 @@ export function CartPage() {
     next.delete('c');
     setSearchParams(next, { replace: true });
   }, [code, importItems, searchParams, setSearchParams]);
+
+  // Back from a later step starts the checkout over, so forward can't skip the cart
+  useEffect(() => {
+    resetCheckout();
+  }, [resetCheckout]);
+
+  function continueToCheckout() {
+    enterCheckout(user === null);
+    if (user === null) {
+      navigate('/iniciar-sesion', { state: { from: '/checkout/direcciones' } });
+      return;
+    }
+    navigate('/checkout/direcciones');
+  }
 
   const ids = items.map((item) => item.productId).sort((a, b) => a - b);
   const idsKey = ids.join(',');
@@ -133,7 +151,11 @@ export function CartPage() {
               })}
             </ul>
             <aside className="sticky top-24 border-l border-border pl-6">
-              <OrderSummary summary={summary} />
+              <OrderSummary summary={summary}>
+                <Button className="w-full" disabled={summary === null} onClick={continueToCheckout}>
+                  Continuar
+                </Button>
+              </OrderSummary>
             </aside>
           </div>
         </>

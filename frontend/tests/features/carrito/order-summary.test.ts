@@ -16,7 +16,7 @@ const product = (id: number, price: number, available = true): Product => ({
 const byId = (...products: Product[]) => new Map(products.map((p) => [p.id, p]));
 
 describe('computeOrderSummary', () => {
-  it('suma precio por cantidad y agrega el delivery', () => {
+  it('suma precio por cantidad', () => {
     const summary = computeOrderSummary(
       [
         { productId: 1, quantity: 2 },
@@ -25,14 +25,14 @@ describe('computeOrderSummary', () => {
       byId(product(1, 32), product(2, 18.5)),
     );
 
-    expect(summary).toEqual({ subtotal: 82.5, discount: 0, delivery: 5, total: 87.5 });
+    expect(summary).toEqual({ subtotal: 82.5, discount: 0, total: 82.5 });
   });
 
   it('no arrastra errores de coma flotante', () => {
     const summary = computeOrderSummary([{ productId: 1, quantity: 3 }], byId(product(1, 12.9)));
 
     expect(summary?.subtotal).toBe(38.7);
-    expect(summary?.total).toBe(43.7);
+    expect(summary?.total).toBe(38.7);
   });
 
   it('no suma los platos agotados', () => {
@@ -47,10 +47,10 @@ describe('computeOrderSummary', () => {
     expect(summary?.subtotal).toBe(20);
   });
 
-  it('con todos agotados cobra solo el delivery', () => {
+  it('con todos agotados el total es cero', () => {
     const summary = computeOrderSummary([{ productId: 1, quantity: 2 }], byId(product(1, 20, false)));
 
-    expect(summary).toEqual({ subtotal: 0, discount: 0, delivery: 5, total: 5 });
+    expect(summary).toEqual({ subtotal: 0, discount: 0, total: 0 });
   });
 
   it('devuelve null si falta algún plato por cargar', () => {
