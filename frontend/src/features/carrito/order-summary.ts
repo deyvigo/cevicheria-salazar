@@ -1,14 +1,11 @@
 import type { CartItem } from '@/features/carrito/share-code';
 import type { Product } from '@/features/catalogo/catalog-api';
 
-// Flat fee until delivery zones are defined (HT-02)
-export const DELIVERY_FEE = 5;
 export const DISCOUNT = 0;
 
 export interface OrderSummary {
   subtotal: number;
   discount: number;
-  delivery: number;
   total: number;
 }
 
@@ -27,7 +24,6 @@ export function computeOrderSummary(items: CartItem[], productsById: Map<number,
   return {
     subtotal,
     discount: DISCOUNT,
-    delivery: DELIVERY_FEE,
-    total: subtotal - DISCOUNT + DELIVERY_FEE,
+    total: subtotal - DISCOUNT,
   };
 }

@@ -8,6 +8,7 @@ import * as authApi from '@/features/auth/auth-api';
 import * as cartApi from '@/features/carrito/cart-api';
 import { CartPage } from '@/features/carrito/cart-page';
 import { useCartStore } from '@/features/carrito/cart-store';
+import { useCheckoutStore } from '@/features/checkout/checkout-store';
 import { encodeCart } from '@/features/carrito/share-code';
 import type { Product } from '@/features/catalogo/catalog-api';
 
@@ -53,6 +54,8 @@ function renderCart(entry = '/cart') {
           </>
         ),
       },
+      { path: '/iniciar-sesion', element: <Location /> },
+      { path: '/checkout/direcciones', element: <Location /> },
     ],
     { initialEntries: [entry] },
   );
@@ -359,14 +362,13 @@ describe('CartPage', () => {
       vi.mocked(cartApi.getProductsByIds).mockResolvedValue([product(1, { price: 32 }), product(2, { price: 18.5 })]);
     });
 
-    it('muestra subtotal, descuento, delivery y total', async () => {
+    it('muestra subtotal, descuento y total', async () => {
       renderCart();
 
       await screen.findByRole('textbox', { name: 'Cantidad de Plato 1' });
       expect(summaryValue('Subtotal')).toBe('S/ 82.50');
       expect(summaryValue('Descuento')).toBe('S/ 0.00');
-      expect(summaryValue('Delivery')).toBe('S/ 5.00');
-      expect(summaryValue('Total')).toBe('S/ 87.50');
+      expect(summaryValue('Total')).toBe('S/ 82.50');
     });
 
     it('no muestra montos mientras cargan los precios', async () => {
@@ -385,11 +387,11 @@ describe('CartPage', () => {
 
       await user.click(screen.getByRole('button', { name: 'Agregar una unidad de Plato 1' }));
       expect(summaryValue('Subtotal')).toBe('S/ 114.50');
-      expect(summaryValue('Total')).toBe('S/ 119.50');
+      expect(summaryValue('Total')).toBe('S/ 114.50');
 
       await user.click(screen.getByRole('button', { name: 'Eliminar Plato 1 del carrito' }));
       await waitFor(() => expect(summaryValue('Subtotal')).toBe('S/ 18.50'));
-      expect(summaryValue('Total')).toBe('S/ 23.50');
+      expect(summaryValue('Total')).toBe('S/ 18.50');
     });
 
     it('no suma los platos agotados', async () => {
@@ -414,6 +416,50 @@ describe('CartPage', () => {
       renderCart();
       await screen.findByRole('button', { name: 'Reintentar' });
       expect(screen.queryByRole('region', { name: 'Resumen del pedido' })).not.toBeInTheDocument();
+    });
+  });
+
+  describe('botón Continuar', () => {
+    beforeEach(() => {
+      useCartStore.setState({ items: [{ productId: 1, quantity: 1 }] });
+      vi.mocked(cartApi.getProductsByIds).mockResolvedValue([product(1)]);
+    });
+
+    it('sin sesión lleva al inicio de sesión', async () => {
+      const user = userEvent.setup();
+      renderCart();
+
+      const button = await screen.findByRole('button', { name: 'Continuar' });
+      await waitFor(() => expect(button).toBeEnabled());
+      await user.click(button);
+
+      expect(screen.getByTestId('location')).toHaveTextContent('/iniciar-sesion');
+      expect(useCheckoutStore.getState()).toMatchObject({ entered: true, startedAsVisitor: true });
+    });
+
+    it('con sesión lleva al paso de direcciones', async () => {
+      vi.mocked(authApi.me).mockResolvedValue(maria);
+      const user = userEvent.setup();
+      renderCart();
+
+      await screen.findByRole('navigation', { name: 'Pasos de la compra' });
+      await waitFor(() => expect(screen.getAllByRole('listitem').length).toBeGreaterThan(0));
+      const button = await screen.findByRole('button', { name: 'Continuar' });
+      await waitFor(() => expect(button).toBeEnabled());
+      await user.click(button);
+
+      await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent('/checkout/direcciones'));
+      expect(useCheckoutStore.getState()).toMatchObject({ entered: true, startedAsVisitor: false });
+    });
+
+    it('al abrir el carrito se reinicia el checkout', async () => {
+      useCheckoutStore.getState().enter();
+      useCheckoutStore.getState().selectAddress(4);
+      renderCart();
+
+      await screen.findByRole('button', { name: 'Continuar' });
+
+      expect(useCheckoutStore.getState()).toMatchObject({ entered: false, selectedAddressId: null });
     });
   });
 

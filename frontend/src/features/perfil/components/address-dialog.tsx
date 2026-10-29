@@ -30,7 +30,7 @@ interface AddressDialogProps {
   open: boolean;
   address?: Address;
   onClose: () => void;
-  onSaved: (message: string) => void;
+  onSaved: (message: string, saved: Address) => void;
 }
 
 function initialValues(address?: Address): AddressValues {
@@ -81,12 +81,11 @@ export function AddressDialog({ open, address, onClose, onSaved }: AddressDialog
 
   async function onSubmit(values: AddressValues) {
     const payload = { ...values, reference: values.reference || null };
+    let saved: Address;
     try {
-      if (address) {
-        await updateAddress.mutateAsync({ id: address.id, payload });
-      } else {
-        await createAddress.mutateAsync(payload);
-      }
+      saved = address
+        ? await updateAddress.mutateAsync({ id: address.id, payload })
+        : await createAddress.mutateAsync(payload);
     } catch (error) {
       if (isAxiosError<ApiErrorResponse>(error)) {
         const known = (error.response?.data.fieldErrors ?? []).filter((item) => item.field in values);
@@ -102,7 +101,7 @@ export function AddressDialog({ open, address, onClose, onSaved }: AddressDialog
       setError('root', { message: 'No pudimos guardar la dirección, intenta de nuevo.' });
       return;
     }
-    onSaved(address ? 'Dirección actualizada' : 'Dirección agregada');
+    onSaved(address ? 'Dirección actualizada' : 'Dirección agregada', saved);
   }
 
   const mapFallback = (

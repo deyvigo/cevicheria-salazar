@@ -97,7 +97,7 @@ describe('AddressDialog', () => {
         longitude: -77.0428,
       }),
     );
-    expect(onSaved).toHaveBeenCalledWith('Dirección agregada');
+    expect(onSaved).toHaveBeenCalledWith('Dirección agregada', expect.objectContaining({ id: expect.any(Number) }));
   });
 
   it('envía las coordenadas nuevas si se mueve el marcador', async () => {
@@ -152,7 +152,7 @@ describe('AddressDialog', () => {
         longitude: -77.03,
       }),
     );
-    expect(onSaved).toHaveBeenCalledWith('Dirección actualizada');
+    expect(onSaved).toHaveBeenCalledWith('Dirección actualizada', expect.objectContaining({ id: expect.any(Number) }));
   });
 
   it('si el servidor falla, sigue abierto con lo escrito y el mensaje', async () => {
