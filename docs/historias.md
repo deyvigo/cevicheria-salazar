@@ -68,7 +68,7 @@ El carrito no requiere cuenta. El inicio de sesión se exige recién al realizar
 
 | ID    | Historia de usuario                                                                                                                  | Prioridad |
 | ----- | ------------------------------------------------------------------------------------------------------------------------------------ | --------- |
-| HU-17 | Como cliente, quiero seleccionar o ingresar la dirección de entrega para recibir mi pedido en el lugar correcto.                     | Alta      |
+| HU-17 | Como cliente, quiero elegir entre entrega a domicilio (con una dirección guardada o nueva) o recojo en tienda, y ver el costo de delivery según mi zona, para recibir mi pedido como prefiera. | Alta      |
 | HU-18 | Como cliente, quiero elegir entre pago en línea o contraentrega para pagar de la forma que prefiera.                                 | Alta      |
 | HU-19 | Como cliente, quiero pagar con tarjeta a través de la pasarela de pagos para completar mi pedido en línea.                           | Alta      |
 | HU-20 | Como cliente, quiero indicar si pagaré en efectivo (y con cuánto) o con POS/Yape al recibir, para que el repartidor venga preparado. | Alta      |
