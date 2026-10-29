@@ -90,4 +90,51 @@ class DeliveryZoneRepositoryIT {
 
         assertThat(repository.findAllOrdered()).extracting(DeliveryZone::getName).containsExactly("Ate", "barranco", "Surco");
     }
+
+    // Square 1: lng -77.04..-77.02, lat -12.06..-12.04. Square 2 overlaps its eastern half.
+    private static final String OVERLAP = "ST_GeomFromText('POLYGON((-77.03 -12.04, -77.01 -12.04, -77.01 -12.06, -77.03 -12.06, -77.03 -12.04))', 4326)";
+
+    private void insertInactive(String name, String price, String geometry) {
+        jdbcTemplate.update(
+                "INSERT INTO delivery_zones (name, price, color, area, active) VALUES (?, " + price + ", 'lima', " + geometry + ", false)",
+                name);
+    }
+
+    @Test
+    void findsTheZoneContainingAPointAndNothingOutsideIt() {
+        insert("Cuadrado", "6.50", SQUARE);
+
+        assertThat(repository.findCheapestCovering(-77.03, -12.05)).get().extracting(DeliveryZone::getName).isEqualTo("Cuadrado");
+        assertThat(repository.findCheapestCovering(-77.00, -12.05)).isEmpty();
+    }
+
+    @Test
+    void aPointOnTheBorderCountsAsInside() {
+        insert("Cuadrado", "6.50", SQUARE);
+
+        assertThat(repository.findCheapestCovering(-77.04, -12.05)).isPresent();
+        assertThat(repository.findCheapestCovering(-77.02, -12.04)).isPresent();
+    }
+
+    @Test
+    void ignoresInactiveZones() {
+        insertInactive("Cuadrado", "6.50", SQUARE);
+
+        assertThat(repository.findCheapestCovering(-77.03, -12.05)).isEmpty();
+    }
+
+    @Test
+    void withOverlappingZonesTheCheapestWinsAndTiesGoToTheLowestId() {
+        insert("Cara", "9.00", SQUARE);
+        insert("Barata", "4.00", OVERLAP);
+
+        assertThat(repository.findCheapestCovering(-77.025, -12.05)).get().extracting(DeliveryZone::getName).isEqualTo("Barata");
+        assertThat(repository.findCheapestCovering(-77.035, -12.05)).get().extracting(DeliveryZone::getName).isEqualTo("Cara");
+
+        clean();
+        insert("Primera", "5.00", SQUARE);
+        insert("Segunda", "5.00", OVERLAP);
+
+        assertThat(repository.findCheapestCovering(-77.025, -12.05)).get().extracting(DeliveryZone::getName).isEqualTo("Primera");
+    }
 }

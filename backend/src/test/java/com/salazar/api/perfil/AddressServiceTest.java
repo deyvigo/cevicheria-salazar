@@ -119,4 +119,19 @@ class AddressServiceTest {
 
         assertThatThrownBy(() -> service().list(USER_ID)).isInstanceOf(AccessDeniedException.class);
     }
+
+    @Test
+    void getOwnedReturnsTheUsersAddressAndRejectsOthersOrAdministrators() {
+        Address address = new Address(USER_ID, "Casa", "Calle 1", null, BigDecimal.ONE, BigDecimal.ONE);
+        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(customer()));
+        when(addressRepository.findByIdAndUserIdAndDeletedAtIsNull(3L, USER_ID)).thenReturn(Optional.of(address));
+        when(addressRepository.findByIdAndUserIdAndDeletedAtIsNull(4L, USER_ID)).thenReturn(Optional.empty());
+
+        assertThat(service().getOwned(USER_ID, 3L)).isSameAs(address);
+        assertThatThrownBy(() -> service().getOwned(USER_ID, 4L)).isInstanceOf(AddressNotFoundException.class);
+
+        User admin = new User("admin@correo.com", "hash", "Rosa", "Salazar", "987654321", UserRole.ADMINISTRADOR);
+        when(userRepository.findById(8L)).thenReturn(Optional.of(admin));
+        assertThatThrownBy(() -> service().getOwned(8L, 3L)).isInstanceOf(AccessDeniedException.class);
+    }
 }

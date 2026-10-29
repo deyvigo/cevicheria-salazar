@@ -62,6 +62,12 @@ public class AddressService {
         find(userId, id).markDeleted();
     }
 
+    @Transactional(readOnly = true)
+    public Address getOwned(Long userId, Long id) {
+        requireCustomer(userRepository.findById(userId).orElse(null));
+        return find(userId, id);
+    }
+
     private Address find(Long userId, Long id) {
         return addressRepository
                 .findByIdAndUserIdAndDeletedAtIsNull(id, userId)
