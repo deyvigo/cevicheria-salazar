@@ -15,6 +15,9 @@ const order: Order = {
   items: [],
   paymentStatus: 'approved',
   deliveryCode: '4827',
+  collectionMethod: null,
+  cashAmount: null,
+  change: null,
 };
 
 describe('OrderCodes', () => {

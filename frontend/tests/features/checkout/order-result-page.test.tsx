@@ -23,8 +23,21 @@ const paid: checkoutApi.Order = {
   items: [],
   paymentStatus: 'approved',
   deliveryCode: '4827',
+  collectionMethod: null,
+  cashAmount: null,
+  change: null,
 };
 const pending: checkoutApi.Order = { ...paid, status: 'PENDIENTE_PAGO', paymentStatus: null, deliveryCode: null };
+
+const cashOrder: checkoutApi.Order = {
+  ...paid,
+  status: 'PENDIENTE_COBRO',
+  paymentMethod: 'CONTRAENTREGA',
+  paymentStatus: null,
+  collectionMethod: 'EFECTIVO',
+  cashAmount: 100,
+  change: 31.5,
+};
 
 function renderPage(url = '/checkout/resultado?pedido=42') {
   const router = createMemoryRouter(
@@ -58,6 +71,53 @@ afterEach(() => {
 });
 
 describe('OrderResultPage', () => {
+  describe('contraentrega', () => {
+    it('muestra "Recibimos tu pedido" con ambos códigos, el monto y el vuelto, y vacía el carrito', async () => {
+      vi.mocked(checkoutApi.getOrder).mockResolvedValue(cashOrder);
+      renderPage();
+
+      expect(await screen.findByText('Recibimos tu pedido')).toBeInTheDocument();
+      expect(screen.getByText('SAL-001042')).toBeInTheDocument();
+      expect(screen.getByText('4827')).toBeInTheDocument();
+      expect(screen.getByText('Pagarás con S/ 100.00 en efectivo (vuelto S/ 31.50).')).toBeInTheDocument();
+      expect(screen.queryByText('Estamos confirmando tu pago')).not.toBeInTheDocument();
+      await waitFor(() => expect(useCartStore.getState().items).toEqual([]));
+    });
+
+    it('efectivo sin monto solo dice que pagará en efectivo', async () => {
+      vi.mocked(checkoutApi.getOrder).mockResolvedValue({ ...cashOrder, cashAmount: null, change: null });
+      renderPage();
+
+      expect(await screen.findByText('Pagarás en efectivo al recibir tu pedido.')).toBeInTheDocument();
+    });
+
+    it('Yape lo indica, y con Recojo habla de recoger', async () => {
+      vi.mocked(checkoutApi.getOrder).mockResolvedValue({
+        ...cashOrder,
+        deliveryType: 'RECOJO',
+        collectionMethod: 'YAPE',
+        cashAmount: null,
+        change: null,
+      });
+      renderPage();
+
+      expect(await screen.findByText('Pagarás con Yape al recoger tu pedido.')).toBeInTheDocument();
+    });
+
+    it('no vuelve a consultar el pedido', async () => {
+      vi.useFakeTimers({ shouldAdvanceTime: true });
+      vi.mocked(checkoutApi.getOrder).mockResolvedValue(cashOrder);
+      renderPage();
+      await screen.findByText('Recibimos tu pedido');
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(ORDER_POLL_MS * 3);
+      });
+
+      expect(checkoutApi.getOrder).toHaveBeenCalledTimes(1);
+    });
+  });
+
   it('con el pedido pagado muestra ambos códigos, el indicador en ¡Listo! y vacía el carrito', async () => {
     vi.mocked(checkoutApi.getOrder).mockResolvedValue(paid);
     renderPage();

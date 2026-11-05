@@ -2,6 +2,8 @@ import { isAxiosError } from 'axios';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/button';
+import { formatPrice } from '@/features/catalogo/format';
+import type { Order } from '@/features/checkout/checkout-api';
 import { useCartStore } from '@/features/carrito/cart-store';
 import { CheckoutStepper } from '@/features/checkout/components/checkout-stepper';
 import { OrderCodes } from '@/features/checkout/components/order-codes';
@@ -29,7 +31,7 @@ export function OrderResultPage() {
 
   // The cart is only emptied once the order is really paid, so cancelling at the provider never loses it
   useEffect(() => {
-    if (status === 'PAGADO') {
+    if (status === 'PAGADO' || status === 'PENDIENTE_COBRO') {
       useCartStore.getState().clear();
       useCheckoutStore.getState().reset();
     }
@@ -93,6 +95,22 @@ function Body({
     );
   }
 
+  if (data.status === 'PENDIENTE_COBRO') {
+    return (
+      <div className="flex flex-col gap-6">
+        <div role="status" className="flex flex-col gap-1">
+          <h2 className="font-display text-[24px] leading-8 font-semibold text-ink">Recibimos tu pedido</h2>
+          <p className="text-base text-ink-muted">Guarda estos códigos: los necesitarás para recibir tu pedido.</p>
+        </div>
+        <OrderCodes order={data} />
+        <p className="text-base text-ink">{collectionSummary(data)}</p>
+        <Link to="/menu" className={linkClass}>
+          Seguir viendo la carta
+        </Link>
+      </div>
+    );
+  }
+
   // The order stays pending after a rejected attempt (the customer may retry at the provider), so the last payment counts too
   const lastAttemptFailed =
     data.paymentStatus !== null && data.paymentStatus !== 'in_process' && data.paymentStatus !== 'pending';
@@ -115,6 +133,15 @@ function Body({
     );
   }
   return <Message title="Estamos confirmando tu pago" text="Esto toma unos segundos. No cierres esta página." busy />;
+}
+
+function collectionSummary(order: Order): string {
+  const when = order.deliveryType === 'ENTREGA' ? 'al recibir' : 'al recoger';
+  if (order.collectionMethod === 'YAPE') return `Pagarás con Yape ${when} tu pedido.`;
+  if (order.cashAmount !== null && order.change !== null) {
+    return `Pagarás con ${formatPrice(order.cashAmount)} en efectivo (vuelto ${formatPrice(order.change)}).`;
+  }
+  return `Pagarás en efectivo ${when} tu pedido.`;
 }
 
 function Message({
