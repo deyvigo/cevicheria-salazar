@@ -21,7 +21,7 @@
 ### Endpoints (paquete `pedidos`)
 
 - `POST /api/pedidos` (Cliente): crea el pedido en línea.
-  - Request: `{ "items": [{ "productId": 1, "quantity": 2 }], "deliveryType": "ENTREGA"|"RECOJO", "addressId": 5|null, "paymentMethod": "ONLINE" }`. `paymentMethod = CONTRAENTREGA` responde `400` por ahora (HU-20).
+  - Request: `{ "items": [{ "productId": 1, "quantity": 2 }], "deliveryType": "ENTREGA"|"RECOJO", "addressId": 5|null, "paymentMethod": "ONLINE" }`. `paymentMethod = CONTRAENTREGA` responde `400` por ahora (HU-20 lo habilita con un bloque `collection`).
   - Response `201`: `{ "orderId": 42, "checkoutUrl": "https://www.mercadopago.com.pe/checkout/v1/redirect?pref_id=..." }`.
   - Errores: `409` con un mensaje que nombra el plato (stock insuficiente o no disponible), `422` dirección sin cobertura, `404` dirección ajena o inexistente (`AddressNotFoundException`), `502` si Mercado Pago falla, `400` validación, `401`/`403` sin sesión o administrador.
 - `GET /api/pedidos/{id}` (Cliente dueño): `{ id, code, status, deliveryType, paymentMethod, subtotal, deliveryPrice, total, items[], paymentStatus, deliveryCode }` (`paymentStatus` es el estado del último pago informado por el proveedor); `deliveryCode` solo cuando `status = PAGADO`. Pedido ajeno o inexistente: `404` (`OrderNotFoundException`).
