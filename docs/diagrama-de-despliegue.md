@@ -30,7 +30,7 @@ La definición ejecutable de este entorno es `docker-compose.prod.yml` (la API s
 ### Servicios externos
 
 - **Google OAuth 2.0**: la API llama a este servicio por HTTPS para el login/registro rápido con cuenta de Google (HU-06).
-- **Izipay**: la API se comunica por HTTPS con la pasarela de pagos para procesar pagos en línea con tarjeta (HU-19) e informar pagos rechazados (HU-22).
+- **Mercado Pago**: la API se comunica por HTTPS con la pasarela de pagos para crear la orden de pago y consultar pagos (HU-19). En sentido contrario, Mercado Pago llama al webhook de la API (`/api/pagos/mercadopago/webhook`), que por eso debe ser accesible desde internet a través de Traefik.
 - **Servidor SMTP**: la API envía por SMTP los correos de confirmación de pedido (HU-21) y de recuperación de contraseña (HU-03).
 
 ### Flujo de despliegue
@@ -38,4 +38,4 @@ La definición ejecutable de este entorno es `docker-compose.prod.yml` (la API s
 1. El navegador del Cliente/Administrador resuelve `cevicheria-salazar.com` hacia Cloudflare Pages para obtener la app React, y `api.cevicheria-salazar.com` / `media.cevicheria-salazar.com` hacia el VPS para los datos y las imágenes.
 2. Traefik recibe todo el tráfico HTTPS del VPS en los puertos 80/443, termina TLS con Let's Encrypt y enruta internamente a cada contenedor por su puerto interno (`:8080` API, `:3902` Garage).
 3. Dentro de la red de Docker Compose, la API habla con PostgreSQL por el puerto `:5432`, con Garage por API S3 y con Redis por el puerto `:6379`; los dos primeros persisten en volúmenes dedicados, mientras que Redis queda en memoria y se descarta si el contenedor se reinicia.
-4. Solo la API sale hacia los servicios externos (Google, Izipay, SMTP); el frontend en Cloudflare Pages nunca los contacta directamente.
+4. Solo la API sale hacia los servicios externos (Google, Mercado Pago, SMTP); el frontend en Cloudflare Pages nunca los contacta directamente.

@@ -23,7 +23,7 @@ Definido en `docs/diagrama-de-arquitectura.md` y `docs/diagrama-de-despliegue.md
 - **Frontend**: React (responsive), una sola app que sirve la tienda y el panel `/admin` según el rol del usuario autenticado. Gestor de paquetes: **pnpm**. Se despliega en Cloudflare Pages.
 - **Backend**: **Spring Boot** (Java). Capas: Seguridad (Spring Security, JWT en cookies + OAuth2) → Controladores REST → Servicios (lógica de negocio) → Repositorios (Spring Data JPA).
 - **Datos**: PostgreSQL con la extensión PostGIS (zonas de delivery; imagen propia en `docker/postgres/Dockerfile` porque `postgis/postgis` no publica arm64) (base de datos principal, ver `docs/diagrama-de-base-de-datos.md`), Redis (intentos de login y caché, en memoria, sin persistencia), Garage (almacenamiento de objetos compatible con S3 para las imágenes de platos; el backend lo usa con el SDK de AWS S3, ver `specs/ht-10-almacenamiento/`).
-- **Servicios externos**: Google OAuth 2.0 (login social), Izipay (pasarela de pagos), servidor SMTP (correos y confirmaciones).
+- **Servicios externos**: Google OAuth 2.0 (login social), Mercado Pago (pasarela de pagos, Checkout Pro), servidor SMTP (correos y confirmaciones).
 - **Infraestructura**: VPS con Docker Compose, Traefik como proxy inverso (TLS con Let's Encrypt).
 
 ## Comandos
@@ -81,7 +81,7 @@ Antes de construir una pantalla nueva, revisar si el componente/token necesario 
 
 - **Paquetes por feature/dominio**, no por capa técnica: `auth`, `catalogo`, `carrito`, `pedidos`, `perfil`, `admin` y `common` (`security`, `config`, `exception`). Cada historia de una épica toca mayormente un solo paquete. Detalle completo en [`specs/ht-09-entorno/plan.md`](specs/ht-09-entorno/plan.md).
 - Migraciones de base de datos con **Flyway** (`src/main/resources/db/migration/`); Hibernate en modo `validate`, nunca autogenera el esquema.
-- Las integraciones con servicios externos (Google OAuth, Izipay, SMTP) van solo en la capa de **Servicios**, nunca en controladores ni se exponen al frontend.
+- Las integraciones con servicios externos (Google OAuth, Mercado Pago, SMTP) van solo en la capa de **Servicios**, nunca en controladores ni se exponen al frontend.
 - Los tokens de sesión y de recuperación de contraseña se almacenan con hash (`token_hash`), nunca en texto plano — ver `docs/diagrama-de-base-de-datos.md`.
 - Redis no es fuente de verdad: solo intentos de login (anti fuerza bruta) y caché de lecturas frecuentes del catálogo. Los datos persistentes van en PostgreSQL o en el almacenamiento de objetos (Garage).
 

@@ -17,7 +17,7 @@ Los actores, épicas e historias de usuario están en [`docs/`](docs/epicas.md).
 | Frontend       | React + Vite, Tailwind CSS v4, Zustand, TanStack Query (pnpm)                  |
 | Backend        | Spring Boot 4 (Java 21), Spring Security (JWT en cookies + OAuth2), Spring Data JPA, Flyway (Maven) |
 | Datos          | PostgreSQL con PostGIS, Redis (intentos de login y caché), Garage (S3, imágenes) |
-| Integraciones  | Google OAuth 2.0, Izipay, SMTP                                                 |
+| Integraciones  | Google OAuth 2.0, Mercado Pago, SMTP                                            |
 | Infraestructura | VPS con Docker Compose, Traefik (TLS con Let's Encrypt), Cloudflare Pages      |
 
 ## Estructura

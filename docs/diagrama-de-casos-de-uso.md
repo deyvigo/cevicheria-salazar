@@ -11,7 +11,7 @@ El diagrama representa los actores y casos de uso principales del sistema, deriv
 - **Visitante**: usuario no autenticado. Puede navegar el catálogo y armar un carrito sin necesidad de tener cuenta (épica [E3](epicas.md#e3)).
 - **Cliente**: es un Visitante que se ha registrado o iniciado sesión (épica [E1](epicas.md#e1)). Hereda los casos de uso del Visitante y añade la posibilidad de completar pedidos y gestionar su cuenta.
 - **Administrador**: rol interno de Salazar SAC que opera el negocio desde el panel de administración (épica [E6](epicas.md#e6)).
-- **Pasarela de pagos**: sistema externo que procesa los pagos en línea con tarjeta (historia HU-19).
+- **Pasarela de pagos**: sistema externo (Mercado Pago) que procesa los pagos en línea (historia HU-19).
 
 ### Casos de uso por épica
 

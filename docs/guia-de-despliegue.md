@@ -34,7 +34,7 @@ No hace falta mover los nameservers a Cloudflare. Solo sería necesario para usa
 - `docker/garage/garage.prod.toml`: configuración de Garage para el VPS.
 - `scripts/garage-init-prod.sh`: inicialización de Garage (ver [Garage](#garage)).
 
-Izipay todavía no está implementado en el backend, así que `IZIPAY_API_KEY` y `IZIPAY_HMAC_KEY` no se necesitan por ahora.
+Los pagos en línea con Mercado Pago (HU-19) necesitan las variables `MP_ACCESS_TOKEN`, `MP_WEBHOOK_SECRET` y `APP_PUBLIC_API_URL` (ver [Mercado Pago](#mercado-pago)). Sin ellas la API arranca igual, pero crear un pedido en línea responde `502`.
 
 ## Requisitos previos del VPS
 
@@ -84,6 +84,10 @@ SMTP_PORT=587
 SMTP_USERNAME=
 SMTP_PASSWORD=<contraseña de aplicación>
 SMTP_FROM=
+
+MP_ACCESS_TOKEN=<access token de Mercado Pago>
+MP_WEBHOOK_SECRET=<clave secreta del webhook>
+APP_PUBLIC_API_URL=https://api.deyvigo.online
 ```
 
 Notas:
@@ -177,3 +181,14 @@ Consideraciones:
 5. `docker compose -f docker-compose.prod.yml up -d --build` y `./scripts/garage-init-prod.sh`.
 6. Proyecto de Cloudflare Pages con `VITE_API_URL`.
 7. Pruebas: login normal, login con Google, correo de recuperación, subir una imagen.
+
+## Mercado Pago
+
+Los pagos en línea usan Checkout Pro: el cliente paga en la página de Mercado Pago (puede hacerlo como invitado) y Mercado Pago avisa a la API por un webhook.
+
+1. En el [panel de desarrolladores de Mercado Pago](https://www.mercadopago.com.pe/developers/panel) crear una aplicación de tipo Checkout Pro. Las credenciales de **prueba** y las de **producción** son distintas; el `MP_ACCESS_TOKEN` y el `MP_WEBHOOK_SECRET` deben ser del mismo entorno.
+2. En la sección Webhooks de la aplicación, dar de alta la URL `https://<API_DOMAIN>/api/pagos/mercadopago/webhook` con el evento de **Pagos**, y copiar la **clave secreta** a `MP_WEBHOOK_SECRET`. La API también envía esta URL en cada preferencia (`notification_url`, a partir de `APP_PUBLIC_API_URL`), por lo que la del panel solo sirve de respaldo.
+3. `APP_PUBLIC_API_URL` debe ser la URL pública HTTPS de la API, sin barra final. Traefik ya la expone; el webhook no requiere sesión y se protege solo con la firma.
+4. El `MP_ACCESS_TOKEN` es el de la cuenta del negocio; hay que confirmar con Salazar SAC qué medios de pago habilita su cuenta (tarjetas, Yape, etc.). La API excluye los medios diferidos (efectivo en agente, depósito), porque un pedido de comida no puede esperar horas a un pago.
+5. **Probar en desarrollo**: Mercado Pago no puede llamar a `localhost`. Para ver llegar los avisos reales, exponer el backend con un túnel (por ejemplo `cloudflared tunnel --url http://localhost:8080`) y poner su URL en `APP_PUBLIC_API_URL`; usar credenciales y usuarios de prueba. Sin túnel el flujo se puede probar con los tests automáticos, que simulan la pasarela.
+6. Los pedidos sin pagar vencen a los 30 minutos (más 2 de margen) y liberan su stock. Un pago aprobado que llega con el pedido ya vencido, o por un importe distinto, queda marcado en `payments.needs_review` y no reactiva el pedido: hay que revisarlo y, si corresponde, reembolsarlo desde el panel de Mercado Pago.
