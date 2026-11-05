@@ -1,8 +1,10 @@
 import { render, screen, waitFor, within } from '@testing-library/react';
+import { AxiosError, type AxiosResponse } from 'axios';
 import userEvent from '@testing-library/user-event';
 import { RouterProvider, createMemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { QueryWrapper } from '@tests/utils/query-wrapper';
+import { NOTIFICATION_DURATION_MS } from '@/components/notification';
 import { AuthProvider, type AuthUser } from '@/context/auth-context';
 import * as authApi from '@/features/auth/auth-api';
 import * as cartApi from '@/features/carrito/cart-api';
@@ -11,11 +13,13 @@ import type { Product } from '@/features/catalogo/catalog-api';
 import * as checkoutApi from '@/features/checkout/checkout-api';
 import { useCheckoutStore } from '@/features/checkout/checkout-store';
 import { PaymentStepPage } from '@/features/checkout/payment-step-page';
+import * as redirect from '@/features/checkout/redirect-to-checkout';
 import * as addressApi from '@/features/perfil/address-api';
 
 vi.mock('@/features/auth/auth-api');
 vi.mock('@/features/carrito/cart-api');
 vi.mock('@/features/checkout/checkout-api');
+vi.mock('@/features/checkout/redirect-to-checkout');
 vi.mock('@/features/perfil/address-api');
 
 const maria: AuthUser = {
@@ -144,5 +148,130 @@ describe('PaymentStepPage', () => {
 
     expect(await screen.findByText('entrega')).toBeInTheDocument();
     expect(useCheckoutStore.getState()).toMatchObject({ deliveryType: 'delivery', selectedAddressId: 1 });
+  });
+
+  describe('pago en línea', () => {
+    const created = { orderId: 42, checkoutUrl: 'https://pay.example.com/checkout?pref=42' };
+
+    async function chooseOnline(user: ReturnType<typeof userEvent.setup>) {
+      await user.click(await screen.findByRole('radio', { name: 'Pago en línea' }));
+    }
+
+    it('con Pago en línea el botón dice "Pagar" con el total y queda habilitado', async () => {
+      renderPage();
+      await chooseOnline(userEvent.setup());
+
+      expect(await screen.findByRole('button', { name: 'Pagar S/ 68.50' })).toBeEnabled();
+    });
+
+    it('con Contraentrega o sin método sigue "Continuar" deshabilitado', async () => {
+      const user = userEvent.setup();
+      renderPage();
+
+      expect(await screen.findByRole('button', { name: 'Continuar' })).toBeDisabled();
+      await user.click(screen.getByRole('radio', { name: 'Contraentrega' }));
+      expect(screen.getByRole('button', { name: 'Continuar' })).toBeDisabled();
+      expect(screen.queryByRole('button', { name: /Pagar/ })).not.toBeInTheDocument();
+    });
+
+    it('mientras carga el delivery el botón de pagar está deshabilitado', async () => {
+      vi.mocked(checkoutApi.getDeliveryCost).mockReturnValue(new Promise(() => {}));
+      renderPage();
+      await chooseOnline(userEvent.setup());
+
+      expect(screen.getByRole('button', { name: 'Pagar' })).toBeDisabled();
+    });
+
+    it('al pagar crea el pedido con el carrito, la entrega y el método, y redirige a Mercado Pago', async () => {
+      vi.mocked(checkoutApi.createOrder).mockResolvedValue(created);
+      const user = userEvent.setup();
+      renderPage();
+      await chooseOnline(user);
+
+      await user.click(await screen.findByRole('button', { name: 'Pagar S/ 68.50' }));
+
+      await waitFor(() => expect(redirect.redirectToCheckout).toHaveBeenCalledWith(created.checkoutUrl));
+      expect(checkoutApi.createOrder).toHaveBeenCalledWith({
+        items: [{ productId: 1, quantity: 2 }],
+        deliveryType: 'ENTREGA',
+        addressId: 1,
+        paymentMethod: 'ONLINE',
+      });
+    });
+
+    it('con Recojo en tienda no envía dirección', async () => {
+      useCheckoutStore.getState().setDeliveryType('pickup');
+      vi.mocked(checkoutApi.createOrder).mockResolvedValue(created);
+      const user = userEvent.setup();
+      renderPage();
+      await chooseOnline(user);
+
+      await user.click(await screen.findByRole('button', { name: 'Pagar S/ 60.00' }));
+
+      await waitFor(() => expect(checkoutApi.createOrder).toHaveBeenCalled());
+      expect(checkoutApi.createOrder).toHaveBeenCalledWith(
+        expect.objectContaining({ deliveryType: 'RECOJO', addressId: null }),
+      );
+    });
+
+    it('mientras espera la respuesta el botón está deshabilitado y un segundo clic no crea otro pedido', async () => {
+      let resolve: (value: typeof created) => void = () => {};
+      vi.mocked(checkoutApi.createOrder).mockReturnValue(new Promise((r) => (resolve = r)));
+      const user = userEvent.setup();
+      renderPage();
+      await chooseOnline(user);
+      const button = await screen.findByRole('button', { name: 'Pagar S/ 68.50' });
+
+      await user.click(button);
+      await user.click(button);
+
+      expect(button).toBeDisabled();
+      expect(checkoutApi.createOrder).toHaveBeenCalledTimes(1);
+      resolve(created);
+      await waitFor(() => expect(redirect.redirectToCheckout).toHaveBeenCalledTimes(1));
+    });
+
+    it('un error del servidor con mensaje (stock) lo muestra y deja reintentar', async () => {
+      const error = new AxiosError('conflict', '409', undefined, undefined, {
+        status: 409,
+        data: { message: '«Plato 1» solo tiene 1 disponible.' },
+      } as AxiosResponse);
+      vi.mocked(checkoutApi.createOrder).mockRejectedValueOnce(error).mockResolvedValueOnce(created);
+      const user = userEvent.setup();
+      renderPage();
+      await chooseOnline(user);
+
+      await user.click(await screen.findByRole('button', { name: 'Pagar S/ 68.50' }));
+
+      expect(await screen.findByText('«Plato 1» solo tiene 1 disponible.')).toBeInTheDocument();
+      expect(redirect.redirectToCheckout).not.toHaveBeenCalled();
+      await user.click(screen.getByRole('button', { name: 'Pagar S/ 68.50' }));
+      await waitFor(() => expect(redirect.redirectToCheckout).toHaveBeenCalledWith(created.checkoutUrl));
+    });
+
+    it('el aviso de error queda abajo a la derecha y se cierra solo como las demás notificaciones', async () => {
+      vi.mocked(checkoutApi.createOrder).mockRejectedValue(new Error('boom'));
+      const user = userEvent.setup();
+      renderPage();
+      await chooseOnline(user);
+      await user.click(await screen.findByRole('button', { name: 'Pagar S/ 68.50' }));
+
+      const alert = await screen.findByRole('alert');
+      expect(alert.parentElement).toHaveClass('fixed', 'right-6', 'bottom-6');
+      await waitFor(() => expect(screen.queryByRole('alert')).not.toBeInTheDocument(), {
+        timeout: NOTIFICATION_DURATION_MS + 1500,
+      });
+    });
+
+    it('un error genérico muestra un mensaje general', async () => {
+      vi.mocked(checkoutApi.createOrder).mockRejectedValue(new Error('boom'));
+      const user = userEvent.setup();
+      renderPage();
+      await chooseOnline(user);
+
+      await user.click(await screen.findByRole('button', { name: 'Pagar S/ 68.50' }));
+
+      expect(await screen.findByText('No pudimos iniciar el pago. Intenta de nuevo.')).toBeInTheDocument();
+    });
   });
 });

@@ -114,7 +114,7 @@ Los tests de cada componente/hook se colocan junto al archivo que prueban (ej. `
 
 ## Variables de entorno
 
-- `backend/.env.example` y `frontend/.env.example` documentan las variables necesarias (credenciales de BD, secreto JWT, llaves de Izipay/Google/SMTP, URL de la API) sin valores reales.
+- `backend/.env.example` y `frontend/.env.example` documentan las variables necesarias (credenciales de BD, secreto JWT, llaves de Mercado Pago/Google/SMTP, URL de la API) sin valores reales.
 - `.env` real queda en `.gitignore` (ya cubierto por la regla de "Reglas" de `AGENTS.md`: nunca commitear secretos).
 
 ## Decisiones

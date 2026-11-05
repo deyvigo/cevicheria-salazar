@@ -31,6 +31,7 @@
 		<springdoc.version>3.2.0</springdoc.version>
 		<aws-sdk.version>2.55.14</aws-sdk.version>
 		<jjwt.version>0.12.6</jjwt.version>
+		<mercadopago.version>3.7.0</mercadopago.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -119,6 +120,11 @@
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-api</artifactId>
 			<version>${jjwt.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.mercadopago</groupId>
+			<artifactId>sdk-java</artifactId>
+			<version>${mercadopago.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
