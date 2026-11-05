@@ -1,0 +1,79 @@
+# Production on the VPS. Expects the external Docker network "proxy" where Traefik runs
+# and a .env next to this file (see docs/guia-de-despliegue.md).
+
+services:
+  api:
+    build: ./backend
+    image: salazar-api:latest
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      garage:
+        condition: service_started
+    networks:
+      - internal
+      - proxy
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=proxy
+      - traefik.http.routers.salazar-api.rule=Host(`${API_DOMAIN}`)
+      - traefik.http.routers.salazar-api.entrypoints=websecure
+      - traefik.http.routers.salazar-api.tls.certresolver=${TRAEFIK_CERT_RESOLVER:-letsencrypt}
+      - traefik.http.services.salazar-api.loadbalancer.server.port=8080
+
+  postgres:
+    build: ./docker/postgres
+    image: salazar-postgis:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: salazar
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgis_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d salazar"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - internal
+
+  redis:
+    image: redis:7
+    restart: unless-stopped
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    networks:
+      - internal
+
+  garage:
+    image: dxflrs/garage:v1.0.1
+    restart: unless-stopped
+    environment:
+      GARAGE_RPC_SECRET: ${GARAGE_RPC_SECRET}
+    volumes:
+      - ./docker/garage/garage.prod.toml:/etc/garage.toml:ro
+      - garage_data:/var/lib/garage
+    networks:
+      - internal
+      - proxy
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=proxy
+      - traefik.http.routers.salazar-media.rule=Host(`${MEDIA_DOMAIN}`)
+      - traefik.http.routers.salazar-media.entrypoints=websecure
+      - traefik.http.routers.salazar-media.tls.certresolver=${TRAEFIK_CERT_RESOLVER:-letsencrypt}
+      - traefik.http.services.salazar-media.loadbalancer.server.port=3902
+
+networks:
+  internal:
+  proxy:
+    external: true
+
+volumes:
+  postgis_data:
+  garage_data:
