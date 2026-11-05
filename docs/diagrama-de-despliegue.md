@@ -25,6 +25,8 @@ Servidor propio donde corre el backend, dentro de un entorno **Docker Compose**:
 - **Contenedor PostgreSQL**: base de datos relacional de la API, persistida en el volumen **postgres_data** para que los datos sobrevivan a reinicios o actualizaciones del contenedor. Es la implementación física del modelo entidad-relación de **HT-06**.
 - **Contenedor Garage**: almacenamiento de imágenes de platos (HU-08, HU-29), compatible con S3 y persistido en el volumen **garage_data**. La API lo usa por su API S3 (`:3900`, solo dentro de la red de Docker Compose) y Traefik expone su endpoint web (`:3902`) bajo el subdominio `media.cevicheria-salazar.com`, para servir las imágenes directamente sin pasar por la API. El bucket de imágenes tiene como alias ese dominio y habilitado el modo web (lectura pública); la escritura exige la clave de la aplicación.
 
+La definición ejecutable de este entorno es `docker-compose.prod.yml` (la API se construye con `backend/Dockerfile`; Garage usa `docker/garage/garage.prod.toml`). Solo `api` y `garage` se conectan a la red externa `proxy` de Traefik; PostgreSQL y Redis quedan en una red interna sin puertos publicados. Los pasos de publicación están en [guia-de-despliegue.md](guia-de-despliegue.md).
+
 ### Servicios externos
 
 - **Google OAuth 2.0**: la API llama a este servicio por HTTPS para el login/registro rápido con cuenta de Google (HU-06).
