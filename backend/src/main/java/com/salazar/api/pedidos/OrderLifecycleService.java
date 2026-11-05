@@ -14,6 +14,7 @@ import com.salazar.api.pedidos.dto.CreateOrderRequest;
 import com.salazar.api.perfil.Address;
 import com.salazar.api.perfil.AddressService;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -94,6 +95,18 @@ public class OrderLifecycleService {
                     .orElseThrow(DeliveryNotCoveredException::new);
         }
 
+        BigDecimal deliveryPrice = zone == null ? BigDecimal.ZERO.setScale(2) : zone.getPrice();
+        boolean cashOnDelivery = request.paymentMethod() == PaymentMethod.CONTRAENTREGA;
+        BigDecimal cashAmount = cashOnDelivery && request.collection().method() == CollectionMethod.EFECTIVO
+                ? request.collection().cashAmount()
+                : null;
+        // Checked before any stock is taken so a short amount never reserves anything
+        if (cashAmount != null && cashAmount.compareTo(subtotal.add(deliveryPrice)) < 0) {
+            throw new FieldInvalidException(
+                    "cashAmount",
+                    "El monto debe ser al menos S/ " + subtotal.add(deliveryPrice).setScale(2, RoundingMode.UNNECESSARY) + ".");
+        }
+
         Order order = new Order(
                 userId,
                 codeGenerator.nextOrderCode(),
@@ -101,8 +114,12 @@ public class OrderLifecycleService {
                 request.paymentMethod(),
                 request.deliveryType(),
                 subtotal,
-                zone == null ? BigDecimal.ZERO.setScale(2) : zone.getPrice(),
-                Instant.now().plus(properties.paymentTtl()));
+                deliveryPrice,
+                // Cash on delivery is confirmed right away and never expires
+                cashOnDelivery ? null : Instant.now().plus(properties.paymentTtl()));
+        if (cashOnDelivery) {
+            order.setCollection(request.collection().method(), cashAmount);
+        }
         if (address != null) {
             order.setDeliveryAddress(
                     address.getId(),

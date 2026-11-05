@@ -25,7 +25,7 @@ public class OrderController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CreateOrderResponse create(Authentication authentication, @Valid @RequestBody CreateOrderRequest request) {
-        return orderService.createOnlineOrder(AuthenticatedUser.id(authentication), request);
+        return orderService.create(AuthenticatedUser.id(authentication), request);
     }
 
     @GetMapping("/{id}")
