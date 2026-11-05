@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/button';
 import { useAuth } from '@/context/auth-context';
 import { useCartStore } from '@/features/carrito/cart-store';
@@ -17,6 +17,7 @@ import { useAddresses } from '@/features/perfil/use-addresses';
 
 export function DeliveryStepPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const items = useCartStore((state) => state.items);
   const deliveryType = useCheckoutStore((state) => state.deliveryType);
   const setDeliveryType = useCheckoutStore((state) => state.setDeliveryType);
@@ -48,6 +49,7 @@ export function DeliveryStepPage() {
     delivery = cost.data ? cost.data.price : 'loading';
   }
   const notCovered = hasSelection && cost.data?.covered === false;
+  const canContinue = !isDelivery || (hasSelection && cost.data?.covered === true);
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-8">
@@ -56,6 +58,9 @@ export function DeliveryStepPage() {
       <div className="grid items-start gap-6 md:grid-cols-[1fr_20rem]">
         <div className="flex flex-col gap-4">
           <DeliveryTypeSelector value={deliveryType} onChange={setDeliveryType} />
+          {isDelivery ? (
+            <h2 className="font-display text-[24px] leading-8 font-semibold text-ink">Mis direcciones</h2>
+          ) : null}
           {isDelivery ? (
             <AddressOptionList
               addresses={loadedAddresses}
@@ -80,8 +85,7 @@ export function DeliveryStepPage() {
         <aside className="sticky top-24 border-l border-border pl-6">
           <OrderSummary summary={summary} delivery={delivery}>
             <div className="flex flex-col gap-3">
-              {/* Payment (HU-18) doesn't exist yet */}
-              <Button className="w-full" disabled>
+              <Button className="w-full" disabled={!canContinue} onClick={() => void navigate('/checkout/pago')}>
                 Continuar
               </Button>
               <Link

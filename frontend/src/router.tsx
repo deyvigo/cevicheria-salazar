@@ -11,6 +11,7 @@ import { AdminSectionPage } from '@/features/admin/components/admin-section-page
 import { CartPage } from '@/features/carrito/cart-page';
 import { CheckoutGuard } from '@/features/checkout/checkout-guard';
 import { DeliveryStepPage } from '@/features/checkout/delivery-step-page';
+import { PaymentStepPage } from '@/features/checkout/payment-step-page';
 import { ForgotPasswordPage } from '@/features/auth/forgot-password-page';
 import { LoginPage } from '@/features/auth/login-page';
 import { RegisterPage } from '@/features/auth/register-page';
@@ -39,6 +40,14 @@ export const router = createBrowserRouter([
         element: (
           <CheckoutGuard>
             <DeliveryStepPage />
+          </CheckoutGuard>
+        ),
+      },
+      {
+        path: '/checkout/pago',
+        element: (
+          <CheckoutGuard requireDelivery>
+            <PaymentStepPage />
           </CheckoutGuard>
         ),
       },

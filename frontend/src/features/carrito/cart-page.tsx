@@ -132,24 +132,27 @@ export function CartPage() {
         <>
           {isAuthLoading ? null : <CheckoutStepper currentStep="cart" isAuthenticated={user !== null} />}
           <div className="grid items-start gap-6 md:grid-cols-[1fr_20rem]">
-            <ul aria-busy={query.isPending} className="flex flex-col gap-3">
-              {items.map((item) => {
-                const product = productsById.get(item.productId);
-                if (!product) {
-                  return query.isPending ? (
-                    <li key={item.productId} className="h-28 animate-pulse rounded-lg bg-surface-celeste" />
-                  ) : null;
-                }
-                return (
-                  <CartItemRow
-                    key={item.productId}
-                    product={product}
-                    quantity={item.quantity}
-                    onRemoved={() => titleRef.current?.focus()}
-                  />
-                );
-              })}
-            </ul>
+            <div className="flex flex-col gap-4">
+              <h2 className="font-display text-[24px] leading-8 font-semibold text-ink">Productos</h2>
+              <ul aria-busy={query.isPending} className="flex flex-col gap-3">
+                {items.map((item) => {
+                  const product = productsById.get(item.productId);
+                  if (!product) {
+                    return query.isPending ? (
+                      <li key={item.productId} className="h-28 animate-pulse rounded-lg bg-surface-celeste" />
+                    ) : null;
+                  }
+                  return (
+                    <CartItemRow
+                      key={item.productId}
+                      product={product}
+                      quantity={item.quantity}
+                      onRemoved={() => titleRef.current?.focus()}
+                    />
+                  );
+                })}
+              </ul>
+            </div>
             <aside className="sticky top-24 border-l border-border pl-6">
               <OrderSummary summary={summary}>
                 <Button className="w-full" disabled={summary === null} onClick={continueToCheckout}>

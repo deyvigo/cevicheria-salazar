@@ -38,7 +38,7 @@ export function OrderSummary({ summary, delivery, children }: OrderSummaryProps)
           {delivery === undefined ? null : isLoading ? (
             <div className="h-6 animate-pulse rounded-md bg-surface-celeste" />
           ) : (
-            <Row label="Delivery" value={delivery} />
+            <Row label="Entrega" value={delivery} />
           )}
           {isLoading ? (
             <div className="h-8 animate-pulse rounded-md bg-surface-celeste" />
