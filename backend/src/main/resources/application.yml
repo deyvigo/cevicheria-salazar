@@ -51,6 +51,16 @@ app:
     first-name: ${APP_DEFAULT_ADMIN_FIRST_NAME:Administrador}
     last-name: ${APP_DEFAULT_ADMIN_LAST_NAME:Salazar}
     phone: ${APP_DEFAULT_ADMIN_PHONE:}
+  # Empty values leave online payments unconfigured: creating an online order then answers 502 instead of failing at boot
+  mercadopago:
+    access-token: ${MP_ACCESS_TOKEN:}
+    webhook-secret: ${MP_WEBHOOK_SECRET:}
+    # Public HTTPS base of this API (a tunnel in development) that Mercado Pago calls back
+    public-api-url: ${APP_PUBLIC_API_URL:}
+  orders:
+    payment-ttl: 30m
+    expiry-grace: 2m
+    expiry-check-interval: 60s
   password-reset:
     token-ttl: 30m
     max-requests: 3

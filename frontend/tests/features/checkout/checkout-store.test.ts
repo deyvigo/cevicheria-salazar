@@ -51,10 +51,39 @@ describe('checkout store', () => {
     expect(useCheckoutStore.getState().selectedAddressId).toBe(4);
   });
 
+  it('el detalle de contraentrega se guarda, sobrevive al cambio de método y se limpia con reset', () => {
+    const store = useCheckoutStore.getState();
+    store.setPaymentMethod('cash_on_delivery');
+    store.setCollectionMethod('cash');
+    store.setCashAmount('100');
+    store.setPaymentMethod('online');
+    store.setPaymentMethod('cash_on_delivery');
+
+    expect(useCheckoutStore.getState()).toMatchObject({ collectionMethod: 'cash', cashAmount: '100' });
+
+    useCheckoutStore.getState().reset();
+
+    expect(useCheckoutStore.getState()).toMatchObject({ collectionMethod: null, cashAmount: '' });
+  });
+
   it('no escribe en localStorage', () => {
     useCheckoutStore.getState().enter();
     useCheckoutStore.getState().selectAddress(4);
 
     expect(localStorage.length).toBe(0);
+  });
+
+  it('el método de pago empieza vacío, se guarda y se limpia con reset o al cambiar el tipo de entrega', () => {
+    expect(useCheckoutStore.getState().paymentMethod).toBeNull();
+
+    useCheckoutStore.getState().setPaymentMethod('online');
+    expect(useCheckoutStore.getState().paymentMethod).toBe('online');
+
+    useCheckoutStore.getState().setDeliveryType('pickup');
+    expect(useCheckoutStore.getState().paymentMethod).toBeNull();
+
+    useCheckoutStore.getState().setPaymentMethod('cash_on_delivery');
+    useCheckoutStore.getState().reset();
+    expect(useCheckoutStore.getState().paymentMethod).toBeNull();
   });
 });

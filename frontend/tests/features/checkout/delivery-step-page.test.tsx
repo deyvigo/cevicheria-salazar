@@ -53,6 +53,7 @@ function renderPage() {
     [
       { path: '/checkout/direcciones', element: <DeliveryStepPage /> },
       { path: '/cart', element: <p>carrito</p> },
+      { path: '/checkout/pago', element: <p>pago</p> },
     ],
     { initialEntries: ['/checkout/direcciones'] },
   );
@@ -105,7 +106,7 @@ describe('DeliveryStepPage', () => {
     renderPage();
     await userEvent.setup().click(await screen.findByRole('radio', { name: /Casa/ }));
 
-    await waitFor(() => expect(summaryValue('Delivery')).toBe('S/ 8.50'));
+    await waitFor(() => expect(summaryValue('Entrega')).toBe('S/ 8.50'));
     expect(summaryValue('Total')).toBe('S/ 68.50');
     expect(checkoutApi.getDeliveryCost).toHaveBeenCalledWith(1);
   });
@@ -115,7 +116,7 @@ describe('DeliveryStepPage', () => {
     await userEvent.setup().click(await screen.findByRole('radio', { name: /Trabajo/ }));
 
     expect(await screen.findByText('Tu dirección no está en cobertura')).toBeInTheDocument();
-    expect(summaryValue('Delivery')).toBe('S/ 0.00');
+    expect(summaryValue('Entrega')).toBe('S/ 0.00');
     expect(screen.getByRole('button', { name: 'Continuar' })).toBeDisabled();
   });
 
@@ -123,7 +124,7 @@ describe('DeliveryStepPage', () => {
     const user = userEvent.setup();
     renderPage();
     await user.click(await screen.findByRole('radio', { name: /Casa/ }));
-    await waitFor(() => expect(summaryValue('Delivery')).toBe('S/ 8.50'));
+    await waitFor(() => expect(summaryValue('Entrega')).toBe('S/ 8.50'));
 
     vi.mocked(checkoutApi.getDeliveryCost).mockReturnValue(new Promise(() => {}));
     await user.click(screen.getByRole('radio', { name: /Trabajo/ }));
@@ -147,7 +148,7 @@ describe('DeliveryStepPage', () => {
     expect(await screen.findByText('No pudimos calcular el costo de delivery.')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Reintentar' }));
 
-    await waitFor(() => expect(summaryValue('Delivery')).toBe('S/ 8.50'));
+    await waitFor(() => expect(summaryValue('Entrega')).toBe('S/ 8.50'));
   });
 
   it('Recojo en tienda oculta las direcciones, deja el delivery en S/ 0.00 y sin aviso', async () => {
@@ -161,7 +162,7 @@ describe('DeliveryStepPage', () => {
     expect(screen.queryByRole('radio', { name: /Casa/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Agregar nueva dirección' })).not.toBeInTheDocument();
     expect(screen.queryByText('Tu dirección no está en cobertura')).not.toBeInTheDocument();
-    expect(summaryValue('Delivery')).toBe('S/ 0.00');
+    expect(summaryValue('Entrega')).toBe('S/ 0.00');
     expect(summaryValue('Total')).toBe('S/ 60.00');
   });
 
@@ -169,13 +170,13 @@ describe('DeliveryStepPage', () => {
     const user = userEvent.setup();
     renderPage();
     await user.click(await screen.findByRole('radio', { name: /Casa/ }));
-    await waitFor(() => expect(summaryValue('Delivery')).toBe('S/ 8.50'));
+    await waitFor(() => expect(summaryValue('Entrega')).toBe('S/ 8.50'));
 
     await user.click(screen.getByRole('radio', { name: 'Recojo en tienda' }));
     await user.click(screen.getByRole('radio', { name: 'Entrega' }));
 
     expect(await screen.findByRole('radio', { name: /Casa/ })).toBeChecked();
-    await waitFor(() => expect(summaryValue('Delivery')).toBe('S/ 8.50'));
+    await waitFor(() => expect(summaryValue('Entrega')).toBe('S/ 8.50'));
   });
 
   it('agregar una dirección la selecciona y calcula su costo; cancelar no cambia nada', async () => {
@@ -202,7 +203,7 @@ describe('DeliveryStepPage', () => {
 
     expect(await screen.findByRole('radio', { name: /Oficina/ })).toBeChecked();
     await waitFor(() => expect(checkoutApi.getDeliveryCost).toHaveBeenCalledWith(3));
-    await waitFor(() => expect(summaryValue('Delivery')).toBe('S/ 6.00'));
+    await waitFor(() => expect(summaryValue('Entrega')).toBe('S/ 6.00'));
   });
 
   it('si la dirección elegida desaparece de la lista, se limpia la selección', async () => {
@@ -213,7 +214,7 @@ describe('DeliveryStepPage', () => {
     await waitFor(() => expect(useCheckoutStore.getState().selectedAddressId).toBeNull());
   });
 
-  it('"Continuar" está deshabilitado y "Volver al carrito" lleva a /cart', async () => {
+  it('"Continuar" está deshabilitado sin dirección y "Volver al carrito" lleva a /cart', async () => {
     const user = userEvent.setup();
     renderPage();
 
@@ -221,5 +222,31 @@ describe('DeliveryStepPage', () => {
     await user.click(screen.getByRole('link', { name: 'Volver al carrito' }));
 
     expect(await screen.findByText('carrito')).toBeInTheDocument();
+  });
+
+  it('con una dirección con cobertura "Continuar" lleva al pago', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(await screen.findByRole('radio', { name: /Casa/ }));
+
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Continuar' })).toBeEnabled());
+    await user.click(screen.getByRole('button', { name: 'Continuar' }));
+
+    expect(await screen.findByText('pago')).toBeInTheDocument();
+  });
+
+  it('mientras calcula el delivery "Continuar" sigue deshabilitado', async () => {
+    vi.mocked(checkoutApi.getDeliveryCost).mockReturnValue(new Promise(() => {}));
+    renderPage();
+    await userEvent.setup().click(await screen.findByRole('radio', { name: /Casa/ }));
+
+    expect(screen.getByRole('button', { name: 'Continuar' })).toBeDisabled();
+  });
+
+  it('con Recojo en tienda "Continuar" está habilitado', async () => {
+    renderPage();
+    await userEvent.setup().click(await screen.findByRole('radio', { name: 'Recojo en tienda' }));
+
+    expect(screen.getByRole('button', { name: 'Continuar' })).toBeEnabled();
   });
 });

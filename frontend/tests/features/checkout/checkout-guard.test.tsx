@@ -21,14 +21,14 @@ const maria: AuthUser = {
   hasPassword: true,
 };
 
-function renderGuard() {
+function renderGuard(requireDelivery = false) {
   const router = createMemoryRouter(
     [
       { path: '/cart', element: <p>carrito</p> },
       {
         path: '/checkout/direcciones',
         element: (
-          <CheckoutGuard>
+          <CheckoutGuard requireDelivery={requireDelivery}>
             <p>entrega</p>
           </CheckoutGuard>
         ),
@@ -98,5 +98,25 @@ describe('CheckoutGuard', () => {
     act(() => client.setQueryData(ME_QUERY_KEY, null));
 
     expect(await screen.findByText('carrito')).toBeInTheDocument();
+  });
+
+  it('con requireDelivery y Entrega sin dirección redirige al carrito', async () => {
+    renderGuard(true);
+
+    expect(await screen.findByText('carrito')).toBeInTheDocument();
+  });
+
+  it('con requireDelivery y una dirección elegida muestra el paso', async () => {
+    useCheckoutStore.getState().selectAddress(3);
+    renderGuard(true);
+
+    expect(await screen.findByText('entrega')).toBeInTheDocument();
+  });
+
+  it('con requireDelivery y Recojo en tienda muestra el paso', async () => {
+    useCheckoutStore.getState().setDeliveryType('pickup');
+    renderGuard(true);
+
+    expect(await screen.findByText('entrega')).toBeInTheDocument();
   });
 });
