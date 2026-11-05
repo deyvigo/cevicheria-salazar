@@ -41,7 +41,7 @@ Los pagos en línea con Mercado Pago (HU-19) necesitan las variables `MP_ACCESS_
 - Docker y Docker Compose instalados.
 - Traefik corriendo con Let's Encrypt y una red Docker llamada `proxy`.
 - Firewall con solo los puertos 22, 80 y 443 abiertos. Docker salta `ufw` al publicar puertos; por eso Postgres, Redis y Garage S3 no llevan `ports:`.
-- Memoria suficiente para compilar con Maven (8 GB bastan). Actualizar: `git pull` y `docker compose -f docker-compose.prod.yml up -d --build`.
+- Memoria suficiente para compilar con Maven (8 GB bastan). Actualizar: con la rama `deploy` ya mergeada (ver [Publicar cambios](#publicar-cambios)), `git pull` en el VPS y `docker compose -f docker-compose.prod.yml up -d --build`.
 
 ## Variables de entorno de la API
 
@@ -130,9 +130,19 @@ El script asigna el layout del nodo, importa la clave, crea el bucket `platos`, 
 
 Traefik enruta `media.deyvigo.online` al puerto 3902 de Garage. La API usa el puerto 3900 por la red interna de Docker.
 
+## Publicar cambios
+
+La rama `deploy` es la que corre en producción; no hay CI/CD, el PR solo actualiza la rama.
+
+1. Verificar en `develop` lo que se publica (`./mvnw test`, `pnpm test --run`, `pnpm build`).
+2. Abrir un PR de `develop` hacia `deploy` y mergearlo.
+3. Frontend: Cloudflare Pages compila y publica solo al mergear.
+4. Backend: en el VPS, `git pull` (rama `deploy`) y `docker compose -f docker-compose.prod.yml up -d --build`. Las migraciones Flyway se aplican al arrancar.
+5. Si los cambios añaden variables de entorno, agregarlas antes al `.env` del VPS; sin ellas la API puede no arrancar.
+
 ## Frontend en Cloudflare Pages
 
-1. Crear un proyecto de Pages conectado al repositorio de GitHub.
+1. Crear un proyecto de Pages conectado al repositorio de GitHub, con `deploy` como rama de producción (cada merge a `deploy` publica el frontend).
 2. Configuración de compilación:
    - Directorio raíz: `frontend`
    - Comando: `pnpm build`
@@ -176,7 +186,7 @@ Consideraciones:
 
 1. DNS de `api`, `media` y `app`.
 2. Google Cloud Console y contraseña SMTP.
-3. Clonar el repositorio en el VPS (rama `main`).
+3. Clonar el repositorio en el VPS (rama `deploy`).
 4. Crear el `.env` en la raíz.
 5. `docker compose -f docker-compose.prod.yml up -d --build` y `./scripts/garage-init-prod.sh`.
 6. Proyecto de Cloudflare Pages con `VITE_API_URL`.

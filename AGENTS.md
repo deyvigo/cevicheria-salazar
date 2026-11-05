@@ -108,11 +108,12 @@ Este proyecto usa Spec-Driven Development: ver [`specs/README.md`](specs/README.
 Git flow con ramas creadas a mano (sin la extensión `git-flow`) y commits en formato Conventional Commits. **Leer esta sección antes de crear ramas o hacer cualquier commit.** No hacer commit, push ni abrir PR hasta que el usuario lo pida.
 
 - **Ramas**:
-  - `main`: solo lo publicado en producción.
+  - `main`: histórico estable, ya no es la rama de producción.
+  - `deploy`: lo que corre en producción. Se actualiza con un PR de `develop` hacia `deploy`; el merge publica el frontend (Cloudflare Pages) y el backend se actualiza a mano en el VPS (`docs/guia-de-despliegue.md#publicar-cambios`).
   - `develop`: integración, base de todo el trabajo.
   - `feature/HU-XX-short-name` (o `feature/HT-XX-...`), igual que la carpeta en `specs/`: se crea desde `develop` y su PR va contra `develop`. Cambios sin historia: `feature/<short-name>`. El nombre de la rama va en inglés (ej. `feature/code-conventions`); solo el ID de la historia (`HU-XX`) se conserva tal cual, y si lleva descripción corta también va en inglés (ej. `feature/HU-05-sign-out`).
-  - `release/x.y.z`: desde `develop`; se integra en `main` con tag `vx.y.z` y vuelve a `develop`.
-  - `hotfix/<short-name>`: desde `main`; se integra en `main` (con tag) y en `develop`.
+  - `release/x.y.z`: desde `develop`; se integra en `deploy` con tag `vx.y.z` y vuelve a `develop`.
+  - `hotfix/<short-name>`: desde `deploy`; se integra en `deploy` (con tag) y en `develop`.
 - **Mensajes de commit** (Conventional Commits, **en inglés**): `<type>(<scope>): <description>`.
   - Título y cuerpo en inglés, en imperativo y con minúscula inicial; el ID de la historia va al final del título si aplica. El detalle va en el cuerpo (`-m` adicional).
   - Tipos: `feat`, `fix`, `refactor`, `test`, `docs`, `style`, `perf`, `build`, `ci`, `chore`.
