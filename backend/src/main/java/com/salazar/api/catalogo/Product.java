@@ -105,6 +105,14 @@ public class Product {
         this.deletedAt = Instant.now();
     }
 
+    public void decreaseStock(int quantity) {
+        this.stock -= quantity;
+    }
+
+    public void increaseStock(int quantity) {
+        this.stock += quantity;
+    }
+
     public void deactivate() {
         this.active = false;
     }

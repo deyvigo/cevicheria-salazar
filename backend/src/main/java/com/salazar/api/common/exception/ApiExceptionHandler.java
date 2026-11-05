@@ -92,6 +92,33 @@ public class ApiExceptionHandler {
                 .body(ApiError.of(HttpStatus.CONFLICT.value(), "Conflicto", ex.getMessage()));
     }
 
+    @ExceptionHandler(OrderNotFoundException.class)
+    public ResponseEntity<ApiError> handleOrderNotFound(OrderNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiError.of(HttpStatus.NOT_FOUND.value(), "No encontrado", ex.getMessage()));
+    }
+
+    @ExceptionHandler({ProductUnavailableException.class, InsufficientStockException.class})
+    public ResponseEntity<ApiError> handleOrderConflict(RuntimeException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ApiError.of(HttpStatus.CONFLICT.value(), "Conflicto", ex.getMessage()));
+    }
+
+    @ExceptionHandler(DeliveryNotCoveredException.class)
+    public ResponseEntity<ApiError> handleDeliveryNotCovered(DeliveryNotCoveredException ex) {
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(ApiError.of(HttpStatus.UNPROCESSABLE_ENTITY.value(), "Sin cobertura", ex.getMessage()));
+    }
+
+    @ExceptionHandler(PaymentGatewayException.class)
+    public ResponseEntity<ApiError> handlePaymentGateway(PaymentGatewayException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+                .body(ApiError.of(
+                        HttpStatus.BAD_GATEWAY.value(),
+                        "Pasarela no disponible",
+                        "No pudimos iniciar el pago. Intenta de nuevo en unos minutos."));
+    }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiError> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
