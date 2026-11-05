@@ -68,14 +68,15 @@ Por ahora modela el dominio de **autenticación y registro** (épica [E1](epicas
   - `active`: si la zona se usa para cobrar el delivery (por defecto `true`). Una zona inactiva conserva su dibujo y tarifa.
   - `created_at`, `updated_at`: trazabilidad estándar. Eliminar una zona borra la fila (todavía nada la referencia).
 
-- **orders**: pedido de un cliente (HU-19; la contraentrega y la confirmación completa llegan con HU-20 y HU-21).
+- **orders**: pedido de un cliente (HU-19 y HU-20; la confirmación completa llega con HU-21).
   - `code`: código de pedido legible (`SAL-001042`), único y correlativo; sale de la secuencia `order_code_seq`.
-  - `delivery_code`: 4 dígitos aleatorios que el cliente le dice al repartidor (o en tienda, con Recojo) para confirmar la entrega. Se guarda en claro, a diferencia de los tokens, porque hay que poder mostrárselo otra vez; la API solo lo devuelve al dueño con el pedido pagado.
+  - `delivery_code`: 4 dígitos aleatorios que el cliente le dice al repartidor (o en tienda, con Recojo) para confirmar la entrega. Se guarda en claro, a diferencia de los tokens, porque hay que poder mostrárselo otra vez; la API solo lo devuelve al dueño con el pedido confirmado (`PAGADO` o `PENDIENTE_COBRO`).
   - `user_id`: cliente dueño; sin cascada.
-  - `status`: `PENDIENTE_PAGO`, `PAGADO` o `CANCELADO`. `payment_method`: `ONLINE` o `CONTRAENTREGA`. `delivery_type`: `ENTREGA` o `RECOJO`.
+  - `status`: `PENDIENTE_PAGO` (pago en línea sin completar), `PENDIENTE_COBRO` (contraentrega confirmada, se paga al recibir; no vence), `PAGADO` o `CANCELADO`. `payment_method`: `ONLINE` o `CONTRAENTREGA`. `delivery_type`: `ENTREGA` o `RECOJO`.
   - `address_id` y la copia `address_label`, `address_text`, `address_reference`, `address_latitude`, `address_longitude`, `delivery_zone_name`: la dirección y la zona al momento de comprar; solo con Entrega (`CHECK`). La copia evita que editar o eliminar la dirección altere el pedido.
   - `subtotal`, `discount`, `delivery_price`, `total` (`NUMERIC(10,2)`): importes calculados en el servidor, nunca recibidos del cliente.
-  - `expires_at`: plazo para pagar (30 minutos). `paid_at`, `cancelled_at` y `cancel_reason` (`REEMPLAZADO`, `VENCIDO`, `ERROR_PASARELA`).
+  - `collection_method` (`EFECTIVO` o `YAPE`) y `cash_amount`: solo con contraentrega (`CHECK`); el monto, opcional y solo con efectivo, es con cuánto pagará el cliente y nunca es menor al total. El vuelto no se guarda: se calcula como `cash_amount - total`.
+  - `expires_at`: plazo para pagar (30 minutos); vacío en la contraentrega. `paid_at`, `cancelled_at` y `cancel_reason` (`REEMPLAZADO`, `VENCIDO`, `ERROR_PASARELA`).
   - `preference_id`, `init_point`: la preferencia de Mercado Pago y la URL de pago, para depurar.
 
 - **order_items**: platos de un pedido, con copia de `product_name`, `unit_price`, `quantity` y `line_total`, de modo que cambiar el catálogo no altera pedidos pasados. Se borran en cascada con el pedido; `product_id` referencia `products` sin cascada.

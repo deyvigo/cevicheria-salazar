@@ -84,6 +84,13 @@ public class Order {
     @Column(nullable = false, updatable = false, precision = 10, scale = 2)
     private BigDecimal total;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "collection_method", updatable = false, length = 10)
+    private CollectionMethod collectionMethod;
+
+    @Column(name = "cash_amount", updatable = false, precision = 10, scale = 2)
+    private BigDecimal cashAmount;
+
     @Column(name = "expires_at")
     private Instant expiresAt;
 
@@ -131,7 +138,23 @@ public class Order {
         this.deliveryPrice = deliveryPrice;
         this.total = subtotal.add(deliveryPrice);
         this.expiresAt = expiresAt;
-        this.status = OrderStatus.PENDIENTE_PAGO;
+        this.status = paymentMethod == PaymentMethod.CONTRAENTREGA
+                ? OrderStatus.PENDIENTE_COBRO
+                : OrderStatus.PENDIENTE_PAGO;
+    }
+
+    public void setCollection(CollectionMethod method, BigDecimal cashAmount) {
+        this.collectionMethod = method;
+        this.cashAmount = method == CollectionMethod.EFECTIVO ? cashAmount : null;
+    }
+
+    public BigDecimal getChange() {
+        return cashAmount == null ? null : cashAmount.subtract(total);
+    }
+
+    /** Confirmed orders whose delivery code the customer may already see. */
+    public boolean isConfirmed() {
+        return status == OrderStatus.PAGADO || status == OrderStatus.PENDIENTE_COBRO;
     }
 
     @PrePersist

@@ -11,19 +11,23 @@ export async function getDeliveryCost(addressId: number): Promise<DeliveryCost> 
   return data;
 }
 
-export type OrderStatus = 'PENDIENTE_PAGO' | 'PAGADO' | 'CANCELADO';
+export type OrderStatus = 'PENDIENTE_PAGO' | 'PENDIENTE_COBRO' | 'PAGADO' | 'CANCELADO';
+export type OrderCollectionMethod = 'EFECTIVO' | 'YAPE';
 export type OrderDeliveryType = 'ENTREGA' | 'RECOJO';
 
 export interface CreateOrderPayload {
   items: Array<{ productId: number; quantity: number }>;
   deliveryType: OrderDeliveryType;
   addressId: number | null;
-  paymentMethod: 'ONLINE';
+  paymentMethod: 'ONLINE' | 'CONTRAENTREGA';
+  // Only with CONTRAENTREGA
+  collection?: { method: OrderCollectionMethod; cashAmount: number | null };
 }
 
 export interface CreatedOrder {
   orderId: number;
-  checkoutUrl: string;
+  // Null for cash on delivery: there is no provider to go to
+  checkoutUrl: string | null;
 }
 
 export interface Order {
@@ -38,8 +42,11 @@ export interface Order {
   items: Array<{ productId: number; name: string; unitPrice: number; quantity: number; lineTotal: number }>;
   // Last payment status reported by the provider, e.g. "rejected"; null until a payment is attempted
   paymentStatus: string | null;
-  // Only present once the order is paid
+  // Only present once the order is confirmed (paid, or to be collected on delivery)
   deliveryCode: string | null;
+  collectionMethod: OrderCollectionMethod | null;
+  cashAmount: number | null;
+  change: number | null;
 }
 
 export async function createOrder(payload: CreateOrderPayload): Promise<CreatedOrder> {

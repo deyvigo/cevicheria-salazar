@@ -55,6 +55,7 @@ function renderPage() {
     [
       { path: '/checkout/pago', element: <PaymentStepPage /> },
       { path: '/checkout/direcciones', element: <p>entrega</p> },
+      { path: '/checkout/resultado', element: <p>resultado</p> },
     ],
     { initialEntries: ['/checkout/pago'] },
   );
@@ -164,14 +165,12 @@ describe('PaymentStepPage', () => {
       expect(await screen.findByRole('button', { name: 'Pagar S/ 68.50' })).toBeEnabled();
     });
 
-    it('con Contraentrega o sin método sigue "Continuar" deshabilitado', async () => {
-      const user = userEvent.setup();
+    it('sin método elegido no hay botón de pagar y "Continuar" sigue deshabilitado', async () => {
       renderPage();
 
       expect(await screen.findByRole('button', { name: 'Continuar' })).toBeDisabled();
-      await user.click(screen.getByRole('radio', { name: 'Contraentrega' }));
-      expect(screen.getByRole('button', { name: 'Continuar' })).toBeDisabled();
       expect(screen.queryByRole('button', { name: /Pagar/ })).not.toBeInTheDocument();
+      expect(screen.queryByText('Detalle del pago contraentrega')).not.toBeInTheDocument();
     });
 
     it('mientras carga el delivery el botón de pagar está deshabilitado', async () => {
@@ -272,6 +271,178 @@ describe('PaymentStepPage', () => {
       await user.click(await screen.findByRole('button', { name: 'Pagar S/ 68.50' }));
 
       expect(await screen.findByText('No pudimos iniciar el pago. Intenta de nuevo.')).toBeInTheDocument();
+    });
+  });
+  describe('contraentrega', () => {
+    const created = { orderId: 77, checkoutUrl: null };
+
+    async function chooseCash(user: ReturnType<typeof userEvent.setup>) {
+      await user.click(await screen.findByRole('radio', { name: 'Contraentrega' }));
+    }
+
+    it('al elegir Contraentrega se abre el formulario sin nada elegido y con el botón deshabilitado', async () => {
+      const user = userEvent.setup();
+      renderPage();
+      await chooseCash(user);
+
+      expect(screen.getByText('Detalle del pago contraentrega')).toBeInTheDocument();
+      expect(screen.getByRole('radio', { name: 'Efectivo' })).not.toBeChecked();
+      expect(screen.getByRole('radio', { name: 'Yape' })).not.toBeChecked();
+      expect(await screen.findByRole('button', { name: 'Confirmar pedido S/ 68.50' })).toBeDisabled();
+    });
+
+    it('con Pago en línea el formulario se oculta y al volver conserva lo escrito', async () => {
+      const user = userEvent.setup();
+      renderPage();
+      await chooseCash(user);
+      await user.click(screen.getByRole('radio', { name: 'Efectivo' }));
+      await user.type(screen.getByLabelText(/¿Con cuánto pagarás\?/), '100');
+
+      await user.click(screen.getByRole('radio', { name: 'Pago en línea' }));
+      expect(screen.queryByText('Detalle del pago contraentrega')).not.toBeInTheDocument();
+      await user.click(screen.getByRole('radio', { name: 'Contraentrega' }));
+
+      expect(screen.getByRole('radio', { name: 'Efectivo' })).toBeChecked();
+      expect(screen.getByLabelText(/¿Con cuánto pagarás\?/)).toHaveValue('100');
+    });
+
+    it('Yape habilita el botón y no pide monto', async () => {
+      const user = userEvent.setup();
+      renderPage();
+      await chooseCash(user);
+      await user.click(screen.getByRole('radio', { name: 'Yape' }));
+
+      expect(screen.queryByLabelText(/¿Con cuánto pagarás\?/)).not.toBeInTheDocument();
+      expect(await screen.findByRole('button', { name: 'Confirmar pedido S/ 68.50' })).toBeEnabled();
+    });
+
+    it('Efectivo muestra el campo opcional y con el campo vacío el botón está habilitado', async () => {
+      const user = userEvent.setup();
+      renderPage();
+      await chooseCash(user);
+      await user.click(screen.getByRole('radio', { name: 'Efectivo' }));
+
+      expect(screen.getByLabelText(/¿Con cuánto pagarás\?/)).toBeInTheDocument();
+      expect(screen.getByLabelText(/opcional/)).toBeInTheDocument();
+      expect(await screen.findByRole('button', { name: 'Confirmar pedido S/ 68.50' })).toBeEnabled();
+    });
+
+    it('un monto menor al total muestra el error y deshabilita; uno mayor muestra el vuelto', async () => {
+      const user = userEvent.setup();
+      renderPage();
+      await chooseCash(user);
+      await user.click(screen.getByRole('radio', { name: 'Efectivo' }));
+      const field = screen.getByLabelText(/¿Con cuánto pagarás\?/);
+
+      await user.type(field, '50');
+      expect(await screen.findByText('El monto debe ser al menos S/ 68.50')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Confirmar pedido S/ 68.50' })).toBeDisabled();
+
+      await user.clear(field);
+      await user.type(field, '100');
+      expect(screen.getByText('Vuelto: S/ 31.50')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Confirmar pedido S/ 68.50' })).toBeEnabled();
+    });
+
+    it('al confirmar con efectivo envía el monto y navega al resultado', async () => {
+      vi.mocked(checkoutApi.createOrder).mockResolvedValue(created);
+      const user = userEvent.setup();
+      renderPage();
+      await chooseCash(user);
+      await user.click(screen.getByRole('radio', { name: 'Efectivo' }));
+      await user.type(screen.getByLabelText(/¿Con cuánto pagarás\?/), '100');
+
+      await user.click(await screen.findByRole('button', { name: 'Confirmar pedido S/ 68.50' }));
+
+      expect(await screen.findByText('resultado')).toBeInTheDocument();
+      expect(checkoutApi.createOrder).toHaveBeenCalledWith({
+        items: [{ productId: 1, quantity: 2 }],
+        deliveryType: 'ENTREGA',
+        addressId: 1,
+        paymentMethod: 'CONTRAENTREGA',
+        collection: { method: 'EFECTIVO', cashAmount: 100 },
+      });
+      expect(redirect.redirectToCheckout).not.toHaveBeenCalled();
+    });
+
+    it('con efectivo vacío envía monto nulo, y con Yape nunca envía el monto escrito antes', async () => {
+      vi.mocked(checkoutApi.createOrder).mockResolvedValue(created);
+      useCheckoutStore.getState().setDeliveryType('pickup');
+      const user = userEvent.setup();
+      renderPage();
+      await chooseCash(user);
+      await user.click(screen.getByRole('radio', { name: 'Efectivo' }));
+      await user.type(screen.getByLabelText(/¿Con cuánto pagarás\?/), '100');
+      await user.click(screen.getByRole('radio', { name: 'Yape' }));
+
+      await user.click(await screen.findByRole('button', { name: 'Confirmar pedido S/ 60.00' }));
+
+      await waitFor(() => expect(checkoutApi.createOrder).toHaveBeenCalled());
+      expect(checkoutApi.createOrder).toHaveBeenCalledWith(
+        expect.objectContaining({
+          deliveryType: 'RECOJO',
+          addressId: null,
+          collection: { method: 'YAPE', cashAmount: null },
+        }),
+      );
+    });
+
+    it('con Recojo los textos hablan de pagar al recoger', async () => {
+      useCheckoutStore.getState().setDeliveryType('pickup');
+      const user = userEvent.setup();
+      renderPage();
+      await chooseCash(user);
+
+      expect(screen.getByText('Detalle del pago al recoger')).toBeInTheDocument();
+    });
+
+    it('mientras espera está deshabilitado y un segundo clic no crea otro pedido', async () => {
+      let resolve: (value: typeof created) => void = () => {};
+      vi.mocked(checkoutApi.createOrder).mockReturnValue(new Promise((r) => (resolve = r)));
+      const user = userEvent.setup();
+      renderPage();
+      await chooseCash(user);
+      await user.click(screen.getByRole('radio', { name: 'Yape' }));
+      const button = await screen.findByRole('button', { name: 'Confirmar pedido S/ 68.50' });
+
+      await user.click(button);
+      await user.click(button);
+
+      expect(button).toBeDisabled();
+      expect(checkoutApi.createOrder).toHaveBeenCalledTimes(1);
+      resolve(created);
+      expect(await screen.findByText('resultado')).toBeInTheDocument();
+    });
+
+    it('un error del servidor muestra su mensaje y deja corregir y reintentar', async () => {
+      const error = new AxiosError('conflict', '409', undefined, undefined, {
+        status: 409,
+        data: { message: '«Plato 1» solo tiene 1 disponible.' },
+      } as AxiosResponse);
+      vi.mocked(checkoutApi.createOrder).mockRejectedValueOnce(error).mockResolvedValueOnce(created);
+      const user = userEvent.setup();
+      renderPage();
+      await chooseCash(user);
+      await user.click(screen.getByRole('radio', { name: 'Yape' }));
+
+      await user.click(await screen.findByRole('button', { name: 'Confirmar pedido S/ 68.50' }));
+
+      expect(await screen.findByText('«Plato 1» solo tiene 1 disponible.')).toBeInTheDocument();
+      expect(screen.getByText('No pudimos confirmar el pedido')).toBeInTheDocument();
+      await user.click(screen.getByRole('button', { name: 'Confirmar pedido S/ 68.50' }));
+      expect(await screen.findByText('resultado')).toBeInTheDocument();
+    });
+
+    it('un error genérico muestra el mensaje general de confirmación', async () => {
+      vi.mocked(checkoutApi.createOrder).mockRejectedValue(new Error('boom'));
+      const user = userEvent.setup();
+      renderPage();
+      await chooseCash(user);
+      await user.click(screen.getByRole('radio', { name: 'Yape' }));
+
+      await user.click(await screen.findByRole('button', { name: 'Confirmar pedido S/ 68.50' }));
+
+      expect(await screen.findByText('No pudimos confirmar el pedido. Intenta de nuevo.')).toBeInTheDocument();
     });
   });
 });

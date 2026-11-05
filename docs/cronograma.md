@@ -135,6 +135,7 @@ Duración de cada sprint: 3 semanas (lunes a viernes). Historias en [historias.m
 | HU-17 | Seleccionar la dirección de entrega en el checkout (Entrega o Recojo en tienda, con costo de delivery por zona) | Usuario | Alta | 2 | ✓ |
 | HU-18 | Elegir el método de pago en el checkout (pago en línea o contraentrega) | Usuario | Alta | 2 | ✓ |
 | HU-19 | Pagar en línea con Mercado Pago (pedido pendiente de pago, webhook, código de pedido y de entrega) | Usuario | Alta | 2 | ✓ |
+| HU-20 | Detallar el pago contraentrega (efectivo con monto opcional o Yape) y crear el pedido | Usuario | Alta | 2 | ✓ |
 
 ### Eventos Scrum
 

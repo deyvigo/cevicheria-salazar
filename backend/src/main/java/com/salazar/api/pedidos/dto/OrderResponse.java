@@ -1,5 +1,6 @@
 package com.salazar.api.pedidos.dto;
 
+import com.salazar.api.pedidos.CollectionMethod;
 import com.salazar.api.pedidos.DeliveryType;
 import com.salazar.api.pedidos.Order;
 import com.salazar.api.pedidos.OrderStatus;
@@ -18,12 +19,15 @@ public record OrderResponse(
         BigDecimal total,
         List<Item> items,
         String paymentStatus,
-        String deliveryCode) {
+        String deliveryCode,
+        CollectionMethod collectionMethod,
+        BigDecimal cashAmount,
+        BigDecimal change) {
     public record Item(Long productId, String name, BigDecimal unitPrice, int quantity, BigDecimal lineTotal) {}
 
-    // The delivery code only leaves the server once the order is paid
+    // The delivery code only leaves the server once the order is confirmed (paid or to be collected on delivery)
     public static OrderResponse from(Order order, String paymentStatus) {
-        String deliveryCode = order.getStatus() == OrderStatus.PAGADO ? order.getDeliveryCode() : null;
+        String deliveryCode = order.isConfirmed() ? order.getDeliveryCode() : null;
         return new OrderResponse(
                 order.getId(),
                 order.getCode(),
@@ -42,6 +46,9 @@ public record OrderResponse(
                                 item.getLineTotal()))
                         .toList(),
                 paymentStatus,
-                deliveryCode);
+                deliveryCode,
+                order.getCollectionMethod(),
+                order.getCashAmount(),
+                order.getChange());
     }
 }

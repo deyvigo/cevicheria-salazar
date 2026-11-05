@@ -28,12 +28,26 @@ public class OrderService {
     private final UserRepository userRepository;
     private final PaymentGateway paymentGateway;
 
+    public CreateOrderResponse create(Long userId, CreateOrderRequest request) {
+        boolean cashOnDelivery = request.paymentMethod() == PaymentMethod.CONTRAENTREGA;
+        if (cashOnDelivery && request.collection() == null) {
+            throw new FieldInvalidException("collection", "Elige cómo pagarás.");
+        }
+        if (!cashOnDelivery && request.collection() != null) {
+            throw new FieldInvalidException("collection", "El detalle de cobro solo aplica a la contraentrega.");
+        }
+        return cashOnDelivery ? createCashOnDeliveryOrder(userId, request) : createOnlineOrder(userId, request);
+    }
+
+    // No gateway involved: the order is confirmed as soon as the stock is reserved
+    private CreateOrderResponse createCashOnDeliveryOrder(Long userId, CreateOrderRequest request) {
+        Order order = lifecycle.place(userId, request);
+        return new CreateOrderResponse(order.getId(), null);
+    }
+
     // Deliberately not transactional: the stock reservation commits first and the call to the provider happens
     // outside it, so no row lock stays open during a network call. A provider failure is compensated by cancelling.
-    public CreateOrderResponse createOnlineOrder(Long userId, CreateOrderRequest request) {
-        if (request.paymentMethod() != PaymentMethod.ONLINE) {
-            throw new FieldInvalidException("paymentMethod", "Por ahora solo se puede pagar en línea.");
-        }
+    private CreateOrderResponse createOnlineOrder(Long userId, CreateOrderRequest request) {
         Order order = lifecycle.place(userId, request);
         try {
             CheckoutSession session = paymentGateway.createCheckout(toCheckoutRequest(order));
