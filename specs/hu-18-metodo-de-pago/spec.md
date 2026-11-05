@@ -85,6 +85,7 @@ Reutiliza el resumen de HU-14/HU-17: platos, subtotal, delivery (`S/ 0.00` en Re
 
 - `docs/historias.md` y `docs/cronograma.md`: estado de HU-18.
 - `specs/hu-17-direccion-checkout/spec.md`: el botón "Continuar" pasa a navegar a este paso.
+- Con HU-19, el botón principal de este paso pasa a "Pagar" cuando se elige Pago en línea y crea el pedido; con Contraentrega sigue deshabilitado hasta HU-20.
 - `frontend/src/features/checkout/README.md`: pantalla y ruta nueva.
 - Sin cambios en base de datos ni arquitectura (los pedidos y pagos llegan con HU-19 y HU-21).
 

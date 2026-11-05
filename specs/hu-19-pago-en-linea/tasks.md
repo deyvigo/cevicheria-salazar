@@ -1,0 +1,49 @@
+# Tareas: HU-19 — Pagar en línea con Mercado Pago
+
+Requiere `plan.md`. Cada tarea indica qué criterio(s) de `spec.md` cubre y cómo se verifica.
+
+## Base de datos
+
+- [x] Migración `V10__orders.sql`: secuencia `order_code_seq`, tipos enumerados, tablas `orders` (con `code`, `delivery_code`, copia de la entrega, importes, vencimiento, `preference_id`, `init_point`), `order_items` y `payments` con sus restricciones e índices — cubre: códigos, copia del pedido, idempotencia del pago — verificación: `OrderSchemaIT` — la migración aplica sobre PostGIS; `code` único; `delivery_code` solo acepta 4 dígitos; `provider_payment_id` único por proveedor; no se puede borrar un plato o dirección referenciados.
+
+## Backend
+
+- [x] Entidades `Order`, `OrderItem`, `Payment` y repositorios (`OrderRepository`, `PaymentRepository`, `ProductRepository.findAllByIdInForUpdate`) — cubre: reserva de stock sin sobreventa, pedido pendiente anterior, vencidos — verificación: `OrderRepositoryIT` — consulta de pendientes vencidos; pendiente de un cliente; bloqueo de platos ordenado por id.
+- [x] `OrderCodeGenerator` (código de pedido desde la secuencia y código de entrega con `SecureRandom`) — cubre: formato y unicidad de los códigos — verificación: `OrderCodeGeneratorTest` y `OrderCodeGeneratorIT` — `SAL-` más seis dígitos correlativos; el código de entrega son 4 dígitos con ceros a la izquierda permitidos; dos pedidos no repiten código de pedido.
+- [x] `OrderService.createOnlineOrder` (validaciones, recálculo de importes, entrega, reserva de stock, cancelación del pendiente anterior, copia de datos) — cubre: validación en el servidor, reserva, reintento con pedido pendiente — verificación: `OrderServiceTest` y `OrderServiceIT` — plato inactivo, eliminado, no disponible o sin stock rechazado sin tocar el stock; dirección ajena, eliminada o sin cobertura rechazada; Recojo sin dirección con delivery `0.00`; importes recalculados ignorando lo que mande el cliente; el stock baja y los ítems conservan nombre y precio; un segundo pedido cancela el pendiente anterior y repone su stock; dos peticiones simultáneas por el último plato: una gana y la otra recibe rechazo de stock.
+- [x] Agregar la dependencia `com.mercadopago:sdk-java` (versión estable verificada en Maven Central y compatible con Spring Boot 4), la interfaz `PaymentGateway` con `GatewayPayment`, `MercadoPagoProperties` y la implementación `MercadoPagoGateway` (`createCheckout`, `getPayment`) — cubre: datos enviados a la pasarela, error de la pasarela — verificación: `MercadoPagoGatewayTest` (clientes del SDK simulados o servidor HTTP simulado) — la preferencia lleva ítems en `PEN`, `external_reference`, `back_urls`, `notification_url`, vencimiento, exclusión de medios diferidos y sin datos del pagador; el pago consultado se traduce a `GatewayPayment`; un error del SDK o de red se convierte en `PaymentGatewayException`; no se loguea el token; `./mvnw test` sigue en verde con la dependencia nueva.
+- [x] Integrar `PaymentGateway.createCheckout` en `createOnlineOrder` fuera de la transacción, con compensación si falla — cubre: Mercado Pago caído o con error — verificación: `OrderServiceTest` — si `createCheckout` falla el pedido queda `CANCELADO`, el stock repuesto y se lanza el error que mapea a `502`.
+- [x] `PaymentWebhookService` (firma `x-signature`, consulta del pago, transiciones, idempotencia, revisión) — cubre: aviso verificado, importe distinto, avisos repetidos, rechazo, pago tardío — verificación: `PaymentWebhookServiceTest` — firma inválida o ausente no cambia nada; `approved` con importe y moneda correctos pasa a `PAGADO`; `approved` con importe distinto guarda el pago con `needs_review` y no marca el pedido; `approved` sobre un pedido cancelado o vencido guarda `needs_review` y no lo reactiva; `rejected`/`cancelled` cancela y repone el stock; el mismo aviso dos veces deja el mismo estado y una sola fila de pago; pedido inexistente se ignora con `200`.
+- [x] `OrderExpirationJob` y `@EnableScheduling` — cubre: vencimiento a los 30 minutos y liberación del stock — verificación: `OrderExpirationJobIT` — un pendiente vencido pasa a `CANCELADO` con su stock repuesto; uno vigente o uno pagado no cambia.
+- [x] `OrderController` (`POST /api/pedidos`, `GET /api/pedidos/{id}`) y `OrderNotFoundException` y mapeos en `ApiExceptionHandler` — cubre: iniciar el pago, errores de creación, resultado, acceso por dueño, códigos visibles solo al dueño y con pedido pagado — verificación: `OrderControllerIT` — `201` con `checkoutUrl`; `409` con el plato en falta; `422` sin cobertura; `404` con dirección o pedido ajenos; `400` con validación o `CONTRAENTREGA`; `401` sin sesión; `403` con administrador; el `GET` del dueño devuelve los códigos solo con `PAGADO` y sin `deliveryCode` en pendiente; pedido ajeno `404`.
+- [x] `MercadoPagoWebhookController` (`POST /api/pagos/mercadopago/webhook`) — cubre: aviso verificado y firma inválida — verificación: `MercadoPagoWebhookControllerIT` — firma válida `200` y el pedido pasa a pagado (pasarela simulada); firma inválida `401`; el mismo aviso repetido `200` sin duplicar el pago; no exige sesión.
+- [x] Variables `MP_ACCESS_TOKEN`, `MP_WEBHOOK_SECRET`, `APP_PUBLIC_API_URL` en `application.yml` y `.env.example` (retirando `IZIPAY_*`) — cubre: no exponer credenciales en el navegador — verificación: la app arranca con y sin credenciales (sin ellas, crear un pedido en línea responde `502`) y ninguna variable llega al frontend.
+
+## Frontend
+
+- [x] `checkout-api.ts` (`createOrder`, `getOrder`) y los tipos de pedido — cubre: iniciar el pago y consultar el resultado — verificación: `tests/features/checkout/checkout-api.test.ts` — `POST /pedidos` con el carrito, el tipo de entrega, la dirección y el método; `GET /pedidos/{id}`.
+- [x] `payment-step-page.tsx`: botón "Pagar S/ xx.xx", creación del pedido, estado de carga, redirección a Mercado Pago y errores — cubre: iniciar el pago, doble clic, error de creación, contraentrega deshabilitada, carrito vigente — verificación: `tests/features/checkout/payment-step-page.test.tsx` — con Pago en línea el botón dice "Pagar S/ 85.00" y está habilitado; con Contraentrega o sin método sigue deshabilitado; al pulsar llama a `createOrder` con el carrito actual y redirige a `checkoutUrl`; mientras espera está deshabilitado y un segundo clic no repite la llamada; un `409` muestra el mensaje del plato y deja reintentar; un error genérico muestra mensaje con reintento.
+- [x] `components/order-codes.tsx` — cubre: mostrar el código de pedido y el de entrega — verificación: `tests/features/checkout/components/order-codes.test.tsx` — muestra ambos códigos con sus rótulos; la indicación dice "al recibir" con Entrega y "al recoger" con Recojo.
+- [x] `order-result-page.tsx` y la ruta `/checkout/resultado` con su guard de sesión — cubre: pagado, pendiente con consulta periódica, rechazado, pedido ajeno, sin sesión, recarga, vaciar el carrito solo con pago — verificación: `tests/features/checkout/order-result-page.test.tsx` y `order-result-guard.test.tsx` — pagado muestra "Recibimos tu pago" con ambos códigos y vacía el carrito una vez; pendiente muestra "Estamos confirmando tu pago", consulta de nuevo y pasa a pagado sin recargar, y no vacía el carrito; tras el tope de espera avisa que se le notificará; cancelado ofrece volver al paso Pago; `404` muestra "No encontramos el pedido"; sin sesión lleva a iniciar sesión y vuelve a la URL; recargar mantiene la pantalla; el indicador resalta ¡Listo! con cuatro pasos.
+
+## Documentación
+
+- [x] Reemplazar Izipay por Mercado Pago en `AGENTS.md`, `README.md`, `docs/diagrama-de-arquitectura.md`, `docs/diagrama-de-despliegue.md`, `docs/diagrama-de-casos-de-uso.md`, `docs/guia-de-despliegue.md` y `specs/ht-09-entorno/`; actualizar `docs/diagrama-de-base-de-datos.md` con `orders`, `order_items` y `payments`; actualizar `docs/historias.md`, `docs/cronograma.md`, la spec de HU-18 y los README — cubre: impacto en documentación — verificación: revisión de los `.md` tocados y búsqueda de "Izipay" sin resultados fuera de la historia de cambio.
+
+## Verificación en navegador y cierre
+
+- [x] Configurar credenciales de prueba de Mercado Pago y recorrer el flujo en local con `./scripts/dev.sh`: pago desde el paso Pago hasta la página de Mercado Pago, pago aprobado con un comprador de prueba y la tarjeta con titular `APRO` — cubre: iniciar el pago y pasarela.
+- [x] Repasar los criterios de `spec.md`, correr `./mvnw test`, `./mvnw test -Dtest='*IT'`, `pnpm test --run` y `pnpm build`, y pasar la spec a **Hecha** — cubre: cierre.
+
+## Pendiente tras el despliegue
+
+Detalle de cada comprobación en la sección "Pendiente de verificar tras el despliegue" de `spec.md`.
+
+- [ ] Configurar `.env` del VPS (`MP_ACCESS_TOKEN`, `MP_WEBHOOK_SECRET`, `APP_PUBLIC_API_URL`) y el webhook del panel; verificar que `V10` se aplica — cubre: configuración.
+- [ ] Pago aprobado de punta a punta: webhook `200`, pedido `PAGADO`, resultado con los dos códigos y carrito vacío — cubre: iniciar el pago, resultado y códigos.
+- [ ] Vuelta automática (`auto_return`), pago rechazado, cancelar y volver sin pagar, vencimiento del pedido — cubre: resultado y casos borde.
+- [ ] Firma inválida (`401`), aviso repetido sin duplicar, importe distinto para revisión, pago tardío — cubre: webhook.
+- [ ] Casos borde con el servicio publicado: pedido pendiente anterior, último plato desde dos cuentas, resultado de otro cliente, Recojo en tienda — cubre: casos borde.
+- [ ] Revisar con teclado y lector de pantalla el botón "Pagar", los estados del resultado y la lectura de los códigos — cubre: accesibilidad.
+- [ ] Regenerar las imágenes de `docs/images/` que nombren la pasarela o el modelo de datos — cubre: impacto en documentación.
+- [ ] Cambiar a credenciales de producción y hacer un pago real de monto mínimo — cubre: cuenta real.
