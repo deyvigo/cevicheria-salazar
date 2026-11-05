@@ -57,4 +57,18 @@ describe('checkout store', () => {
 
     expect(localStorage.length).toBe(0);
   });
+
+  it('el método de pago empieza vacío, se guarda y se limpia con reset o al cambiar el tipo de entrega', () => {
+    expect(useCheckoutStore.getState().paymentMethod).toBeNull();
+
+    useCheckoutStore.getState().setPaymentMethod('online');
+    expect(useCheckoutStore.getState().paymentMethod).toBe('online');
+
+    useCheckoutStore.getState().setDeliveryType('pickup');
+    expect(useCheckoutStore.getState().paymentMethod).toBeNull();
+
+    useCheckoutStore.getState().setPaymentMethod('cash_on_delivery');
+    useCheckoutStore.getState().reset();
+    expect(useCheckoutStore.getState().paymentMethod).toBeNull();
+  });
 });

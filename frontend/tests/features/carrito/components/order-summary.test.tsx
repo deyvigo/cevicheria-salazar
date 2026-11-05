@@ -37,7 +37,7 @@ describe('OrderSummary', () => {
       .getAllByRole('definition')
       .map((el) => el.textContent);
 
-    expect(terms).toEqual(['Subtotal', 'Descuento', 'Delivery', 'Total']);
+    expect(terms).toEqual(['Subtotal', 'Descuento', 'Entrega', 'Total']);
     expect(values).toEqual(['S/ 82.50', 'S/ 0.00', 'S/ 8.50', 'S/ 91.00']);
   });
 
@@ -46,7 +46,7 @@ describe('OrderSummary', () => {
 
     const region = screen.getByRole('region', { name: 'Resumen del pedido' });
     expect(region).toHaveAttribute('aria-busy', 'true');
-    expect(within(region).queryByText('Delivery')).not.toBeInTheDocument();
+    expect(within(region).queryByText('Entrega')).not.toBeInTheDocument();
     expect(within(region).queryByText('Total')).not.toBeInTheDocument();
   });
 

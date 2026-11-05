@@ -32,7 +32,7 @@ Dos opciones excluyentes: **Entrega** y **Recojo en tienda**.
 ### Costo de delivery
 
 - Al seleccionar una dirección, el frontend pide al backend el costo de delivery para esa dirección. El cálculo lo hace el backend con las coordenadas guardadas de la dirección y las zonas **activas** (HU-37); el cliente no envía ni conoce las tarifas.
-- Si la dirección cae dentro de una zona, se muestra "Delivery" con la tarifa de la zona (`S/ 8.00`) y el total se recalcula.
+- Si la dirección cae dentro de una zona, se muestra "Entrega" con la tarifa de la zona (`S/ 8.00`) y el total se recalcula.
 - Si no cae en ninguna zona, se informa que la dirección **no está en cobertura**, el delivery se muestra como `S/ 0.00` y no se puede continuar con esa dirección: el cliente debe elegir otra o cambiar a Recojo en tienda.
 - Con Recojo en tienda el delivery es `S/ 0.00` y no hay mensaje de cobertura.
 
@@ -73,7 +73,7 @@ Dos opciones excluyentes: **Entrega** y **Recojo en tienda**.
 
 ### Continuar
 
-- **Dado** cualquier selección, **cuando** miro "Continuar", **entonces** está deshabilitado: el paso de pago (HU-18) aún no existe y esta historia no navega hacia él.
+- **Dado** Recojo en tienda, o una dirección con cobertura y costo ya calculado, **cuando** miro "Continuar", **entonces** está habilitado y lleva a `/checkout/pago` (HU-18); en cualquier otro caso está deshabilitado.
 - **Dado** que quiero volver, **cuando** elijo "Volver al carrito", **entonces** regreso a `/cart` sin perder el carrito.
 
 ## Casos borde
