@@ -169,7 +169,7 @@ Ruta `/checkout/resultado?pedido={id}`, a la que Mercado Pago devuelve al client
 
 La historia se cerró con las pruebas automáticas en verde y el pago probado en local hasta Mercado Pago. Faltan estas comprobaciones, que requieren el backend publicado (Mercado Pago no alcanza `localhost`) y que se hacen con credenciales de prueba y luego con la cuenta real:
 
-- **Configuración**: `MP_ACCESS_TOKEN`, `MP_WEBHOOK_SECRET` y `APP_PUBLIC_API_URL` (`https://api.deyvigo.online`) en el `.env` del VPS; webhook del panel con la URL `https://api.deyvigo.online/api/pagos/mercadopago/webhook`, evento "Pagos" (`payment`) y la clave secreta igual a `MP_WEBHOOK_SECRET`; migración `V10` aplicada al arrancar.
+- **Configuración**: `MP_ACCESS_TOKEN`, `MP_WEBHOOK_SECRET` y `APP_PUBLIC_API_URL` (`https://api.cevicheria-salazar.site`) en el `.env` del VPS; webhook del panel con la URL `https://api.cevicheria-salazar.site/api/pagos/mercadopago/webhook`, evento "Pagos" (`payment`) y la clave secreta igual a `MP_WEBHOOK_SECRET`; migración `V10` aplicada al arrancar.
 - **Pago aprobado de punta a punta**: pagar con un comprador de prueba y la tarjeta con titular `APRO`; el webhook responde `200` (visible en "Notificaciones enviadas" del panel), el pedido pasa a `PAGADO` y la pantalla de resultado muestra "Recibimos tu pago" con el código de pedido y el de entrega, y el carrito se vacía.
 - **Vuelta automática**: con la URL `https` el botón de Mercado Pago devuelve solo al cliente a `/checkout/resultado` (`auto_return`).
 - **Pago rechazado** (titular `OTHE`): el pedido sigue pendiente, el cliente puede reintentar con otro medio, y la pantalla de resultado no dice que pagó.
