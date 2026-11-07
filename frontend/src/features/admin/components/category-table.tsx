@@ -1,5 +1,5 @@
 import { useId } from 'react';
-import { Button } from '@/components/button';
+import { IconButton } from '@/components/icon-button';
 import { PencilIcon } from '@/components/icons/pencil-icon';
 import { TrashIcon } from '@/components/icons/trash-icon';
 import type { AdminCategory } from '@/features/admin/admin-category-api';
@@ -17,16 +17,14 @@ function DeleteAction({ category, onDelete }: { category: AdminCategory; onDelet
   const reasonId = useId();
   const inUse = category.productCount > 0;
   const button = (
-    <Button
-      variant="outline"
+    <IconButton
       onClick={onDelete}
       disabled={inUse}
       aria-describedby={inUse ? reasonId : undefined}
       aria-label={`Eliminar ${category.name}`}
-      className="w-10 flex-none px-0!"
     >
       <TrashIcon />
-    </Button>
+    </IconButton>
   );
   if (!inUse) return button;
 
@@ -76,14 +74,12 @@ export function CategoryTable({ categories, onEdit, onDelete }: CategoryTablePro
               <td className={CELL}>{category.productCount}</td>
               <td className={CELL}>
                 <div className="flex justify-center gap-3">
-                  <Button
-                    variant="outline"
+                  <IconButton
                     onClick={() => onEdit(category)}
                     aria-label={`Editar ${category.name}`}
-                    className="w-10 flex-none px-0!"
                   >
                     <PencilIcon />
-                  </Button>
+                  </IconButton>
                   <DeleteAction category={category} onDelete={() => onDelete(category)} />
                 </div>
               </td>
