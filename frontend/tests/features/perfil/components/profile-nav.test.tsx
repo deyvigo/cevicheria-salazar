@@ -26,11 +26,19 @@ describe('ProfileNav', () => {
     renderNav('/perfil/mis-direcciones');
 
     const links = within(screen.getByRole('navigation', { name: 'Perfil' })).getAllByRole('link');
-    expect(links.map((link) => link.textContent)).toEqual(['Mi información', 'Mis direcciones']);
+    expect(links.map((link) => link.textContent)).toEqual(['Mi información', 'Mis direcciones', 'Mis pedidos']);
     const link = screen.getByRole('link', { name: 'Mis direcciones' });
     expect(link).toHaveAttribute('href', '/perfil/mis-direcciones');
     expect(link).toHaveAttribute('aria-current', 'page');
     expect(screen.getByRole('link', { name: 'Mi información' })).not.toHaveAttribute('aria-current');
+  });
+
+  it('muestra "Mis pedidos" al final y la marca como actual', () => {
+    renderNav('/perfil/mis-pedidos');
+
+    const link = screen.getByRole('link', { name: 'Mis pedidos' });
+    expect(link).toHaveAttribute('href', '/perfil/mis-pedidos');
+    expect(link).toHaveAttribute('aria-current', 'page');
   });
 
   it('no marca la sección en otra ruta', () => {
