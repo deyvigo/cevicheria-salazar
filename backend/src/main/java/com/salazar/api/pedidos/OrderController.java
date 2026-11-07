@@ -1,8 +1,10 @@
 package com.salazar.api.pedidos;
 
+import com.salazar.api.catalogo.dto.PageResponse;
 import com.salazar.api.pedidos.dto.CreateOrderRequest;
 import com.salazar.api.pedidos.dto.CreateOrderResponse;
 import com.salazar.api.pedidos.dto.OrderResponse;
+import com.salazar.api.pedidos.dto.OrderSummaryResponse;
 import com.salazar.api.perfil.AuthenticatedUser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,6 +29,12 @@ public class OrderController {
     @ResponseStatus(HttpStatus.CREATED)
     public CreateOrderResponse create(Authentication authentication, @Valid @RequestBody CreateOrderRequest request) {
         return orderService.create(AuthenticatedUser.id(authentication), request);
+    }
+
+    @GetMapping
+    public PageResponse<OrderSummaryResponse> list(
+            Authentication authentication, @RequestParam(defaultValue = "1") int page) {
+        return orderService.listPurchased(AuthenticatedUser.id(authentication), page);
     }
 
     @GetMapping("/{id}")

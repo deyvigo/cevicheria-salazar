@@ -44,6 +44,10 @@ public class Order {
     private OrderStatus status;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "delivery_status", nullable = false, length = 20)
+    private DeliveryStatus deliveryStatus = DeliveryStatus.EN_PREPARACION;
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "payment_method", nullable = false, updatable = false, length = 20)
     private PaymentMethod paymentMethod;
 
