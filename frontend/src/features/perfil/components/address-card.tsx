@@ -1,4 +1,4 @@
-import { Button } from '@/components/button';
+import { IconButton } from '@/components/icon-button';
 import { Card } from '@/components/card';
 import { PencilIcon } from '@/components/icons/pencil-icon';
 import { TrashIcon } from '@/components/icons/trash-icon';
@@ -22,22 +22,18 @@ export function AddressCard({ address, onEdit, onDelete, leaving = false }: Addr
         {address.reference ? <p className="text-base text-ink-muted break-words">{address.reference}</p> : null}
       </div>
       <div className="flex gap-3">
-        <Button
-          variant="outline"
+        <IconButton
           onClick={onEdit}
           aria-label={`Editar ${address.label}`}
-          className="w-12 flex-none px-0!"
         >
           <PencilIcon />
-        </Button>
-        <Button
-          variant="outline"
+        </IconButton>
+        <IconButton
           onClick={onDelete}
           aria-label={`Eliminar ${address.label}`}
-          className="w-12 flex-none px-0!"
         >
           <TrashIcon />
-        </Button>
+        </IconButton>
       </div>
     </Card>
   );

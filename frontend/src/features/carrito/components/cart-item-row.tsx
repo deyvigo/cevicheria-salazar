@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useViewTransitionState } from 'react-router-dom';
-import { Button } from '@/components/button';
+import { IconButton } from '@/components/icon-button';
 import { QuantityStepper } from '@/features/carrito/components/quantity-stepper';
 import { quantityCap, useCartStore } from '@/features/carrito/cart-store';
 import { DishImage } from '@/features/catalogo/components/dish-image';
@@ -105,15 +105,14 @@ export function CartItemRow({
           style={sharedName('stepper', transitioning)}
           onChange={change}
         />
-        <Button
+        <IconButton
           type="button"
           variant="secondary"
           aria-label={`Eliminar ${product.name} del carrito`}
           onClick={() => change(0)}
-          className="w-10 flex-none px-0!"
         >
           <TrashIcon />
-        </Button>
+        </IconButton>
       </div>
     </li>
   );

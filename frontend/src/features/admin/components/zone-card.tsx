@@ -1,4 +1,4 @@
-import { Button } from '@/components/button';
+import { IconButton } from '@/components/icon-button';
 import { Card } from '@/components/card';
 import { PencilIcon } from '@/components/icons/pencil-icon';
 import { TrashIcon } from '@/components/icons/trash-icon';
@@ -49,12 +49,12 @@ export function ZoneCard({ zone, hovered, selected, onHover, onSelect, onEdit, o
           {zone.active ? null : <span className="text-sm font-bold text-ink-subtle">Inactiva</span>}
         </span>
       </button>
-      <Button variant="outline" className="h-10 w-10 flex-none px-0!" aria-label={`Editar ${zone.name}`} onClick={() => onEdit(zone)}>
+      <IconButton aria-label={`Editar ${zone.name}`} onClick={() => onEdit(zone)}>
         <PencilIcon />
-      </Button>
-      <Button variant="outline" className="h-10 w-10 flex-none px-0!" aria-label={`Eliminar ${zone.name}`} onClick={() => onDelete(zone)}>
+      </IconButton>
+      <IconButton aria-label={`Eliminar ${zone.name}`} onClick={() => onDelete(zone)}>
         <TrashIcon />
-      </Button>
+      </IconButton>
     </Card>
   );
 }
