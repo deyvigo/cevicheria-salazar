@@ -17,9 +17,9 @@ export function AddressCard({ address, onEdit, onDelete, leaving = false }: Addr
       className={`flex flex-wrap items-start justify-between gap-4 transition-opacity duration-250 ease-out ${leaving ? 'pointer-events-none opacity-0' : 'opacity-100'}`}
     >
       <div className="min-w-0">
-        <h2 className="font-display text-ink text-[22px] leading-7 font-semibold break-words">{address.label}</h2>
-        <p className="text-base text-ink break-words">{address.address}</p>
-        {address.reference ? <p className="text-base text-ink-muted break-words">{address.reference}</p> : null}
+        <h2 className="font-display text-ink text-lg leading-6 font-semibold break-words">{address.label}</h2>
+        <p className="text-sm text-ink break-words">{address.address}</p>
+        {address.reference ? <p className="text-sm text-ink-muted break-words">{address.reference}</p> : null}
       </div>
       <div className="flex gap-3">
         <IconButton
