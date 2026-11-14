@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Notification } from '@/components/notification';
 import { ADMIN_ACCOUNT_SECTION, ADMIN_SECTIONS } from '@/features/admin/admin-sections';
+import { useNewOrders } from '@/features/admin/admin-orders-live';
 import { useAdminSession } from '@/features/admin/admin-session';
 import { PERSON_ICON_PATHS } from '@/features/perfil/components/person-icon';
 
@@ -54,8 +55,20 @@ const SECTION_ICONS: Record<(typeof ADMIN_SECTIONS)[number]['path'] | typeof ADM
   'mi-informacion': PERSON_ICON_PATHS,
 };
 
+function CountBadge({ count }: { count: number }) {
+  return (
+    <span
+      aria-hidden="true"
+      className="absolute -top-2 -right-2.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-aji-800 px-1 text-xs leading-none font-bold text-surface"
+    >
+      {count > 9 ? '9+' : count}
+    </span>
+  );
+}
+
 export function AdminNav() {
   const { signOut } = useAdminSession();
+  const { newOrderIds } = useNewOrders();
   const [collapsed, setCollapsed] = useState(false);
   const [signOutError, setSignOutError] = useState(false);
 
@@ -107,8 +120,16 @@ export function AdminNav() {
                     `${ITEM_CLASSES} ${itemLayout} ${isActive ? 'bg-action-secondary font-bold text-ink' : 'text-ink hover:bg-surface-celeste'}`
                   }
                 >
-                  <Icon>{SECTION_ICONS[section.path]}</Icon>
+                  <span className="relative flex flex-none">
+                    <Icon>{SECTION_ICONS[section.path]}</Icon>
+                    {section.path === 'pedidos' && newOrderIds.size > 0 ? <CountBadge count={newOrderIds.size} /> : null}
+                  </span>
                   <span className={labelClasses}>{section.label}</span>
+                  {section.path === 'pedidos' && newOrderIds.size > 0 ? (
+                    <span className="sr-only">
+                      {newOrderIds.size === 1 ? ', 1 pedido nuevo sin revisar' : `, ${newOrderIds.size} pedidos nuevos sin revisar`}
+                    </span>
+                  ) : null}
                 </NavLink>
               </li>
             ))}

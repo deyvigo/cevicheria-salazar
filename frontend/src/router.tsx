@@ -2,6 +2,7 @@ import { Navigate, createBrowserRouter } from 'react-router-dom';
 import { Layout } from '@/components/layout';
 import { AdminCategoriesPage } from '@/features/admin/admin-categories-page';
 import { AdminDeliveryZonesPage } from '@/features/admin/admin-delivery-zones-page';
+import { AdminOrdersPage } from '@/features/admin/admin-orders-page';
 import { AdminProductsPage } from '@/features/admin/admin-products-page';
 import { AdminGuard } from '@/features/admin/admin-guard';
 import { AdminLayout } from '@/features/admin/admin-layout';
@@ -22,6 +23,7 @@ import { CatalogPage } from '@/features/catalogo/catalog-page';
 import { ProductDetailPage } from '@/features/catalogo/product-detail-page';
 import { HomePage } from '@/features/home/home-page';
 import { MyAddressesPage } from '@/features/perfil/my-addresses-page';
+import { MyOrdersPage } from '@/features/perfil/my-orders-page';
 import { MyInformationPage } from '@/features/perfil/my-information-page';
 import { PROFILE_SECTIONS } from '@/features/perfil/profile-sections';
 import { ProfileGuard } from '@/features/perfil/profile-guard';
@@ -71,6 +73,7 @@ export const router = createBrowserRouter([
               { index: true, element: <Navigate to={`/perfil/${PROFILE_SECTIONS[0].path}`} replace /> },
               { path: 'mi-informacion', element: <MyInformationPage /> },
               { path: 'mis-direcciones', element: <MyAddressesPage /> },
+              { path: 'mis-pedidos', element: <MyOrdersPage /> },
               { path: '*', element: <ProfileNotFound /> },
             ],
           },
@@ -89,7 +92,8 @@ export const router = createBrowserRouter([
           { path: 'platos', element: <AdminProductsPage /> },
           { path: 'categorias', element: <AdminCategoriesPage /> },
           { path: 'zonas-delivery', element: <AdminDeliveryZonesPage /> },
-          ...ADMIN_SECTIONS.filter((section) => !['categorias', 'platos', 'zonas-delivery'].includes(section.path)).map((section) => ({
+          { path: 'pedidos', element: <AdminOrdersPage /> },
+          ...ADMIN_SECTIONS.filter((section) => !['categorias', 'platos', 'zonas-delivery', 'pedidos'].includes(section.path)).map((section) => ({
             path: section.path,
             element: <AdminSectionPage title={section.label} />,
           })),

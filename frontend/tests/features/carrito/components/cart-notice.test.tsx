@@ -7,7 +7,7 @@ import { useCartStore } from '@/features/carrito/cart-store';
 
 beforeEach(() => {
   localStorage.clear();
-  useCartStore.setState({ items: [], lastAdded: null, lastRemoved: null });
+  useCartStore.setState({ items: [], lastAdded: null, lastRemoved: null, lastCleared: null });
 });
 
 afterEach(() => {
@@ -80,5 +80,26 @@ describe('CartNotice', () => {
 
     expect(screen.getByText('Quitamos Ceviche de tu carrito')).toBeInTheDocument();
     expect(screen.queryByText('Agregamos Ceviche a tu carrito')).not.toBeInTheDocument();
+  });
+
+  it('avisa al vaciar el carrito, sin acción, y no al usar clear', () => {
+    renderNotice();
+    act(() => useCartStore.getState().add({ id: 1, name: 'Ceviche clásico', available: true, stock: 5 }));
+
+    act(() => useCartStore.getState().emptyCart());
+
+    expect(screen.getByText('Vaciamos tu carrito')).toBeInTheDocument();
+    expect(screen.queryByText(/Agregamos/)).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Ver carrito' })).not.toBeInTheDocument();
+  });
+
+  it('clear no muestra aviso', () => {
+    renderNotice();
+    act(() => useCartStore.getState().add({ id: 1, name: 'Ceviche clásico', available: true, stock: 5 }));
+    act(() => useCartStore.getState().remove(1, 'Ceviche clásico'));
+    act(() => useCartStore.getState().clear());
+
+    expect(screen.getByText('Quitamos Ceviche clásico de tu carrito')).toBeInTheDocument();
+    expect(screen.queryByText('Vaciamos tu carrito')).not.toBeInTheDocument();
   });
 });

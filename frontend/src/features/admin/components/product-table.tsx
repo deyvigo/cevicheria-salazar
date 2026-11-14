@@ -1,4 +1,4 @@
-import { Button } from '@/components/button';
+import { IconButton } from '@/components/icon-button';
 import { PencilIcon } from '@/components/icons/pencil-icon';
 import { TrashIcon } from '@/components/icons/trash-icon';
 import { Switch } from '@/components/switch';
@@ -125,22 +125,18 @@ export function ProductTable({
               </td>
               <td className={CELL}>
                 <div className="flex justify-center gap-3">
-                  <Button
-                    variant="outline"
+                  <IconButton
                     onClick={() => onEdit(product)}
                     aria-label={`Editar ${product.name}`}
-                    className="w-10 flex-none px-0!"
                   >
                     <PencilIcon />
-                  </Button>
-                  <Button
-                    variant="outline"
+                  </IconButton>
+                  <IconButton
                     onClick={() => onDelete(product)}
                     aria-label={`Eliminar ${product.name}`}
-                    className="w-10 flex-none px-0!"
                   >
                     <TrashIcon />
-                  </Button>
+                  </IconButton>
                 </div>
               </td>
             </tr>

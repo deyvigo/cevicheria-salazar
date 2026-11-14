@@ -1,4 +1,4 @@
-import { Button } from '@/components/button';
+import { IconButton } from '@/components/icon-button';
 import { Card } from '@/components/card';
 import { PencilIcon } from '@/components/icons/pencil-icon';
 import { TrashIcon } from '@/components/icons/trash-icon';
@@ -17,27 +17,23 @@ export function AddressCard({ address, onEdit, onDelete, leaving = false }: Addr
       className={`flex flex-wrap items-start justify-between gap-4 transition-opacity duration-250 ease-out ${leaving ? 'pointer-events-none opacity-0' : 'opacity-100'}`}
     >
       <div className="min-w-0">
-        <h2 className="font-display text-ink text-[22px] leading-7 font-semibold break-words">{address.label}</h2>
-        <p className="text-base text-ink break-words">{address.address}</p>
-        {address.reference ? <p className="text-base text-ink-muted break-words">{address.reference}</p> : null}
+        <h2 className="font-display text-ink text-lg leading-6 font-semibold break-words">{address.label}</h2>
+        <p className="text-sm text-ink break-words">{address.address}</p>
+        {address.reference ? <p className="text-sm text-ink-muted break-words">{address.reference}</p> : null}
       </div>
       <div className="flex gap-3">
-        <Button
-          variant="outline"
+        <IconButton
           onClick={onEdit}
           aria-label={`Editar ${address.label}`}
-          className="w-12 flex-none px-0!"
         >
           <PencilIcon />
-        </Button>
-        <Button
-          variant="outline"
+        </IconButton>
+        <IconButton
           onClick={onDelete}
           aria-label={`Eliminar ${address.label}`}
-          className="w-12 flex-none px-0!"
         >
           <TrashIcon />
-        </Button>
+        </IconButton>
       </div>
     </Card>
   );

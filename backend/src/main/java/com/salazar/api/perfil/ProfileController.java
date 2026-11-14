@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/perfil")
+@RequestMapping("/api/profile")
 @RequiredArgsConstructor
 public class ProfileController {
     private final ProfileService profileService;
@@ -25,7 +25,7 @@ public class ProfileController {
         return profileService.updateProfile(AuthenticatedUser.id(authentication), request);
     }
 
-    @PutMapping("/contrasena")
+    @PutMapping("/password")
     public ResponseEntity<Void> changePassword(
             Authentication authentication,
             @Valid @RequestBody ChangePasswordRequest request,

@@ -10,13 +10,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/pedidos/costo-delivery")
+@RequestMapping("/api/orders/delivery-cost")
 @RequiredArgsConstructor
 public class DeliveryCostController {
     private final DeliveryCostService deliveryCostService;
 
     @GetMapping
-    public DeliveryCostResponse get(Authentication authentication, @RequestParam Long direccionId) {
-        return deliveryCostService.calculate(AuthenticatedUser.id(authentication), direccionId);
+    public DeliveryCostResponse get(Authentication authentication, @RequestParam Long addressId) {
+        return deliveryCostService.calculate(AuthenticatedUser.id(authentication), addressId);
     }
 }

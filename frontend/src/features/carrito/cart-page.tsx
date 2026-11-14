@@ -7,9 +7,8 @@ import { CartItemRow } from '@/features/carrito/components/cart-item-row';
 import { OrderSummary } from '@/features/carrito/components/order-summary';
 import { ShareButton } from '@/features/carrito/components/share-button';
 import { useCartStore } from '@/features/carrito/cart-store';
-import { computeOrderSummary } from '@/features/carrito/order-summary';
 import { decodeCart } from '@/features/carrito/share-code';
-import { useCartProducts } from '@/features/carrito/use-cart-products';
+import { useCartDetails } from '@/features/carrito/use-cart-details';
 import { takeScroll } from '@/features/catalogo/scroll-memory';
 import { useCheckoutStore } from '@/features/checkout/checkout-store';
 import { CheckoutStepper } from '@/features/checkout/components/checkout-stepper';
@@ -24,7 +23,6 @@ export function CartPage() {
   const resetCheckout = useCheckoutStore((state) => state.reset);
   const items = useCartStore((state) => state.items);
   const importItems = useCartStore((state) => state.importItems);
-  const reconcile = useCartStore((state) => state.reconcile);
   const code = searchParams.get('c');
   // Read once on arrival: the code is removed from the URL right after, so it can't be re-derived from it
   const [sharedNotice, setSharedNotice] = useState<SharedNotice>(() =>
@@ -55,14 +53,7 @@ export function CartPage() {
     navigate('/checkout/direcciones');
   }
 
-  const ids = items.map((item) => item.productId).sort((a, b) => a - b);
-  const idsKey = ids.join(',');
-  const query = useCartProducts(ids);
-
-  useEffect(() => {
-    if (!query.isSuccess || query.isFetching || query.isPlaceholderData) return;
-    reconcile(idsKey.split(',').map(Number), query.data);
-  }, [idsKey, query.data, query.isSuccess, query.isFetching, query.isPlaceholderData, reconcile]);
+  const { query, productsById, summary } = useCartDetails();
 
   // Coming back from a dish: put the list where it was once the rows exist, before paint
   const location = useLocation();
@@ -80,9 +71,6 @@ export function CartPage() {
 
   // The removed row takes the focus with it, so park it on the title
   const titleRef = useRef<HTMLHeadingElement>(null);
-
-  const productsById = new Map((query.data ?? []).map((product) => [product.id, product]));
-  const summary = computeOrderSummary(items, productsById);
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-8">

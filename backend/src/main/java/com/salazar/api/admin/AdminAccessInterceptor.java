@@ -3,6 +3,7 @@ package com.salazar.api.admin;
 import com.salazar.api.auth.User;
 import com.salazar.api.auth.UserRepository;
 import com.salazar.api.auth.UserRole;
+import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,10 @@ public class AdminAccessInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        // The check already passed when the request started; async completion (SSE) has no fresh authentication
+        if (request.getDispatcherType() == DispatcherType.ASYNC) {
+            return true;
+        }
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !(authentication.getPrincipal() instanceof Long userId)) {
             throw new InsufficientAuthenticationException("No hay sesión.");

@@ -98,7 +98,11 @@ public class ApiExceptionHandler {
                 .body(ApiError.of(HttpStatus.NOT_FOUND.value(), "No encontrado", ex.getMessage()));
     }
 
-    @ExceptionHandler({ProductUnavailableException.class, InsufficientStockException.class})
+    @ExceptionHandler({
+        ProductUnavailableException.class,
+        InsufficientStockException.class,
+        OrderDeliveryConflictException.class
+    })
     public ResponseEntity<ApiError> handleOrderConflict(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ApiError.of(HttpStatus.CONFLICT.value(), "Conflicto", ex.getMessage()));

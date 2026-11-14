@@ -1,0 +1,23 @@
+# Tareas: HU-25 — Ver el historial de mis pedidos
+
+Requiere `plan.md`. Cada tarea indica qué criterio(s) de `spec.md` cubre y cómo se verifica.
+
+## Backend
+
+- [x] Migración `V12__order_delivery_status.sql`, enum `DeliveryStatus` y campo `deliveryStatus` en `Order` — cubre: estado de entrega, "En preparación" al comprar — verificación: el backend arranca con Hibernate en `validate`; los pedidos existentes y los nuevos quedan en `EN_PREPARACION` (`OrderControllerIT`/`OrderServiceTest` existentes siguen en verde).
+- [x] `OrderSummaryResponse`, consultas de `OrderRepository` (página de comprados y platos por `order.id in :ids`) y `OrderService.listPurchased` — cubre: ver la lista, orden, paginación, qué pedidos aparecen, fecha de compra — verificación: `OrderServiceTest` — filtra `PAGADO` y `PENDIENTE_COBRO` y excluye `PENDIENTE_PAGO` y `CANCELADO`; fecha = `paid_at` o `created_at` en contraentrega; orden descendente con desempate por `id`; página 10 por página con `totalPages` correcto; página fuera de rango devuelve la última; sin pedidos devuelve página vacía.
+- [x] `OrderController` `GET /api/pedidos?page=` — cubre: todos los criterios de API y seguridad — verificación: ampliar `OrderControllerIT` (Postgres y Redis reales) — sin sesión `401`; administrador `403`; solo devuelve pedidos propios aunque existan de otro cliente; no expone `deliveryCode`; `page` menor que 1 (`0`, `-1`) devuelve la página 1; un valor no numérico lo sanea el frontend (`pageFrom`); más de 10 pedidos se reparten en dos páginas sin repetir ni omitir; un pedido pendiente de pago aparece solo después de aprobarse; `deliveryStatus` es `EN_PREPARACION`.
+
+## Frontend
+
+- [x] `order-api.ts`, `use-my-orders.ts` y tipos — cubre: ver la lista y paginar — verificación: `tests/features/perfil/use-my-orders.test.tsx` — pide `GET /api/pedidos` con la página; cambia de consulta al cambiar la página.
+- [x] `profile-sections.ts` con "Mis pedidos", `orders-icon.tsx`, ícono en `profile-nav.tsx` y ruta `mis-pedidos` en `router.tsx` — cubre: navegación, URL propia, recarga conserva la pestaña, sin sesión va al login y vuelve — verificación: ampliar `tests/features/perfil/profile-layout.test.tsx` y `tests/features/perfil/components/profile-nav.test.tsx` — la navegación muestra las tres pestañas en orden; `/perfil/mis-pedidos` marca la activa con `aria-current="page"`; sin sesión redirige al login conservando `from`.
+- [x] `components/delivery-progress.tsx` — cubre: estado de entrega con 3 puntos y texto accesible — verificación: `tests/features/perfil/components/delivery-progress.test.tsx` — "En preparación" marca 1 punto, "En camino" 2 y "Entregado" 3; el texto del estado está presente y se anuncia el paso actual.
+- [x] `components/order-card.tsx` — cubre: contenido de la tarjeta (nombre, precio, fecha, estado) — verificación: `tests/features/perfil/components/order-card.test.tsx` — título con hasta dos platos y " y N más" si hay más; código visible; precio `S/ 32.00`; fecha en español y hora de Lima (un pedido a las 23:30 de Lima no cambia de día); no muestra dirección ni método de pago.
+- [x] `my-orders-page.tsx` — cubre: carga, error con reintento, vacío, lista, paginación en la URL, página inexistente — verificación: `tests/features/perfil/my-orders-page.test.tsx` — carga muestra estado de carga; fallo muestra mensaje y "Reintentar" recarga; vacío muestra "Aún no tienes pedidos" con enlace a la carta; la lista renderiza una tarjeta por pedido; con `totalPages > 1` aparece `Pagination` y al pasar de página la URL lleva `?page=2`; con una sola página no aparece; si el servidor devuelve otra página que la pedida, la URL se corrige.
+
+## Verificación cruzada
+
+- [x] Prueba en navegador (`./scripts/dev.sh`) como Cliente: "Mis pedidos" en la navegación del perfil lleva a `/perfil/mis-pedidos` y recargar conserva la pestaña; estado vacío sin pedidos; comprar un pedido contraentrega y verlo arriba como "En preparación" con el primer punto marcado; comprar uno en línea, ver que aparece solo tras aprobarse el pago; con más de 10 pedidos probar paginación y `?page=2` al recargar; cambiar `delivery_status` a mano en la base (`EN_CAMINO`, `ENTREGADO`) y verificar 2 y 3 puntos marcados; layout en celular (`--lan`); como Administrador `/perfil` muestra 404.
+- [x] Antes de commitear: `./mvnw test`, `./mvnw test -Dtest='*IT'`, `pnpm test --run` y `pnpm build`.
+- [x] Actualizar `docs/diagrama-de-base-de-datos.md` (columna `delivery_status`, y la imagen si corresponde); marcar HU-25 en `docs/cronograma.md`; recorrer cada criterio de `spec.md` contra la implementación y marcar la spec como **Hecha**.

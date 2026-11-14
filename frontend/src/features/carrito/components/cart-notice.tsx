@@ -6,15 +6,22 @@ import { useCartStore } from '@/features/carrito/cart-store';
 export function CartNotice() {
   const lastAdded = useCartStore((state) => state.lastAdded);
   const lastRemoved = useCartStore((state) => state.lastRemoved);
+  const lastCleared = useCartStore((state) => state.lastCleared);
   const [dismissedAt, setDismissedAt] = useState<number | null>(null);
-  const event = lastAdded ?? lastRemoved;
+  const event = lastAdded ?? lastRemoved ?? lastCleared;
 
   if (!event || dismissedAt === event.at) return null;
   return (
     <div className="fixed right-6 bottom-6">
       <Notification
         variant="success"
-        title={lastAdded ? `Agregamos ${event.name} a tu carrito` : `Quitamos ${event.name} de tu carrito`}
+        title={
+          lastAdded
+            ? `Agregamos ${lastAdded.name} a tu carrito`
+            : lastRemoved
+              ? `Quitamos ${lastRemoved.name} de tu carrito`
+              : 'Vaciamos tu carrito'
+        }
         onClose={() => setDismissedAt(event.at)}
         action={
           lastAdded ? (

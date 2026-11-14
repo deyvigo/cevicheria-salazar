@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useViewTransitionState } from 'react-router-dom';
-import { Button } from '@/components/button';
+import { IconButton } from '@/components/icon-button';
 import { QuantityStepper } from '@/features/carrito/components/quantity-stepper';
 import { quantityCap, useCartStore } from '@/features/carrito/cart-store';
 import { DishImage } from '@/features/catalogo/components/dish-image';
@@ -10,8 +9,7 @@ import { rememberScroll } from '@/features/catalogo/scroll-memory';
 import { sharedName } from '@/features/catalogo/transition-names';
 import type { Product } from '@/features/catalogo/catalog-api';
 import { TrashIcon } from '@/components/icons/trash-icon';
-
-const FADE_OUT_MS = 250;
+import { useFadeOut } from '@/lib/use-fade-out';
 
 export function CartItemRow({
   product,
@@ -31,24 +29,15 @@ export function CartItemRow({
     stock: product.stock,
   };
 
-  const [leaving, setLeaving] = useState(false);
-  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
-  useEffect(() => () => clearTimeout(timer.current), []);
+  const { leaving, start: fadeOut } = useFadeOut();
 
   function change(next: number) {
     if (leaving) return;
     if (next <= 0) {
-      const finish = () => {
+      fadeOut(() => {
         remove(product.id, product.name);
         onRemoved?.();
-      };
-      // Wait for the fade so the row doesn't vanish abruptly; with reduced motion there is no fade to wait for
-      if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
-        finish();
-      } else {
-        setLeaving(true);
-        timer.current = setTimeout(finish, FADE_OUT_MS);
-      }
+      });
     } else {
       setQuantity(purchasable, next);
     }
@@ -105,15 +94,14 @@ export function CartItemRow({
           style={sharedName('stepper', transitioning)}
           onChange={change}
         />
-        <Button
+        <IconButton
           type="button"
           variant="secondary"
           aria-label={`Eliminar ${product.name} del carrito`}
           onClick={() => change(0)}
-          className="w-10 flex-none px-0!"
         >
           <TrashIcon />
-        </Button>
+        </IconButton>
       </div>
     </li>
   );

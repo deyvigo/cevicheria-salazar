@@ -70,7 +70,7 @@ public class MercadoPagoGateway implements PaymentGateway {
                 .statementDescriptor("SALAZAR");
 
         if (properties.publicApiUrl() != null && !properties.publicApiUrl().isBlank()) {
-            builder.notificationUrl(properties.publicApiUrl() + "/api/pagos/mercadopago/webhook");
+            builder.notificationUrl(properties.publicApiUrl() + "/api/payments/mercadopago/webhook");
         }
         // Mercado Pago rejects auto_return when the back URL is not public HTTPS (e.g. localhost in development)
         if (returnUrl.startsWith("https://")) {

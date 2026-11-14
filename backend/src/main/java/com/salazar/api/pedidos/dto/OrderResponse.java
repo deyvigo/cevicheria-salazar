@@ -1,11 +1,13 @@
 package com.salazar.api.pedidos.dto;
 
 import com.salazar.api.pedidos.CollectionMethod;
+import com.salazar.api.pedidos.DeliveryStatus;
 import com.salazar.api.pedidos.DeliveryType;
 import com.salazar.api.pedidos.Order;
 import com.salazar.api.pedidos.OrderStatus;
 import com.salazar.api.pedidos.PaymentMethod;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 
 public record OrderResponse(
@@ -22,12 +24,24 @@ public record OrderResponse(
         String deliveryCode,
         CollectionMethod collectionMethod,
         BigDecimal cashAmount,
-        BigDecimal change) {
+        BigDecimal change,
+        String customerName,
+        DeliveryStatus deliveryStatus,
+        Address address,
+        Instant purchasedAt,
+        Instant paidAt) {
+    public record Address(String label, String text, String reference) {}
+
     public record Item(Long productId, String name, BigDecimal unitPrice, int quantity, BigDecimal lineTotal) {}
 
-    // The delivery code only leaves the server once the order is confirmed (paid or to be collected on delivery)
-    public static OrderResponse from(Order order, String paymentStatus) {
-        String deliveryCode = order.isConfirmed() ? order.getDeliveryCode() : null;
+    // The delivery code, the customer's name and the address only leave the server once the order is confirmed
+    // (paid or to be collected on delivery)
+    public static OrderResponse from(Order order, String paymentStatus, String customerName) {
+        boolean confirmed = order.isConfirmed();
+        String deliveryCode = confirmed ? order.getDeliveryCode() : null;
+        Address address = confirmed && order.getDeliveryType() == DeliveryType.ENTREGA
+                ? new Address(order.getAddressLabel(), order.getAddressText(), order.getAddressReference())
+                : null;
         return new OrderResponse(
                 order.getId(),
                 order.getCode(),
@@ -49,6 +63,11 @@ public record OrderResponse(
                 deliveryCode,
                 order.getCollectionMethod(),
                 order.getCashAmount(),
-                order.getChange());
+                order.getChange(),
+                confirmed ? customerName : null,
+                order.getDeliveryStatus(),
+                address,
+                order.getCreatedAt(),
+                order.getPaidAt());
     }
 }

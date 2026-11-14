@@ -13,10 +13,10 @@ export interface ChangePasswordPayload {
 }
 
 export async function updateProfile(payload: UpdateProfilePayload): Promise<AuthUser> {
-  const { data } = await api.put<AuthUser>('/perfil', payload);
+  const { data } = await api.put<AuthUser>('/profile', payload);
   return data;
 }
 
 export async function changePassword(payload: ChangePasswordPayload): Promise<void> {
-  await api.put('/perfil/contrasena', payload);
+  await api.put('/profile/password', payload);
 }

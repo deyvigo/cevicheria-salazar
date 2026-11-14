@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { NavLink } from 'react-router-dom';
+import { ORDERS_ICON_PATHS } from '@/features/perfil/components/orders-icon';
 import { PIN_ICON_PATHS } from '@/features/perfil/components/pin-icon';
 import { PERSON_ICON_PATHS } from '@/features/perfil/components/person-icon';
 import { PROFILE_SECTIONS } from '@/features/perfil/profile-sections';
@@ -7,6 +8,7 @@ import { PROFILE_SECTIONS } from '@/features/perfil/profile-sections';
 const SECTION_ICONS: Record<(typeof PROFILE_SECTIONS)[number]['path'], ReactNode> = {
   'mi-informacion': PERSON_ICON_PATHS,
   'mis-direcciones': PIN_ICON_PATHS,
+  'mis-pedidos': ORDERS_ICON_PATHS,
 };
 
 const ITEM_CLASSES =

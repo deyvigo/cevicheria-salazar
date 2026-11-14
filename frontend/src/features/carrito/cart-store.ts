@@ -17,12 +17,15 @@ interface CartState {
   // Transient: drive the cart notice and are never persisted; only one is set at a time
   lastAdded: { productId: number; name: string; at: number } | null;
   lastRemoved: { productId: number; name: string; at: number } | null;
+  lastCleared: { at: number } | null;
   add: (product: Purchasable, quantity?: number) => void;
   setQuantity: (product: Purchasable, quantity: number) => void;
   remove: (productId: number, name: string) => void;
   importItems: (incoming: CartItem[]) => void;
   reconcile: (requestedIds: number[], products: { id: number; stock: number }[]) => void;
+  // Silent reset (a confirmed order); emptyCart is the customer's action and raises the notice
   clear: () => void;
+  emptyCart: () => void;
 }
 
 // A dish that can't be ordered keeps its current quantity as the ceiling: it can go down or be removed, never up
@@ -79,6 +82,7 @@ export const useCartStore = create<CartState>()(
       items: [],
       lastAdded: null,
       lastRemoved: null,
+      lastCleared: null,
       add: (product, quantity = 1) =>
         set((state) => {
           if (!product.available || !Number.isFinite(quantity)) return state;
@@ -97,6 +101,7 @@ export const useCartStore = create<CartState>()(
               at: Date.now(),
             },
             lastRemoved: null,
+            lastCleared: null,
           };
         }),
       setQuantity: (product, quantity) =>
@@ -113,6 +118,7 @@ export const useCartStore = create<CartState>()(
                 name: product.name,
                 at: Date.now(),
               },
+              lastCleared: null,
             };
           }
           const next = Math.min(wanted, quantityCap(product, current.quantity));
@@ -128,6 +134,7 @@ export const useCartStore = create<CartState>()(
             items: state.items.filter((item) => item.productId !== productId),
             lastAdded: null,
             lastRemoved: { productId, name, at: Date.now() },
+            lastCleared: null,
           };
         }),
       importItems: (incoming) =>
@@ -153,6 +160,12 @@ export const useCartStore = create<CartState>()(
           return unchanged ? state : { items };
         }),
       clear: () => set({ items: [] }),
+      emptyCart: () =>
+        set((state) =>
+          state.items.length === 0
+            ? state
+            : { items: [], lastAdded: null, lastRemoved: null, lastCleared: { at: Date.now() } },
+        ),
     }),
     {
       name: CART_STORAGE_KEY,
