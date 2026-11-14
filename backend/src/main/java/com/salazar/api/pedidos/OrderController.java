@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/pedidos")
+@RequestMapping("/api/orders")
 @RequiredArgsConstructor
 public class OrderController {
     private final OrderService orderService;

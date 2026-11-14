@@ -52,6 +52,71 @@ public class MailService {
         }
     }
 
+    // Called from an already asynchronous listener, so it doesn't need @Async; failures are only logged
+    public void sendOrderConfirmationEmail(OrderConfirmationMail mail) {
+        try {
+            JavaMailSender sender = mailSender.getIfAvailable();
+            if (sender == null) {
+                throw new IllegalStateException("SMTP no configurado (SMTP_HOST vacío)");
+            }
+            MimeMessage message = sender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
+            if (!from.isBlank()) {
+                helper.setFrom(from);
+            }
+            helper.setTo(mail.to());
+            helper.setSubject("Confirmación de tu pedido " + mail.orderCode() + " - Salazar");
+            helper.setText(buildOrderConfirmationBody(mail), true);
+            sender.send(message);
+        } catch (Exception ex) {
+            log.error("No se pudo enviar el correo de confirmación del pedido {}", mail.orderCode(), ex);
+        }
+    }
+
+    String buildOrderConfirmationBody(OrderConfirmationMail mail) {
+        StringBuilder rows = new StringBuilder();
+        for (OrderConfirmationMail.Line line : mail.items()) {
+            rows.append("<tr><td>%s</td><td align=\"center\">%d</td><td align=\"right\">%s</td><td align=\"right\">%s</td></tr>\n"
+                    .formatted(escape(line.name()), line.quantity(), escape(line.unitPrice()), escape(line.lineTotal())));
+        }
+        return """
+                <p>Hola %s,</p>
+                <p>Recibimos tu pedido en Salazar. Guarda este correo como constancia de tu compra.</p>
+                <p>Código de pedido: <strong>%s</strong><br>
+                Código de entrega: <strong>%s</strong><br>
+                %s</p>
+                <p>Nombre: %s<br>
+                Estado del pago: %s<br>
+                Estado de la entrega: %s<br>
+                Cómo lo recibirás: %s<br>
+                Cómo pagas: %s</p>
+                <table cellpadding="4" cellspacing="0" border="0">
+                <tr><th align="left">Plato</th><th>Cant.</th><th align="right">Precio</th><th align="right">Subtotal</th></tr>
+                %s</table>
+                <p>Subtotal: %s<br>
+                Delivery: %s<br>
+                <strong>Total: %s</strong></p>
+                <p>Fecha de compra: %s<br>
+                Fecha de pago: %s</p>
+                """
+                .formatted(
+                        escape(mail.firstName()),
+                        escape(mail.orderCode()),
+                        escape(mail.deliveryCode()),
+                        escape(mail.deliveryCodeHint()),
+                        escape(mail.customerName()),
+                        escape(mail.paymentStatus()),
+                        escape(mail.deliveryStatus()),
+                        escape(mail.receiving()),
+                        escape(mail.paymentSummary()),
+                        rows,
+                        escape(mail.subtotal()),
+                        escape(mail.delivery()),
+                        escape(mail.total()),
+                        escape(mail.purchasedAt()),
+                        escape(mail.paidAt()));
+    }
+
     String buildPasswordResetBody(String firstName, String link) {
         String safeLink = escape(link);
         int maxRequests = resetProperties.maxRequests();

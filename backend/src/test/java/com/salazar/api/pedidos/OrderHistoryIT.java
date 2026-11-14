@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.test.web.servlet.MvcResult;
 
 class OrderHistoryIT extends OrderITSupport {
-    private static final String URL = "/api/pedidos";
+    private static final String URL = "/api/orders";
 
     private long dish(String name, int stock) {
         return product(name + " " + UUID.randomUUID(), "30.00", stock);

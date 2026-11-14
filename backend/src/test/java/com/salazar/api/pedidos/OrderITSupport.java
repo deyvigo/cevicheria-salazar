@@ -8,6 +8,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.salazar.api.TestcontainersConfiguration;
 import com.salazar.api.WithTestSecrets;
 import com.salazar.api.auth.dto.RegisterRequest;
+import com.salazar.api.common.mail.MailService;
+import com.salazar.api.common.mail.OrderConfirmationMail;
 import jakarta.servlet.http.Cookie;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -15,7 +17,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
+import org.mockito.ArgumentCaptor;
 import org.junit.jupiter.api.BeforeEach;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -26,6 +30,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -57,6 +62,10 @@ abstract class OrderITSupport {
     @Autowired
     protected FakePaymentGateway gateway;
 
+    // Confirmation emails leave through the async listener; no SMTP server in the tests
+    @MockitoBean
+    protected MailService mailService;
+
     protected final ObjectMapper objectMapper = new ObjectMapper();
     private final List<Long> createdProducts = new ArrayList<>();
 
@@ -65,6 +74,7 @@ abstract class OrderITSupport {
     @BeforeEach
     void resetGateway() {
         gateway.reset();
+        Mockito.clearInvocations(mailService);
     }
 
     @AfterEach
@@ -117,7 +127,7 @@ abstract class OrderITSupport {
         body.put("reference", "Puerta verde");
         body.put("latitude", latitude);
         body.put("longitude", longitude);
-        MvcResult result = mockMvc.perform(post("/api/perfil/direcciones")
+        MvcResult result = mockMvc.perform(post("/api/profile/addresses")
                         .cookie(customer.access())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(body)))
@@ -152,7 +162,7 @@ abstract class OrderITSupport {
     }
 
     protected MvcResult createOrder(Customer customer, String body, int expectedStatus) throws Exception {
-        return mockMvc.perform(post("/api/pedidos")
+        return mockMvc.perform(post("/api/orders")
                         .cookie(customer.access())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
@@ -172,5 +182,19 @@ abstract class OrderITSupport {
 
     protected String statusOf(long orderId) {
         return jdbcTemplate.queryForObject("SELECT status FROM orders WHERE id = ?", String.class, orderId);
+    }
+
+    protected OrderConfirmationMail confirmationEmail() {
+        ArgumentCaptor<OrderConfirmationMail> captor = ArgumentCaptor.forClass(OrderConfirmationMail.class);
+        Mockito.verify(mailService, Mockito.timeout(5000).times(1)).sendOrderConfirmationEmail(captor.capture());
+        return captor.getValue();
+    }
+
+    protected void assertNoConfirmationEmail() {
+        Mockito.verify(mailService, Mockito.after(500).never()).sendOrderConfirmationEmail(Mockito.any());
+    }
+
+    protected void assertSingleConfirmationEmail() {
+        Mockito.verify(mailService, Mockito.after(500).times(1)).sendOrderConfirmationEmail(Mockito.any());
     }
 }

@@ -33,7 +33,7 @@ import org.springframework.test.web.servlet.ResultActions;
 @Import(TestcontainersConfiguration.class)
 @WithTestSecrets
 class AddressControllerIT {
-    private static final String URL = "/api/perfil/direcciones";
+    private static final String URL = "/api/profile/addresses";
 
     @Autowired
     private MockMvc mockMvc;

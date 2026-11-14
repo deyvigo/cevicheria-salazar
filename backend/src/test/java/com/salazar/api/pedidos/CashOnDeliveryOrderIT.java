@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.salazar.api.common.mail.OrderConfirmationMail;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
@@ -165,7 +166,7 @@ class CashOnDeliveryOrderIT extends OrderITSupport {
                 owner, body("RECOJO", null, "{\"method\":\"EFECTIVO\",\"cashAmount\":100}", new long[] {dish, 2}));
         String deliveryCode = jdbcTemplate.queryForObject("SELECT delivery_code FROM orders WHERE id = ?", String.class, orderId);
 
-        mockMvc.perform(get("/api/pedidos/" + orderId).cookie(owner.access()))
+        mockMvc.perform(get("/api/orders/" + orderId).cookie(owner.access()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("PENDIENTE_COBRO"))
                 .andExpect(jsonPath("$.paymentMethod").value("CONTRAENTREGA"))
@@ -173,7 +174,7 @@ class CashOnDeliveryOrderIT extends OrderITSupport {
                 .andExpect(jsonPath("$.cashAmount").value(100.00))
                 .andExpect(jsonPath("$.change").value(40.00))
                 .andExpect(jsonPath("$.deliveryCode").value(deliveryCode));
-        mockMvc.perform(get("/api/pedidos/" + orderId).cookie(other.access())).andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/orders/" + orderId).cookie(other.access())).andExpect(status().isNotFound());
     }
 
     @Autowired
@@ -213,5 +214,123 @@ class CashOnDeliveryOrderIT extends OrderITSupport {
         org.junit.jupiter.api.Assertions.assertThrows(
                 DataIntegrityViolationException.class,
                 () -> jdbcTemplate.update("UPDATE orders SET collection_method = NULL WHERE id = ?", cod));
+    }
+
+    @Test
+    void aCashOnDeliveryOrderSendsOneConfirmationEmailToTheOwnerAndMarksItAsSent() throws Exception {
+        zone("8.50");
+        Customer customer = register();
+        long address = addressInsideZone(customer);
+        long dish = dish(5);
+        long orderId = createOnlineOrder(
+                customer,
+                body("ENTREGA", address, "{\"method\":\"EFECTIVO\",\"cashAmount\":100.00}", new long[] {dish, 2}));
+
+        OrderConfirmationMail mail = confirmationEmail();
+
+        assertThat(mail.to()).isEqualTo(customer.email());
+        assertThat(mail.firstName()).isEqualTo("María");
+        assertThat(mail.customerName()).isEqualTo("María Quispe");
+        assertThat(mail.orderCode()).matches("SAL-[0-9]{6}");
+        assertThat(mail.deliveryCode()).matches("[0-9]{4}");
+        assertThat(mail.deliveryCodeHint()).contains("repartidor");
+        assertThat(mail.paymentStatus()).isEqualTo("Pago pendiente al recibir");
+        assertThat(mail.deliveryStatus()).isEqualTo("En preparación");
+        assertThat(mail.receiving()).contains("Casa").contains("Av. Arequipa 123, Lince").contains("Puerta verde");
+        assertThat(mail.paymentSummary()).contains("S/ 100.00").contains("vuelto S/ 31.50");
+        assertThat(mail.items()).hasSize(1);
+        assertThat(mail.items().get(0).lineTotal()).isEqualTo("S/ 60.00");
+        assertThat(mail.subtotal()).isEqualTo("S/ 60.00");
+        assertThat(mail.delivery()).isEqualTo("S/ 8.50");
+        assertThat(mail.total()).isEqualTo("S/ 68.50");
+        assertThat(mail.paidAt()).isEqualTo("Pendiente, se paga al recibir");
+        assertThat(jdbcTemplate.queryForObject(
+                        "SELECT confirmation_sent_at IS NOT NULL FROM orders WHERE id = ?", Boolean.class, orderId))
+                .isTrue();
+    }
+
+    @Test
+    void aPickupOrderEmailHasNoAddressAndNoDeliveryCost() throws Exception {
+        Customer customer = register();
+        long dish = dish(5);
+        createOnlineOrder(customer, body("RECOJO", null, "{\"method\":\"YAPE\"}", new long[] {dish, 1}));
+
+        OrderConfirmationMail mail = confirmationEmail();
+
+        assertThat(mail.receiving()).isEqualTo("Recojo en tienda");
+        assertThat(mail.delivery()).isEqualTo("Recojo en tienda, sin costo");
+        assertThat(mail.deliveryCodeHint()).contains("al recoger");
+        assertThat(mail.paymentSummary()).contains("Yape");
+    }
+
+    @Test
+    void aRejectedOrderCreationSendsNoEmail() throws Exception {
+        Customer customer = register();
+        long dish = dish(1);
+
+        createOrder(customer, body("RECOJO", null, "{\"method\":\"YAPE\"}", new long[] {dish, 5}), 409);
+
+        assertNoConfirmationEmail();
+    }
+
+    @Test
+    void theOrderIsConfirmedEvenIfTheEmailFails() throws Exception {
+        Customer customer = register();
+        long dish = dish(5);
+        org.mockito.Mockito.doThrow(new RuntimeException("smtp down")).when(mailService).sendOrderConfirmationEmail(org.mockito.Mockito.any());
+
+        long orderId = createOnlineOrder(customer, body("RECOJO", null, "{\"method\":\"YAPE\"}", new long[] {dish, 1}));
+
+        assertThat(statusOf(orderId)).isEqualTo("PENDIENTE_COBRO");
+        mockMvc.perform(get("/api/orders/" + orderId).cookie(customer.access())).andExpect(status().isOk());
+        org.mockito.Mockito.doNothing().when(mailService).sendOrderConfirmationEmail(org.mockito.Mockito.any());
+    }
+
+    @Test
+    void theConfirmedOrderExposesTheCustomerNameAddressDatesAndDeliveryStatusToItsOwnerOnly() throws Exception {
+        zone("8.50");
+        Customer owner = register();
+        Customer other = register();
+        long address = addressInsideZone(owner);
+        long dish = dish(5);
+        long orderId = createOnlineOrder(
+                owner, body("ENTREGA", address, "{\"method\":\"YAPE\"}", new long[] {dish, 1}));
+
+        mockMvc.perform(get("/api/orders/" + orderId).cookie(owner.access()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.customerName").value("María Quispe"))
+                .andExpect(jsonPath("$.deliveryStatus").value("EN_PREPARACION"))
+                .andExpect(jsonPath("$.address.label").value("Casa"))
+                .andExpect(jsonPath("$.address.text").value("Av. Arequipa 123, Lince"))
+                .andExpect(jsonPath("$.address.reference").value("Puerta verde"))
+                .andExpect(jsonPath("$.purchasedAt").exists())
+                .andExpect(jsonPath("$.paidAt").doesNotExist())
+                .andExpect(jsonPath("$.email").doesNotExist())
+                .andExpect(jsonPath("$.phone").doesNotExist());
+        mockMvc.perform(get("/api/orders/" + orderId).cookie(other.access())).andExpect(status().isNotFound());
+    }
+
+    @Test
+    void theAddressSnapshotDoesNotChangeWhenTheSavedAddressIsEditedLater() throws Exception {
+        zone("8.50");
+        Customer owner = register();
+        long address = addressInsideZone(owner);
+        long dish = dish(5);
+        long orderId = createOnlineOrder(
+                owner, body("ENTREGA", address, "{\"method\":\"YAPE\"}", new long[] {dish, 1}));
+        jdbcTemplate.update("UPDATE addresses SET address = 'Otra calle 999' WHERE id = ?", address);
+
+        mockMvc.perform(get("/api/orders/" + orderId).cookie(owner.access()))
+                .andExpect(jsonPath("$.address.text").value("Av. Arequipa 123, Lince"));
+    }
+
+    @Test
+    void aPickupOrderHasNoAddressInTheResponse() throws Exception {
+        Customer owner = register();
+        long dish = dish(5);
+        long orderId = createOnlineOrder(owner, body("RECOJO", null, "{\"method\":\"YAPE\"}", new long[] {dish, 1}));
+
+        mockMvc.perform(get("/api/orders/" + orderId).cookie(owner.access()))
+                .andExpect(jsonPath("$.address").doesNotExist());
     }
 }
