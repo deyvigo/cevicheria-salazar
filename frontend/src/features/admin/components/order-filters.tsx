@@ -1,14 +1,12 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Button } from '@/components/button';
+import { ChevronDownIcon } from '@/components/icons/chevron-down-icon';
 import { SearchIcon } from '@/components/icons/search-icon';
 import { Input } from '@/components/input';
 import { RANGES, STAGES, hasActiveFilters, type OrdersView, type RangePreset } from '@/features/admin/admin-orders-view';
 import { DELIVERY_LABELS, PAYMENT_LABELS, PAYMENT_STATUS_LABELS, TYPE_LABELS } from '@/features/admin/order-labels';
 
 const SEARCH_DELAY_MS = 300;
-const SELECT =
-  'h-10 rounded-md border border-border-strong bg-surface px-3 text-base text-ink focus:border-focus-ring focus:outline-none';
-
 const STAGE_LABELS: Record<(typeof STAGES)[number], string> = {
   ACTIVE: 'Activos',
   ALL: 'Todos',
@@ -22,11 +20,31 @@ const RANGE_LABELS: Record<RangePreset, string> = {
   custom: 'Personalizado',
 };
 
-function Field({ label, children }: { label: string; children: ReactNode }) {
+// Same look as the catalog's sort select: the native arrow is hidden and the design system chevron is drawn instead
+function FilterSelect({
+  label,
+  value,
+  onChange,
+  children,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  children: ReactNode;
+}) {
   return (
-    <label className="flex flex-col gap-1 text-sm font-bold text-ink">
+    <label className="flex flex-col gap-2 text-sm font-bold text-ink">
       {label}
-      {children}
+      <div className="relative">
+        <select
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          className="h-12 appearance-none rounded-md border border-border-strong bg-surface pr-11 pl-4 text-base font-normal text-ink focus:border-focus-ring focus:outline-none"
+        >
+          {children}
+        </select>
+        <ChevronDownIcon className="pointer-events-none absolute top-1/2 right-4 h-5 w-5 -translate-y-1/2 text-ink-muted" />
+      </div>
     </label>
   );
 }
@@ -99,84 +117,60 @@ export function OrderFilters({ view, zones, onChange, onClear }: OrderFiltersPro
       </div>
 
       <div className="flex flex-wrap items-end gap-4">
-        <Field label="Estado de entrega">
-          <select
-            className={SELECT}
-            value={view.stage}
-            onChange={(event) => onChange({ stage: event.target.value as OrdersView['stage'] })}
-          >
-            {STAGES.map((stage) => (
-              <option key={stage} value={stage}>
-                {STAGE_LABELS[stage]}
-              </option>
-            ))}
-          </select>
-        </Field>
-        <Field label="Tipo">
-          <select
-            className={SELECT}
-            value={view.type}
-            onChange={(event) => onChange({ type: event.target.value as OrdersView['type'] })}
-          >
-            <option value="">Todos</option>
-            {Object.entries(TYPE_LABELS).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </Field>
-        <Field label="Pago">
-          <select
-            className={SELECT}
-            value={view.payment}
-            onChange={(event) => onChange({ payment: event.target.value as OrdersView['payment'] })}
-          >
-            <option value="">Todos</option>
-            {Object.entries(PAYMENT_LABELS).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </Field>
-        <Field label="Estado de pago">
-          <select
-            className={SELECT}
-            value={view.paymentStatus}
-            onChange={(event) => onChange({ paymentStatus: event.target.value as OrdersView['paymentStatus'] })}
-          >
-            <option value="">Todos</option>
-            {Object.entries(PAYMENT_STATUS_LABELS).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </Field>
-        <Field label="Zona">
-          <select className={SELECT} value={view.zone} onChange={(event) => onChange({ zone: event.target.value })}>
-            <option value="">Todas</option>
-            {zones.map((zone) => (
-              <option key={zone} value={zone}>
-                {zone}
-              </option>
-            ))}
-          </select>
-        </Field>
-        <Field label="Fecha">
-          <select
-            className={SELECT}
-            value={view.range}
-            onChange={(event) => onChange({ range: event.target.value as RangePreset, from: '', to: '' })}
-          >
-            {RANGES.map((range) => (
-              <option key={range} value={range}>
-                {RANGE_LABELS[range]}
-              </option>
-            ))}
-          </select>
-        </Field>
+        <FilterSelect label="Estado de entrega" value={view.stage} onChange={(value) => onChange({ stage: value as OrdersView['stage'] })}>
+          {STAGES.map((stage) => (
+            <option key={stage} value={stage}>
+              {STAGE_LABELS[stage]}
+            </option>
+          ))}
+        </FilterSelect>
+        <FilterSelect label="Tipo" value={view.type} onChange={(value) => onChange({ type: value as OrdersView['type'] })}>
+          <option value="">Todos</option>
+          {Object.entries(TYPE_LABELS).map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </FilterSelect>
+        <FilterSelect label="Pago" value={view.payment} onChange={(value) => onChange({ payment: value as OrdersView['payment'] })}>
+          <option value="">Todos</option>
+          {Object.entries(PAYMENT_LABELS).map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </FilterSelect>
+        <FilterSelect
+          label="Estado de pago"
+          value={view.paymentStatus}
+          onChange={(value) => onChange({ paymentStatus: value as OrdersView['paymentStatus'] })}
+        >
+          <option value="">Todos</option>
+          {Object.entries(PAYMENT_STATUS_LABELS).map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </FilterSelect>
+        <FilterSelect label="Zona" value={view.zone} onChange={(value) => onChange({ zone: value })}>
+          <option value="">Todas</option>
+          {zones.map((zone) => (
+            <option key={zone} value={zone}>
+              {zone}
+            </option>
+          ))}
+        </FilterSelect>
+        <FilterSelect
+          label="Fecha"
+          value={view.range}
+          onChange={(value) => onChange({ range: value as RangePreset, from: '', to: '' })}
+        >
+          {RANGES.map((range) => (
+            <option key={range} value={range}>
+              {RANGE_LABELS[range]}
+            </option>
+          ))}
+        </FilterSelect>
         {view.range === 'custom' ? (
           <>
             <Input
@@ -187,7 +181,6 @@ export function OrderFilters({ view, zones, onChange, onClear }: OrderFiltersPro
               max={draftTo || undefined}
               onChange={(event) => changeDate('from', event.target.value)}
               error={rangeError ? 'Debe ser anterior a la fecha final' : undefined}
-              className="h-10"
             />
             <Input
               label="Hasta"
@@ -196,7 +189,6 @@ export function OrderFilters({ view, zones, onChange, onClear }: OrderFiltersPro
               value={draftTo}
               min={draftFrom || undefined}
               onChange={(event) => changeDate('to', event.target.value)}
-              className="h-10"
             />
           </>
         ) : null}
