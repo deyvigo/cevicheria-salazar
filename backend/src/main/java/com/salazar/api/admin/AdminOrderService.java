@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class AdminOrderService {
-    static final int PAGE_SIZE = 20;
+    static final int PAGE_SIZE = 15;
 
     private final AdminOrderQuery query;
     private final OrderRepository orderRepository;

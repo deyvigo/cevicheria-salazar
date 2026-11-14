@@ -209,18 +209,18 @@ class AdminOrdersIT extends OrderITSupport {
     }
 
     @Test
-    void paginatesTwentyAtATimeAndFallsBackToTheLastPage() throws Exception {
-        for (int i = 0; i < 25; i++) {
+    void paginatesFifteenAtATimeAndFallsBackToTheLastPage() throws Exception {
+        for (int i = 0; i < 20; i++) {
             insert(buyerId, Seed.paid("2026-11-01T10:00:00Z"));
         }
 
         JsonNode first = list("?page=1");
         JsonNode second = list("?page=2");
 
-        assertThat(first.get("items")).hasSize(20);
+        assertThat(first.get("items")).hasSize(15);
         assertThat(second.get("items")).hasSize(5);
         assertThat(first.get("totalPages").asInt()).isEqualTo(2);
-        assertThat(first.get("items").get(19).get("id").asLong()).isGreaterThan(second.get("items").get(0).get("id").asLong());
+        assertThat(first.get("items").get(14).get("id").asLong()).isGreaterThan(second.get("items").get(0).get("id").asLong());
         assertThat(list("?page=9").get("page").asInt()).isEqualTo(2);
         assertThat(list("?page=0").get("page").asInt()).isEqualTo(1);
     }

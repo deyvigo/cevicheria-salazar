@@ -69,7 +69,7 @@ const onTheWay: orderApi.AdminOrderRow = {
 };
 
 function pageOf(items: orderApi.AdminOrderRow[], page = 1, totalPages = 1) {
-  return { items, page, pageSize: 20, totalItems: items.length, totalPages };
+  return { items, page, pageSize: 15, totalItems: items.length, totalPages };
 }
 
 function Location() {
