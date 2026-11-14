@@ -1,7 +1,7 @@
 # Spec: HU-21 — Confirmar el pedido con su número y correo de confirmación
 
 **Épica**: [E4. Checkout y pagos](../../docs/epicas.md#e4)
-**Estado**: En implementación
+**Estado**: Hecha
 
 ## Objetivo
 
