@@ -1,3 +1,4 @@
+import type { DeliveryStatus } from '@/features/perfil/order-api';
 import { api } from '@/lib/api';
 
 export interface DeliveryCost {
@@ -7,7 +8,7 @@ export interface DeliveryCost {
 }
 
 export async function getDeliveryCost(addressId: number): Promise<DeliveryCost> {
-  const { data } = await api.get<DeliveryCost>('/pedidos/costo-delivery', { params: { direccionId: addressId } });
+  const { data } = await api.get<DeliveryCost>('/orders/delivery-cost', { params: { addressId } });
   return data;
 }
 
@@ -47,14 +48,22 @@ export interface Order {
   collectionMethod: OrderCollectionMethod | null;
   cashAmount: number | null;
   change: number | null;
+  // The following only come with a confirmed order
+  customerName: string | null;
+  deliveryStatus: DeliveryStatus;
+  // Null with Recojo en tienda
+  address: { label: string; text: string; reference: string | null } | null;
+  purchasedAt: string;
+  // Null until the order is paid (cash on delivery: when it is collected)
+  paidAt: string | null;
 }
 
 export async function createOrder(payload: CreateOrderPayload): Promise<CreatedOrder> {
-  const { data } = await api.post<CreatedOrder>('/pedidos', payload);
+  const { data } = await api.post<CreatedOrder>('/orders', payload);
   return data;
 }
 
 export async function getOrder(id: number): Promise<Order> {
-  const { data } = await api.get<Order>(`/pedidos/${id}`);
+  const { data } = await api.get<Order>(`/orders/${id}`);
   return data;
 }

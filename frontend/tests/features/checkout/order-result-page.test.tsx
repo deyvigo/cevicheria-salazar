@@ -3,6 +3,8 @@ import { AxiosError, type AxiosResponse } from 'axios';
 import { RouterProvider, createMemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { QueryWrapper } from '@tests/utils/query-wrapper';
+import { AuthProvider, type AuthUser } from '@/context/auth-context';
+import * as authApi from '@/features/auth/auth-api';
 import { useCartStore } from '@/features/carrito/cart-store';
 import * as checkoutApi from '@/features/checkout/checkout-api';
 import { useCheckoutStore } from '@/features/checkout/checkout-store';
@@ -10,6 +12,17 @@ import { ORDER_WAIT_LIMIT_MS, OrderResultPage } from '@/features/checkout/order-
 import { ORDER_POLL_MS } from '@/features/checkout/use-order';
 
 vi.mock('@/features/checkout/checkout-api');
+vi.mock('@/features/auth/auth-api');
+
+const maria: AuthUser = {
+  id: 1,
+  email: 'maria@correo.com',
+  firstName: 'María',
+  lastName: 'Quispe',
+  phone: '987654321',
+  role: 'CLIENTE',
+  hasPassword: true,
+};
 
 const paid: checkoutApi.Order = {
   id: 42,
@@ -20,12 +33,17 @@ const paid: checkoutApi.Order = {
   subtotal: 60,
   deliveryPrice: 8.5,
   total: 68.5,
-  items: [],
+  items: [{ productId: 1, name: 'Ceviche clásico', unitPrice: 30, quantity: 2, lineTotal: 60 }],
   paymentStatus: 'approved',
   deliveryCode: '4827',
   collectionMethod: null,
   cashAmount: null,
   change: null,
+  customerName: 'María Quispe',
+  deliveryStatus: 'EN_PREPARACION',
+  address: { label: 'Casa', text: 'Av. Arequipa 123, Lince', reference: 'Puerta verde' },
+  purchasedAt: '2026-11-07T19:30:00Z',
+  paidAt: '2026-11-07T19:35:00Z',
 };
 const pending: checkoutApi.Order = { ...paid, status: 'PENDIENTE_PAGO', paymentStatus: null, deliveryCode: null };
 
@@ -45,12 +63,15 @@ function renderPage(url = '/checkout/resultado?pedido=42') {
       { path: '/checkout/resultado', element: <OrderResultPage /> },
       { path: '/cart', element: <p>carrito</p> },
       { path: '/menu', element: <p>carta</p> },
+      { path: '/perfil/mis-pedidos', element: <p>mis pedidos</p> },
     ],
     { initialEntries: [url] },
   );
   render(
     <QueryWrapper>
-      <RouterProvider router={router} />
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
     </QueryWrapper>,
   );
 }
@@ -61,6 +82,7 @@ function notFound() {
 
 beforeEach(() => {
   vi.resetAllMocks();
+  vi.mocked(authApi.me).mockResolvedValue(maria);
   localStorage.clear();
   useCartStore.setState({ items: [{ productId: 1, quantity: 2 }] });
   useCheckoutStore.getState().reset();
@@ -130,6 +152,78 @@ describe('OrderResultPage', () => {
     expect(within(nav).getAllByRole('listitem')).toHaveLength(4);
     expect(within(nav).getAllByRole('listitem')[3]).toHaveAttribute('aria-current', 'step');
     await waitFor(() => expect(useCartStore.getState().items).toEqual([]));
+  });
+
+  describe('confirmación completa', () => {
+    it('muestra nombre, estados, dirección, pago, detalle de platos, importes y ambas fechas', async () => {
+      vi.mocked(checkoutApi.getOrder).mockResolvedValue(paid);
+      renderPage();
+
+      expect(await screen.findByText('Recibimos tu pago')).toBeInTheDocument();
+      expect(screen.getByText('María Quispe')).toBeInTheDocument();
+      expect(screen.getByText('Pagado')).toBeInTheDocument();
+      expect(screen.getByText('En preparación')).toBeInTheDocument();
+      expect(screen.getByText('Entrega a domicilio')).toBeInTheDocument();
+      expect(screen.getByText('Casa: Av. Arequipa 123, Lince')).toBeInTheDocument();
+      expect(screen.getByText('Referencia: Puerta verde')).toBeInTheDocument();
+      expect(screen.getByText('Pago en línea')).toBeInTheDocument();
+      expect(screen.getByText('Ceviche clásico')).toBeInTheDocument();
+      expect(screen.getAllByText('S/ 60.00').length).toBeGreaterThan(0);
+      expect(screen.getByText('S/ 8.50')).toBeInTheDocument();
+      expect(screen.getByText('S/ 68.50')).toBeInTheDocument();
+      // 19:30 UTC is 14:30 in Lima
+      expect(screen.getByText(/14:30/)).toBeInTheDocument();
+      expect(screen.getByText(/14:35/)).toBeInTheDocument();
+    });
+
+    it('avisa a qué correo se envió la confirmación', async () => {
+      vi.mocked(checkoutApi.getOrder).mockResolvedValue(paid);
+      renderPage();
+
+      expect(await screen.findByText('Enviamos la confirmación a maria@correo.com.')).toBeInTheDocument();
+    });
+
+    it('con contraentrega la fecha de pago queda pendiente y el estado del pago es pendiente al recibir', async () => {
+      vi.mocked(checkoutApi.getOrder).mockResolvedValue({ ...cashOrder, paidAt: null });
+      renderPage();
+
+      expect(await screen.findByText('Pendiente, se paga al recibir')).toBeInTheDocument();
+      expect(screen.getByText('Pago pendiente al recibir')).toBeInTheDocument();
+    });
+
+    it('con Recojo no muestra dirección y el delivery queda sin costo', async () => {
+      vi.mocked(checkoutApi.getOrder).mockResolvedValue({
+        ...paid,
+        deliveryType: 'RECOJO',
+        address: null,
+        deliveryPrice: 0,
+        total: 60,
+      });
+      renderPage();
+
+      expect(await screen.findByText('Recibimos tu pago')).toBeInTheDocument();
+      expect(screen.getByText('Recojo en tienda')).toBeInTheDocument();
+      expect(screen.getByText('Recojo en tienda, sin costo')).toBeInTheDocument();
+      expect(screen.queryByText('Entrega a domicilio')).not.toBeInTheDocument();
+      expect(screen.queryByText(/Av. Arequipa/)).not.toBeInTheDocument();
+    });
+
+    it('"Ver mis pedidos" lleva al historial del perfil', async () => {
+      vi.mocked(checkoutApi.getOrder).mockResolvedValue(paid);
+      renderPage();
+
+      expect(await screen.findByRole('link', { name: 'Ver mis pedidos' })).toHaveAttribute('href', '/perfil/mis-pedidos');
+      expect(screen.getByRole('link', { name: 'Seguir viendo la carta' })).toHaveAttribute('href', '/menu');
+    });
+
+    it('un pedido sin confirmar no muestra el detalle de confirmación', async () => {
+      vi.mocked(checkoutApi.getOrder).mockResolvedValue(pending);
+      renderPage();
+
+      await screen.findByText('Estamos confirmando tu pago');
+      expect(screen.queryByText('Detalle del pedido')).not.toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: 'Ver mis pedidos' })).not.toBeInTheDocument();
+    });
   });
 
   it('con el pedido pendiente avisa que se está confirmando y no vacía el carrito', async () => {
