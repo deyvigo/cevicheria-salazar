@@ -40,5 +40,5 @@ Requiere `plan.md`. Cada tarea indica qué criterio(s) de `spec.md` cubre y cóm
 ## Docs
 
 - [x] Actualizar `docs/diagrama-de-arquitectura.md` (canal SSE), `docs/diagrama-de-despliegue.md` y `docs/guia-de-despliegue.md` (Traefik y Cloudflare con conexiones largas), `docs/diagrama-de-base-de-datos.md` (índice de V14) y `docs/cronograma.md` — cubre: Impacto en docs — verificación: revisión manual
-- [ ] Repasar cada criterio de `spec.md`, marcar el estado como Hecha y sincronizar spec/plan si la implementación se desvió — cubre: todos — verificación: repaso manual y `./mvnw test`, `./mvnw test -Dtest='*IT'`, `pnpm test --run` y `pnpm build`
-- [ ] Verificación manual en navegador con dos sesiones de administrador: pedido nuevo en vivo, contador con la pestaña oculta, avance de estado visto en la otra sesión y en "Mis pedidos" del cliente — cubre: Tiempo real, Aviso con la pestaña oculta, Cambiar el estado — verificación: `./scripts/dev.sh` y recorrido manual
+- [x] Repasar cada criterio de `spec.md`, marcar el estado como Hecha y sincronizar spec/plan si la implementación se desvió — cubre: todos — verificación: repaso manual y `./mvnw test`, `./mvnw test -Dtest='*IT'`, `pnpm test --run` y `pnpm build`
+- [x] Verificación manual en navegador con dos sesiones de administrador: pedido nuevo en vivo, contador con la pestaña oculta, avance de estado visto en la otra sesión y en "Mis pedidos" del cliente — cubre: Tiempo real, Aviso con la pestaña oculta, Cambiar el estado — verificación: `./scripts/dev.sh` y recorrido manual

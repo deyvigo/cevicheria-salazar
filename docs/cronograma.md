@@ -158,8 +158,9 @@ Duración de cada sprint: 3 semanas (lunes a viernes). Historias en [historias.m
 | ID    | Elemento                                                                             | Tipo    | Prioridad | Semana | Hecho |
 | ----- | ------------------------------------------------------------------------------------ | ------- | --------- | ------ | ----- |
 | HU-21 | Confirmar el pedido con su número y correo de confirmación (paso final del checkout) | Usuario | Alta      | 1      | ✓     |
-| HU-32 | Ver los pedidos comprados en el panel, con filtros, orden y actualización en tiempo real (SSE) | Usuario | Alta      | 2      |       |
-| HU-33 | Cambiar la etapa de entrega de un pedido (En preparación, En camino, Entregado) desde el panel | Usuario | Alta      | 2      |       |
+| HU-32 | Ver los pedidos comprados en el panel, con filtros, orden y actualización en tiempo real (SSE) | Usuario | Alta      | 1      | ✓     |
+| HU-33 | Cambiar la etapa de entrega de un pedido (En preparación, En camino, Entregado) desde el panel | Usuario | Alta      | 1      | ✓     |
+| HU-39 | Ver un resumen del carrito al pasar el cursor sobre su ícono en el navegador superior | Usuario | Media     | 1      | ✓     |
 
 ### Eventos Scrum
 

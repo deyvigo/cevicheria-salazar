@@ -61,6 +61,7 @@ El carrito no requiere cuenta. El inicio de sesión se exige recién al realizar
 | HU-15 | Como visitante, quiero agregar una nota a un plato (por ejemplo, "sin ají") para personalizar mi pedido.                                              | Media     |
 | HU-16 | Como visitante, quiero que mi carrito se conserve si cierro la app, aunque no haya iniciado sesión, para no perder mi selección.                      | Alta      |
 | HU-35 | Como visitante, quiero que los productos de mi carrito se mantengan al iniciar sesión o registrarme, para no perder mi selección al momento de pagar. | Alta      |
+| HU-39 | Como visitante, quiero ver un resumen de mi carrito al pasar el cursor sobre el ícono del carrito del navegador superior, con opciones para ajustar cantidades, eliminar platos y vaciar el carrito, para revisar y modificar mi pedido sin salir de la página en la que estoy. | Media     |
 
 <a id="e4"></a>
 

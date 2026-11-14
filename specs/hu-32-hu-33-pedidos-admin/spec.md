@@ -1,7 +1,7 @@
 # Spec: HU-32 y HU-33 — Ver pedidos entrantes en tiempo real y cambiar su estado
 
 **Épica**: [E6. Panel de administración](../../docs/epicas.md#e6)
-**Estado**: En implementación
+**Estado**: Hecha
 
 ## Objetivo
 
