@@ -19,7 +19,7 @@ Todos bajo `/api/admin/orders`, así que ya los cubre `AdminAccessInterceptor` (
 Notas de cada ruta:
 
 - **Lista**. Parámetros:
-  - `page` entero ≥ 1 (inválido o ausente = 1); si supera el total se devuelve la última, como `AdminCategoryService.list`. Tamaño fijo 20.
+  - `page` entero ≥ 1 (inválido o ausente = 1); si supera el total se devuelve la última, como `AdminCategoryService.list`. Tamaño fijo 15.
   - `sort` ∈ `code | date | customer | zone | total | deliveryStatus` (por defecto `date`) y `dir` ∈ `asc | desc` (por defecto `desc`). Un valor desconocido cae al por defecto, igual que `AdminProductSort`.
   - `deliveryStatus` ∈ `ACTIVE | EN_PREPARACION | EN_CAMINO | ENTREGADO | ALL` (por defecto `ACTIVE` = preparación y camino).
   - `type` ∈ `ENTREGA | RECOJO`; `payment` ∈ `ONLINE | EFECTIVO | YAPE`; `paymentStatus` ∈ `PAGADO | PENDIENTE_COBRO`; `zone` = nombre exacto de zona. Ausente = sin filtrar.

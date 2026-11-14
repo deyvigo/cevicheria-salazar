@@ -57,7 +57,7 @@ Administrador con sesión iniciada. Los clientes no acceden a `/admin`.
 
 ### Paginación (HU-32)
 
-- **Dado** más de 20 pedidos que cumplen los filtros, **cuando** miro la tabla, **entonces** veo 20 por página con `Pagination`; `?page=N` va en la URL; con 20 o menos no se muestra.
+- **Dado** más de 15 pedidos que cumplen los filtros, **cuando** miro la tabla, **entonces** veo 15 por página con `Pagination`; `?page=N` va en la URL; con 15 o menos no se muestra.
 - **Dado** que la página pedida ya no existe o es inválida, **cuando** abro la pestaña, **entonces** se muestra la última página existente (o la primera si el valor no es un entero positivo).
 - **Dado** que la tabla muestra el total, **cuando** la miro, **entonces** indica cuántos pedidos cumplen los filtros (por ejemplo "37 pedidos").
 
@@ -75,6 +75,7 @@ Administrador con sesión iniciada. Los clientes no acceden a `/admin`.
 
 - **Dado** que llega un pedido nuevo mientras el panel está abierto, **cuando** aparece en la tabla, **entonces** su fila se distingue de las demás con un borde izquierdo grueso, un fondo suave y la etiqueta de texto "Nuevo" (no depende solo del color).
 - **Dado** que hay pedidos resaltados en la tabla, **cuando** miro sobre ella, **entonces** veo cuántos hay ("N pedidos nuevos sin revisar") y una acción "Marcar como vistos" que quita el resalte de todos.
+- **Dado** que hay pedidos nuevos sin revisar, **cuando** miro el menú lateral del panel (en cualquier sección, con el menú expandido o contraído), **entonces** el ícono de "Pedidos" muestra un círculo con la cantidad (`9+` si pasan de 9) y los lectores de pantalla anuncian "Pedidos, N pedidos nuevos sin revisar". El número baja a medida que reviso pedidos y desaparece al llegar a cero.
 - **Dado** un pedido resaltado, **cuando** abro su detalle o avanzo su estado, **entonces** deja de estar resaltado.
 - **Dado** que cambio de sección del panel o de página de la tabla, **cuando** vuelvo, **entonces** los pedidos nuevos que no he revisado siguen resaltados; al recargar el navegador el resalte se pierde (solo cuentan los que llegaron con el panel abierto).
 
@@ -144,7 +145,7 @@ Administrador con sesión iniciada. Los clientes no acceden a `/admin`.
 - **Orden por defecto**: fecha de compra descendente, desempate por id descendente.
 - **Filtros por defecto**: estado de entrega "Activos" y fecha "Todas".
 - **Columnas ordenables**: Código, Fecha, Cliente, Zona, Total y Estado de entrega. Tipo, Pago y Estado de pago solo se filtran.
-- **Servidor**: filtros, búsqueda, orden y paginación (20 por página) se resuelven en el servidor; la URL guarda el estado de la vista.
+- **Servidor**: filtros, búsqueda, orden y paginación (15 por página) se resuelven en el servidor; la URL guarda el estado de la vista.
 - **Contador de la pestaña**: título del documento y favicon, con la pestaña oculta; no depende de filtros ni de la sección del panel donde esté el administrador.
 - **Filtro de fecha**: atajos (Hoy, Ayer, Últimos 7 días, Todas) y rango personalizado con Desde y Hasta, para poder ajustar el periodo.
 - **Filtro de zona**: lista todas las zonas existentes (activas e inactivas) y filtra por el nombre guardado en el pedido (`delivery_zone_name`), porque un pedido antiguo puede tener una zona que luego se desactivó o renombró.
