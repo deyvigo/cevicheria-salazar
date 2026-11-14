@@ -260,3 +260,59 @@ describe('cart-store', () => {
     });
   });
 });
+
+describe('emptyCart', () => {
+  const dish = { id: 1, name: 'Ceviche', available: true, stock: 5 };
+
+  beforeEach(() => {
+    localStorage.clear();
+    useCartStore.setState({ items: [], lastAdded: null, lastRemoved: null, lastCleared: null });
+  });
+
+  it('vacía el carrito, fija lastCleared y anula los otros avisos', () => {
+    useCartStore.getState().add(dish);
+    useCartStore.getState().emptyCart();
+
+    const state = useCartStore.getState();
+    expect(state.items).toEqual([]);
+    expect(state.lastCleared).not.toBeNull();
+    expect(state.lastAdded).toBeNull();
+    expect(state.lastRemoved).toBeNull();
+  });
+
+  it('con el carrito vacío no avisa', () => {
+    useCartStore.getState().emptyCart();
+
+    expect(useCartStore.getState().lastCleared).toBeNull();
+  });
+
+  it('clear vacía sin avisar', () => {
+    useCartStore.getState().add(dish);
+    useCartStore.getState().clear();
+
+    expect(useCartStore.getState().items).toEqual([]);
+    expect(useCartStore.getState().lastCleared).toBeNull();
+  });
+
+  it('add, setQuantity y remove anulan lastCleared', () => {
+    useCartStore.setState({ lastCleared: { at: 1 } });
+    useCartStore.getState().add(dish);
+    expect(useCartStore.getState().lastCleared).toBeNull();
+
+    useCartStore.setState({ lastCleared: { at: 1 } });
+    useCartStore.getState().setQuantity(dish, 0);
+    expect(useCartStore.getState().lastCleared).toBeNull();
+
+    useCartStore.getState().add(dish);
+    useCartStore.setState({ lastCleared: { at: 1 } });
+    useCartStore.getState().remove(1, 'Ceviche');
+    expect(useCartStore.getState().lastCleared).toBeNull();
+  });
+
+  it('lastCleared no se persiste', () => {
+    useCartStore.getState().add(dish);
+    useCartStore.getState().emptyCart();
+
+    expect(JSON.parse(localStorage.getItem('salazar.carrito') ?? '{}').state).toEqual({ items: [] });
+  });
+});
