@@ -102,6 +102,9 @@ public class Order {
     @Column(name = "paid_at")
     private Instant paidAt;
 
+    @Column(name = "confirmation_sent_at")
+    private Instant confirmationSentAt;
+
     @Column(name = "cancelled_at")
     private Instant cancelledAt;
 

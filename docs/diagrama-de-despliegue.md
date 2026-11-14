@@ -30,7 +30,7 @@ La definición ejecutable de este entorno es `docker-compose.prod.yml` (la API s
 ### Servicios externos
 
 - **Google OAuth 2.0**: la API llama a este servicio por HTTPS para el login/registro rápido con cuenta de Google (HU-06).
-- **Mercado Pago**: la API se comunica por HTTPS con la pasarela de pagos para crear la orden de pago y consultar pagos (HU-19). En sentido contrario, Mercado Pago llama al webhook de la API (`/api/pagos/mercadopago/webhook`), que por eso debe ser accesible desde internet a través de Traefik.
+- **Mercado Pago**: la API se comunica por HTTPS con la pasarela de pagos para crear la orden de pago y consultar pagos (HU-19). En sentido contrario, Mercado Pago llama al webhook de la API (`/api/payments/mercadopago/webhook`), que por eso debe ser accesible desde internet a través de Traefik.
 - **Servidor SMTP**: la API envía por SMTP los correos de confirmación de pedido (HU-21) y de recuperación de contraseña (HU-03).
 
 ### Flujo de despliegue

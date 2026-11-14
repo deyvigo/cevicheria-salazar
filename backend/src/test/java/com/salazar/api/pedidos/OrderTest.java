@@ -63,10 +63,10 @@ class OrderTest {
         Order cancelled = order(PaymentMethod.ONLINE);
         cancelled.cancel("VENCIDO");
 
-        assertThat(OrderResponse.from(cod, null).deliveryCode()).isEqualTo("1234");
-        assertThat(OrderResponse.from(paid, null).deliveryCode()).isEqualTo("1234");
-        assertThat(OrderResponse.from(online, null).deliveryCode()).isNull();
-        assertThat(OrderResponse.from(cancelled, null).deliveryCode()).isNull();
+        assertThat(OrderResponse.from(cod, null, "Ana Pérez").deliveryCode()).isEqualTo("1234");
+        assertThat(OrderResponse.from(paid, null, "Ana Pérez").deliveryCode()).isEqualTo("1234");
+        assertThat(OrderResponse.from(online, null, "Ana Pérez").deliveryCode()).isNull();
+        assertThat(OrderResponse.from(cancelled, null, "Ana Pérez").deliveryCode()).isNull();
     }
 
     private Order purchased() {

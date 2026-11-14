@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.salazar.api.common.mail.OrderConfirmationMail;
 import java.math.BigDecimal;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -13,7 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 
 class MercadoPagoWebhookControllerIT extends OrderITSupport {
-    private static final String URL = "/api/pagos/mercadopago/webhook";
+    private static final String URL = "/api/payments/mercadopago/webhook";
 
     private record Placed(Customer customer, long orderId, long productId) {}
 
@@ -61,7 +62,7 @@ class MercadoPagoWebhookControllerIT extends OrderITSupport {
         assertThat(paymentRows()).isEqualTo(1);
         assertThat(jdbcTemplate.queryForObject("SELECT needs_review FROM payments", Boolean.class)).isFalse();
         // The paid order now exposes its delivery code to its owner
-        mockMvc.perform(get("/api/pedidos/" + placed.orderId()).cookie(placed.customer().access()))
+        mockMvc.perform(get("/api/orders/" + placed.orderId()).cookie(placed.customer().access()))
                 .andExpect(jsonPath("$.status").value("PAGADO"))
                 .andExpect(jsonPath("$.deliveryCode").exists());
     }
@@ -172,7 +173,7 @@ class MercadoPagoWebhookControllerIT extends OrderITSupport {
 
         assertThat(statusOf(placed.orderId())).isEqualTo("PENDIENTE_PAGO");
         assertThat(stockOf(placed.productId())).isEqualTo(3);
-        mockMvc.perform(get("/api/pedidos/" + placed.orderId()).cookie(placed.customer().access()))
+        mockMvc.perform(get("/api/orders/" + placed.orderId()).cookie(placed.customer().access()))
                 .andExpect(jsonPath("$.status").value("PENDIENTE_PAGO"))
                 .andExpect(jsonPath("$.paymentStatus").value("rejected"));
 
@@ -205,5 +206,70 @@ class MercadoPagoWebhookControllerIT extends OrderITSupport {
         notify("1015", "payment").andExpect(status().isServiceUnavailable());
 
         assertThat(statusOf(placed.orderId())).isEqualTo("PENDIENTE_PAGO");
+    }
+
+    @Test
+    void anApprovedPaymentSendsOneConfirmationEmailAndARepeatedNotificationDoesNot() throws Exception {
+        Placed placed = placeOrder();
+        assertNoConfirmationEmail();
+        payment("1101", "approved", "60.00", "PEN", placed.orderId());
+
+        notify("1101", "payment").andExpect(status().isOk());
+        OrderConfirmationMail mail = confirmationEmail();
+        notify("1101", "payment").andExpect(status().isOk());
+        notify("1101", "payment").andExpect(status().isOk());
+
+        assertSingleConfirmationEmail();
+        assertThat(mail.to()).isEqualTo(placed.customer().email());
+        assertThat(mail.paymentStatus()).isEqualTo("Pagado");
+        assertThat(mail.paymentSummary()).isEqualTo("Pago en línea");
+        assertThat(mail.paidAt()).doesNotContain("Pendiente");
+        assertThat(mail.total()).isEqualTo("S/ 60.00");
+    }
+
+    @Test
+    void aPaidOrderExposesBothDatesAndAPendingOneHidesTheConfirmationData() throws Exception {
+        Placed placed = placeOrder();
+        mockMvc.perform(get("/api/orders/" + placed.orderId()).cookie(placed.customer().access()))
+                .andExpect(jsonPath("$.customerName").doesNotExist())
+                .andExpect(jsonPath("$.address").doesNotExist())
+                .andExpect(jsonPath("$.deliveryCode").doesNotExist())
+                .andExpect(jsonPath("$.purchasedAt").exists())
+                .andExpect(jsonPath("$.paidAt").doesNotExist());
+
+        payment("1102", "approved", "60.00", "PEN", placed.orderId());
+        notify("1102", "payment").andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/orders/" + placed.orderId()).cookie(placed.customer().access()))
+                .andExpect(jsonPath("$.customerName").value("María Quispe"))
+                .andExpect(jsonPath("$.paidAt").exists())
+                .andExpect(jsonPath("$.purchasedAt").exists());
+    }
+
+    @Test
+    void rejectedOrPendingPaymentsAndLateOnesSendNoEmail() throws Exception {
+        Placed placed = placeOrder();
+        payment("1103", "rejected", "60.00", "PEN", placed.orderId());
+        payment("1104", "pending", "60.00", "PEN", placed.orderId());
+        notify("1103", "payment").andExpect(status().isOk());
+        notify("1104", "payment").andExpect(status().isOk());
+        assertNoConfirmationEmail();
+
+        Placed cancelled = placeOrder();
+        jdbcTemplate.update("UPDATE orders SET status = 'CANCELADO', cancel_reason = 'VENCIDO' WHERE id = ?", cancelled.orderId());
+        jdbcTemplate.update("UPDATE products SET stock = 5 WHERE id = ?", cancelled.productId());
+        payment("1105", "approved", "60.00", "PEN", cancelled.orderId());
+        notify("1105", "payment").andExpect(status().isOk());
+        assertNoConfirmationEmail();
+    }
+
+    @Test
+    void aWrongAmountNeverSendsTheEmail() throws Exception {
+        Placed placed = placeOrder();
+        payment("1106", "approved", "10.00", "PEN", placed.orderId());
+
+        notify("1106", "payment").andExpect(status().isOk());
+
+        assertNoConfirmationEmail();
     }
 }
