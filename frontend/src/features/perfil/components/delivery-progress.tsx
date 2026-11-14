@@ -1,10 +1,5 @@
+import { DELIVERY_STATUS_STEPS as STEPS } from '@/features/perfil/delivery-status';
 import type { DeliveryStatus } from '@/features/perfil/order-api';
-
-const STEPS: { status: DeliveryStatus; label: string }[] = [
-  { status: 'EN_PREPARACION', label: 'En preparación' },
-  { status: 'EN_CAMINO', label: 'En camino' },
-  { status: 'ENTREGADO', label: 'Entregado' },
-];
 
 export function DeliveryProgress({ status }: { status: DeliveryStatus }) {
   const current = Math.max(

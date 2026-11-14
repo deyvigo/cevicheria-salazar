@@ -95,7 +95,7 @@ Con **Contraentrega** elegida, el botón principal pasa a **Confirmar pedido** y
 ## Fuera de alcance
 
 - Marcar el pedido como entregado y cobrado, verificando el código de entrega (panel de administración, E6).
-- Correo y pantalla de confirmación completa con el detalle del pedido (HU-21).
+- Correo y pantalla de confirmación completa con el detalle del pedido (HU-21, ya conectada: ver `specs/hu-21-confirmacion-del-pedido/`).
 - Pago rechazado y reintentos del pago en línea (HU-22).
 - Cobrar con Yape desde la aplicación: solo se registra la intención; el cobro lo hace el repartidor.
 - Número de Yape del negocio o código QR para pagar: no se muestran en esta historia.

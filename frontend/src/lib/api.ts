@@ -12,10 +12,10 @@ export const api = axios.create({
 
 const NO_REFRESH_PATHS = ['/auth/login', '/auth/register', '/auth/refresh', '/auth/logout'];
 
-// /perfil is shared with customers, who keep their own session handling
+// /profile is shared with customers, who keep their own session handling
 const isAdminRequest = (url?: string) =>
   (url?.startsWith('/admin') ?? false) ||
-  ((url?.startsWith('/perfil') ?? false) &&
+  ((url?.startsWith('/profile') ?? false) &&
     queryClient.getQueryData<AuthUser | null>(ME_QUERY_KEY)?.role === 'ADMINISTRADOR');
 
 let refreshInFlight: Promise<unknown> | null = null;

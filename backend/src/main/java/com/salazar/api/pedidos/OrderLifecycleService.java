@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.stereotype.Service;
@@ -46,6 +47,7 @@ public class OrderLifecycleService {
     private final AddressService addressService;
     private final OrderCodeGenerator codeGenerator;
     private final OrderProperties properties;
+    private final ApplicationEventPublisher events;
 
     @Transactional
     public Order place(Long userId, CreateOrderRequest request) {
@@ -136,7 +138,11 @@ public class OrderLifecycleService {
             order.addItem(product.getId(), product.getName(), product.getPrice(), quantity);
             product.decreaseStock(quantity);
         }
-        return orderRepository.save(order);
+        Order saved = orderRepository.save(order);
+        if (cashOnDelivery) {
+            events.publishEvent(new OrderConfirmedEvent(saved.getId()));
+        }
+        return saved;
     }
 
     @Transactional

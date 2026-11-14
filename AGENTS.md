@@ -61,6 +61,7 @@ Las imágenes de los platos se sirven desde Garage en `http://platos.web.garage.
 ## Convenciones
 
 - Documentación (`.md`) en español.
+- **Rutas de la API en inglés** (`/api/orders`, `/api/profile/addresses`, `/api/admin/products`). Las rutas de pantallas del frontend (`/perfil`, `/checkout/resultado`) siguen en español: son parte de la interfaz.
 - Nombres de archivo en minúsculas separadas por guiones, sin espacios (ej. `diagrama-de-arquitectura.md`, no `diagrama de arquitectura.md`).
 - Cada diagrama en `docs/` vive junto a su imagen en `docs/images/` y su descripción conecta cada componente con las épicas/historias que soporta.
 - Textos de interfaz en español, tuteando al cliente ("Tu pedido está listo"), sin emojis. Precios con formato `S/ 32.00`.

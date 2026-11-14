@@ -2,11 +2,10 @@ import { isAxiosError } from 'axios';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/button';
-import { formatPrice } from '@/features/catalogo/format';
-import type { Order } from '@/features/checkout/checkout-api';
+import { useAuth } from '@/context/auth-context';
 import { useCartStore } from '@/features/carrito/cart-store';
 import { CheckoutStepper } from '@/features/checkout/components/checkout-stepper';
-import { OrderCodes } from '@/features/checkout/components/order-codes';
+import { OrderConfirmation } from '@/features/checkout/components/order-confirmation';
 import { useCheckoutStore } from '@/features/checkout/checkout-store';
 import { useOrder } from '@/features/checkout/use-order';
 
@@ -17,6 +16,7 @@ const linkClass =
   'text-base font-bold text-ink underline focus-visible:shadow-focus focus-visible:outline-none';
 
 export function OrderResultPage() {
+  const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const rawId = searchParams.get('pedido');
   const id = rawId !== null && /^[0-9]+$/.test(rawId) ? Number(rawId) : null;
@@ -41,7 +41,7 @@ export function OrderResultPage() {
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-8">
       <h1 className="font-display text-[32px] leading-10 font-semibold text-ink">Tu pedido</h1>
       <CheckoutStepper currentStep="done" isAuthenticated />
-      <Body id={id} order={order} waitedTooLong={waitedTooLong} />
+      <Body id={id} order={order} waitedTooLong={waitedTooLong} email={user?.email ?? null} />
     </main>
   );
 }
@@ -50,10 +50,12 @@ function Body({
   id,
   order,
   waitedTooLong,
+  email,
 }: {
   id: number | null;
   order: ReturnType<typeof useOrder>;
   waitedTooLong: boolean;
+  email: string | null;
 }) {
   const notFound = id === null || (isAxiosError(order.error) && order.error.response?.status === 404);
   if (notFound) {
@@ -80,35 +82,8 @@ function Body({
   }
 
   const data = order.data;
-  if (data.status === 'PAGADO') {
-    return (
-      <div className="flex flex-col gap-6">
-        <div role="status" className="flex flex-col gap-1">
-          <h2 className="font-display text-[24px] leading-8 font-semibold text-ink">Recibimos tu pago</h2>
-          <p className="text-base text-ink-muted">Guarda estos códigos: los necesitarás para recibir tu pedido.</p>
-        </div>
-        <OrderCodes order={data} />
-        <Link to="/menu" className={linkClass}>
-          Seguir viendo la carta
-        </Link>
-      </div>
-    );
-  }
-
-  if (data.status === 'PENDIENTE_COBRO') {
-    return (
-      <div className="flex flex-col gap-6">
-        <div role="status" className="flex flex-col gap-1">
-          <h2 className="font-display text-[24px] leading-8 font-semibold text-ink">Recibimos tu pedido</h2>
-          <p className="text-base text-ink-muted">Guarda estos códigos: los necesitarás para recibir tu pedido.</p>
-        </div>
-        <OrderCodes order={data} />
-        <p className="text-base text-ink">{collectionSummary(data)}</p>
-        <Link to="/menu" className={linkClass}>
-          Seguir viendo la carta
-        </Link>
-      </div>
-    );
+  if (data.status === 'PAGADO' || data.status === 'PENDIENTE_COBRO') {
+    return <OrderConfirmation order={data} email={email} />;
   }
 
   // The order stays pending after a rejected attempt (the customer may retry at the provider), so the last payment counts too
@@ -133,15 +108,6 @@ function Body({
     );
   }
   return <Message title="Estamos confirmando tu pago" text="Esto toma unos segundos. No cierres esta página." busy />;
-}
-
-function collectionSummary(order: Order): string {
-  const when = order.deliveryType === 'ENTREGA' ? 'al recibir' : 'al recoger';
-  if (order.collectionMethod === 'YAPE') return `Pagarás con Yape ${when} tu pedido.`;
-  if (order.cashAmount !== null && order.change !== null) {
-    return `Pagarás con ${formatPrice(order.cashAmount)} en efectivo (vuelto ${formatPrice(order.change)}).`;
-  }
-  return `Pagarás en efectivo ${when} tu pedido.`;
 }
 
 function Message({

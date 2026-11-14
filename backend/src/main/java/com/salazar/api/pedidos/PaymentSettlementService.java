@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +18,7 @@ public class PaymentSettlementService {
 
     private final OrderRepository orderRepository;
     private final PaymentRepository paymentRepository;
+    private final ApplicationEventPublisher events;
 
     @Transactional
     public void apply(GatewayPayment gatewayPayment) {
@@ -55,6 +57,7 @@ public class PaymentSettlementService {
                 && CURRENCY.equals(gatewayPayment.currency());
         if (order.isPending() && amountMatches) {
             order.markPaid();
+            events.publishEvent(new OrderConfirmedEvent(order.getId()));
         } else if (order.getStatus() == OrderStatus.PAGADO && known) {
             // A repeated notification for the payment that already paid the order: nothing to do
             return;

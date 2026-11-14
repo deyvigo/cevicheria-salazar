@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 /** Public on purpose: Mercado Pago calls it without a session, so the signature is the only way in. */
 @Slf4j
 @RestController
-@RequestMapping("/api/pagos/mercadopago")
+@RequestMapping("/api/payments/mercadopago")
 @RequiredArgsConstructor
 public class MercadoPagoWebhookController {
     private final MercadoPagoSignatureVerifier signatureVerifier;

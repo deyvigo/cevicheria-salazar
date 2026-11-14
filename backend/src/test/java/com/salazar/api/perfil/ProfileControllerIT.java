@@ -69,14 +69,14 @@ class ProfileControllerIT {
     }
 
     private ResultActions updateProfile(Session session, Map<String, String> body) throws Exception {
-        return mockMvc.perform(put("/api/perfil")
+        return mockMvc.perform(put("/api/profile")
                 .cookie(session.access())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(body)));
     }
 
     private ResultActions changePassword(Session session, Map<String, String> body) throws Exception {
-        return mockMvc.perform(put("/api/perfil/contrasena")
+        return mockMvc.perform(put("/api/profile/password")
                 .cookie(session.access(), session.refresh())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(body)));
@@ -88,11 +88,11 @@ class ProfileControllerIT {
 
     @Test
     void withoutSessionItIsUnauthorized() throws Exception {
-        mockMvc.perform(put("/api/perfil")
+        mockMvc.perform(put("/api/profile")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"firstName\":\"A\",\"lastName\":\"B\",\"phone\":\"912345678\"}"))
                 .andExpect(status().isUnauthorized());
-        mockMvc.perform(put("/api/perfil/contrasena")
+        mockMvc.perform(put("/api/profile/password")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"newPassword\":\"nueva5678\"}"))
                 .andExpect(status().isUnauthorized());

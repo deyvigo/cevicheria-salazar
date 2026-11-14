@@ -18,6 +18,11 @@ const order: Order = {
   collectionMethod: null,
   cashAmount: null,
   change: null,
+  customerName: 'María Quispe',
+  deliveryStatus: 'EN_PREPARACION',
+  address: { label: 'Casa', text: 'Av. Arequipa 123, Lince', reference: 'Puerta verde' },
+  purchasedAt: '2026-11-07T19:30:00Z',
+  paidAt: '2026-11-07T19:35:00Z',
 };
 
 describe('OrderCodes', () => {

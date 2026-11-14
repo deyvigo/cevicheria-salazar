@@ -129,7 +129,7 @@ Ruta `/checkout/resultado?pedido={id}`, a la que Mercado Pago devuelve al client
 ## Fuera de alcance
 
 - Contraentrega y su detalle (efectivo, POS, Yape) — HU-20.
-- Pantalla de confirmación completa con detalle del pedido y el correo — HU-21.
+- Pantalla de confirmación completa con detalle del pedido y el correo — HU-21 (ya conectada: ver `specs/hu-21-confirmacion-del-pedido/`; renombró además las rutas de la API a inglés, p. ej. `/api/orders` y `/api/payments/mercadopago/webhook`).
 - Mensaje de pago rechazado con causa, reintentar con otro medio o cambiar a contraentrega — HU-22.
 - Reembolsos, devoluciones y contracargos.
 - Guardar tarjetas del cliente: no aplica con Checkout Pro, los datos de pago los maneja Mercado Pago.
