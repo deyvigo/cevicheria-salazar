@@ -15,6 +15,9 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query("select o from Order o left join fetch o.items where o.id = :id and o.userId = :userId")
     Optional<Order> findByIdAndUserIdWithItems(@Param("id") Long id, @Param("userId") Long userId);
 
+    @Query("select o from Order o left join fetch o.items where o.id = :id")
+    Optional<Order> findByIdWithItems(@Param("id") Long id);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select o from Order o where o.id = :id")
     Optional<Order> findByIdForUpdate(@Param("id") Long id);
