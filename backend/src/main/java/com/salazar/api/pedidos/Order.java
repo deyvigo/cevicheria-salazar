@@ -1,5 +1,6 @@
 package com.salazar.api.pedidos;
 
+import com.salazar.api.common.exception.OrderDeliveryConflictException;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -100,6 +101,9 @@ public class Order {
 
     @Column(name = "paid_at")
     private Instant paidAt;
+
+    @Column(name = "confirmation_sent_at")
+    private Instant confirmationSentAt;
 
     @Column(name = "cancelled_at")
     private Instant cancelledAt;
@@ -206,6 +210,19 @@ public class Order {
     public void markPaid() {
         this.status = OrderStatus.PAGADO;
         this.paidAt = Instant.now();
+    }
+
+    /** Moves the delivery one step forward, only if the caller saw the stage the order is actually in. */
+    public void advanceDelivery(DeliveryStatus expected) {
+        if (!isConfirmed()) {
+            throw new OrderDeliveryConflictException("Este pedido aún no está comprado.");
+        }
+        if (deliveryStatus != expected) {
+            throw new OrderDeliveryConflictException("El pedido ya había cambiado de estado.");
+        }
+        this.deliveryStatus = deliveryStatus
+                .next()
+                .orElseThrow(() -> new OrderDeliveryConflictException("El pedido ya fue entregado."));
     }
 
     public void cancel(String reason) {

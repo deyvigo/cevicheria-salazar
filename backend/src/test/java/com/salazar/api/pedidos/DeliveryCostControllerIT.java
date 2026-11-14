@@ -29,7 +29,7 @@ import org.springframework.test.web.servlet.MvcResult;
 @Import(TestcontainersConfiguration.class)
 @WithTestSecrets
 class DeliveryCostControllerIT {
-    private static final String URL = "/api/pedidos/costo-delivery";
+    private static final String URL = "/api/orders/delivery-cost";
     private static final String SQUARE = "ST_GeomFromText('POLYGON((-77.04 -12.04, -77.02 -12.04, -77.02 -12.06, -77.04 -12.06, -77.04 -12.04))', 4326)";
 
     @Autowired
@@ -73,7 +73,7 @@ class DeliveryCostControllerIT {
         body.put("reference", null);
         body.put("latitude", latitude);
         body.put("longitude", longitude);
-        MvcResult result = mockMvc.perform(post("/api/perfil/direcciones")
+        MvcResult result = mockMvc.perform(post("/api/profile/addresses")
                         .cookie(customer.access())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(body)))
@@ -84,7 +84,7 @@ class DeliveryCostControllerIT {
 
     @Test
     void withoutSessionItIsUnauthorized() throws Exception {
-        mockMvc.perform(get(URL).param("direccionId", "1")).andExpect(status().isUnauthorized());
+        mockMvc.perform(get(URL).param("addressId", "1")).andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -92,7 +92,7 @@ class DeliveryCostControllerIT {
         Customer admin = register();
         jdbcTemplate.update("UPDATE users SET role = 'ADMINISTRADOR' WHERE email = ?", admin.email());
 
-        mockMvc.perform(get(URL).param("direccionId", "1").cookie(admin.access()))
+        mockMvc.perform(get(URL).param("addressId", "1").cookie(admin.access()))
                 .andExpect(status().isForbidden());
     }
 
@@ -102,7 +102,7 @@ class DeliveryCostControllerIT {
         Customer customer = register();
         long id = address(customer, -12.05, -77.03);
 
-        mockMvc.perform(get(URL).param("direccionId", String.valueOf(id)).cookie(customer.access()))
+        mockMvc.perform(get(URL).param("addressId", String.valueOf(id)).cookie(customer.access()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.covered").value(true))
                 .andExpect(jsonPath("$.price").value(8.5))
@@ -110,7 +110,7 @@ class DeliveryCostControllerIT {
 
         jdbcTemplate.update("UPDATE delivery_zones SET price = 10");
 
-        mockMvc.perform(get(URL).param("direccionId", String.valueOf(id)).cookie(customer.access()))
+        mockMvc.perform(get(URL).param("addressId", String.valueOf(id)).cookie(customer.access()))
                 .andExpect(jsonPath("$.price").value(10.0));
     }
 
@@ -120,7 +120,7 @@ class DeliveryCostControllerIT {
         Customer customer = register();
         long outside = address(customer, -12.10, -77.00);
 
-        mockMvc.perform(get(URL).param("direccionId", String.valueOf(outside)).cookie(customer.access()))
+        mockMvc.perform(get(URL).param("addressId", String.valueOf(outside)).cookie(customer.access()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.covered").value(false))
                 .andExpect(jsonPath("$.price").value(0.0))
@@ -129,7 +129,7 @@ class DeliveryCostControllerIT {
         jdbcTemplate.update("UPDATE delivery_zones SET active = false");
         long inside = address(customer, -12.05, -77.03);
 
-        mockMvc.perform(get(URL).param("direccionId", String.valueOf(inside)).cookie(customer.access()))
+        mockMvc.perform(get(URL).param("addressId", String.valueOf(inside)).cookie(customer.access()))
                 .andExpect(jsonPath("$.covered").value(false));
     }
 
@@ -140,16 +140,16 @@ class DeliveryCostControllerIT {
         Customer other = register();
         long id = address(owner, -12.05, -77.03);
 
-        mockMvc.perform(get(URL).param("direccionId", String.valueOf(id)).cookie(other.access()))
+        mockMvc.perform(get(URL).param("addressId", String.valueOf(id)).cookie(other.access()))
                 .andExpect(status().isNotFound());
-        mockMvc.perform(get(URL).param("direccionId", "999999").cookie(owner.access()))
+        mockMvc.perform(get(URL).param("addressId", "999999").cookie(owner.access()))
                 .andExpect(status().isNotFound());
 
         mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                        .delete("/api/perfil/direcciones/" + id)
+                        .delete("/api/profile/addresses/" + id)
                         .cookie(owner.access()))
                 .andExpect(status().isNoContent());
-        mockMvc.perform(get(URL).param("direccionId", String.valueOf(id)).cookie(owner.access()))
+        mockMvc.perform(get(URL).param("addressId", String.valueOf(id)).cookie(owner.access()))
                 .andExpect(status().isNotFound());
     }
 
@@ -158,7 +158,7 @@ class DeliveryCostControllerIT {
         Customer customer = register();
 
         mockMvc.perform(get(URL).cookie(customer.access())).andExpect(status().isBadRequest());
-        mockMvc.perform(get(URL).param("direccionId", "abc").cookie(customer.access()))
+        mockMvc.perform(get(URL).param("addressId", "abc").cookie(customer.access()))
                 .andExpect(status().isBadRequest());
     }
 }

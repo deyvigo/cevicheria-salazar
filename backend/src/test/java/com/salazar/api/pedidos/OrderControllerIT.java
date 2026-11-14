@@ -18,7 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 
 class OrderControllerIT extends OrderITSupport {
-    private static final String URL = "/api/pedidos";
+    private static final String URL = "/api/orders";
 
     @Test
     void withoutSessionItIsUnauthorized() throws Exception {

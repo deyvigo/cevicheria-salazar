@@ -108,7 +108,7 @@ public class OrderService {
                 PageRequest.of(page - 1, PAGE_SIZE));
     }
 
-    private void requireCustomer(Long userId) {
+    private User requireCustomer(Long userId) {
         User user = userRepository.findById(userId).orElse(null);
         if (user == null || !user.isActive()) {
             throw new InsufficientAuthenticationException("Usuario no encontrado.");
@@ -116,17 +116,18 @@ public class OrderService {
         if (user.getRole() != UserRole.CLIENTE) {
             throw new AccessDeniedException("Solo los clientes ven pedidos.");
         }
+        return user;
     }
 
     @Transactional(readOnly = true)
     public OrderResponse getOwned(Long userId, Long orderId) {
-        requireCustomer(userId);
+        User customer = requireCustomer(userId);
         Order order = orderRepository.findByIdAndUserIdWithItems(orderId, userId).orElseThrow(OrderNotFoundException::new);
         String paymentStatus = paymentRepository
                 .findFirstByOrderIdOrderByIdDesc(order.getId())
                 .map(Payment::getStatus)
                 .orElse(null);
-        return OrderResponse.from(order, paymentStatus);
+        return OrderResponse.from(order, paymentStatus, customer.getFirstName() + " " + customer.getLastName());
     }
 
     private CheckoutRequest toCheckoutRequest(Order order) {

@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/perfil/direcciones")
+@RequestMapping("/api/profile/addresses")
 @RequiredArgsConstructor
 public class AddressController {
     private final AddressService addressService;

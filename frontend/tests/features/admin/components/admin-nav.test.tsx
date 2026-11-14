@@ -1,9 +1,39 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { AdminOrdersLiveProvider } from '@/features/admin/admin-orders-live';
 import { AdminSessionContext } from '@/features/admin/admin-session';
 import { AdminNav } from '@/features/admin/components/admin-nav';
+import { QueryWrapper } from '@tests/utils/query-wrapper';
+
+vi.mock('@/features/admin/admin-order-api', () => ({ adminOrderEventsUrl: () => 'http://api/events', getAdminOrder: vi.fn() }));
+vi.mock('@/lib/api', () => ({ api: { get: vi.fn() } }));
+
+class FakeEventSource {
+  static CLOSED = 2;
+  static instances: FakeEventSource[] = [];
+  readyState = 1;
+  onopen: (() => void) | null = null;
+  onerror: (() => void) | null = null;
+  private listeners: Record<string, ((event: { data: string }) => void)[]> = {};
+
+  constructor() {
+    FakeEventSource.instances.push(this);
+  }
+
+  addEventListener(type: string, listener: (event: { data: string }) => void) {
+    (this.listeners[type] ??= []).push(listener);
+  }
+
+  close() {
+    this.readyState = FakeEventSource.CLOSED;
+  }
+
+  emit(type: string, orderId: number) {
+    this.listeners[type]?.forEach((listener) => listener({ data: JSON.stringify({ orderId }) }));
+  }
+}
 
 function renderNav(path: string, signOut = vi.fn().mockResolvedValue(undefined)) {
   render(
@@ -86,5 +116,54 @@ describe('AdminNav', () => {
     await user.click(screen.getByRole('button', { name: 'Cerrar sesión' }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent('No pudimos cerrar tu sesión');
+  });
+
+  describe('pedidos nuevos', () => {
+    afterEach(() => {
+      vi.unstubAllGlobals();
+      FakeEventSource.instances = [];
+    });
+
+    function renderLiveNav() {
+      vi.stubGlobal('EventSource', FakeEventSource);
+      render(
+        <QueryWrapper>
+          <MemoryRouter initialEntries={['/admin/platos']}>
+            <AdminSessionContext.Provider value={{ signOut: vi.fn() }}>
+              <AdminOrdersLiveProvider>
+                <AdminNav />
+              </AdminOrdersLiveProvider>
+            </AdminSessionContext.Provider>
+          </MemoryRouter>
+        </QueryWrapper>,
+      );
+    }
+
+    it('muestra sobre el ícono de Pedidos cuántos pedidos nuevos llegaron, desde cualquier sección', () => {
+      renderLiveNav();
+      expect(screen.getByRole('link', { name: 'Pedidos' })).toBeInTheDocument();
+
+      act(() => {
+        FakeEventSource.instances[0].emit('pedido-creado', 1);
+        FakeEventSource.instances[0].emit('pedido-creado', 2);
+      });
+
+      const link = screen.getByRole('link', { name: /Pedidos/ });
+      expect(link).toHaveTextContent('2');
+      expect(link).toHaveAccessibleName('Pedidos, 2 pedidos nuevos sin revisar');
+      expect(screen.getByRole('link', { name: 'Platos' })).not.toHaveTextContent(/\d/);
+    });
+
+    it('no cuenta los cambios de estado y pasa a 9+ con muchos pedidos', () => {
+      renderLiveNav();
+
+      act(() => FakeEventSource.instances[0].emit('pedido-actualizado', 1));
+      expect(screen.getByRole('link', { name: 'Pedidos' })).toBeInTheDocument();
+
+      act(() => {
+        for (let id = 1; id <= 12; id++) FakeEventSource.instances[0].emit('pedido-creado', id);
+      });
+      expect(screen.getByRole('link', { name: /Pedidos/ })).toHaveTextContent('9+');
+    });
   });
 });

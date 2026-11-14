@@ -13,6 +13,6 @@ export interface OrderSummary {
 }
 
 export async function listMyOrders(page: number): Promise<Page<OrderSummary>> {
-  const { data } = await api.get<Page<OrderSummary>>('/pedidos', { params: { page } });
+  const { data } = await api.get<Page<OrderSummary>>('/orders', { params: { page } });
   return data;
 }

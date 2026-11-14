@@ -8,12 +8,23 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query("select o from Order o left join fetch o.items where o.id = :id and o.userId = :userId")
     Optional<Order> findByIdAndUserIdWithItems(@Param("id") Long id, @Param("userId") Long userId);
+
+    @Query("select o from Order o left join fetch o.items where o.id = :id")
+    Optional<Order> findByIdWithItems(@Param("id") Long id);
+
+    // Atomic claim: only the caller that flips the column from NULL may send the confirmation email
+    @Transactional
+    @Modifying
+    @Query("update Order o set o.confirmationSentAt = :now where o.id = :id and o.confirmationSentAt is null")
+    int claimConfirmationEmail(@Param("id") Long id, @Param("now") Instant now);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select o from Order o where o.id = :id")

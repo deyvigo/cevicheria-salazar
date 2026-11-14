@@ -169,6 +169,7 @@ Para proteger también el VPS:
 
 Consideraciones:
 
+- El panel de administración mantiene abierta una conexión SSE (`/api/admin/orders/events`, HU-32). La API envía un latido cada 25 segundos, por debajo del límite de inactividad de Cloudflare (100 s). Si una respuesta larga llegara cortada o con retraso, revisar que ningún middleware de Traefik comprima o almacene en búfer las respuestas de `api.`.
 - Let's Encrypt con desafío HTTP sigue funcionando detrás del proxy mientras el puerto 80 sea accesible.
 - El plan gratuito limita las subidas a 100 MB; las imágenes tienen un máximo de 5 MB, así que no afecta.
 - El proxy no cambia el comportamiento de `SameSite=Strict`, porque el dominio raíz y `api` siguen en el mismo sitio.
@@ -195,7 +196,7 @@ Consideraciones:
 Los pagos en línea usan Checkout Pro: el cliente paga en la página de Mercado Pago (puede hacerlo como invitado) y Mercado Pago avisa a la API por un webhook.
 
 1. En el [panel de desarrolladores de Mercado Pago](https://www.mercadopago.com.pe/developers/panel) crear una aplicación de tipo Checkout Pro. Las credenciales de **prueba** y las de **producción** son distintas; el `MP_ACCESS_TOKEN` y el `MP_WEBHOOK_SECRET` deben ser del mismo entorno.
-2. En la sección Webhooks de la aplicación, dar de alta la URL `https://<API_DOMAIN>/api/pagos/mercadopago/webhook` con el evento de **Pagos**, y copiar la **clave secreta** a `MP_WEBHOOK_SECRET`. La API también envía esta URL en cada preferencia (`notification_url`, a partir de `APP_PUBLIC_API_URL`), por lo que la del panel solo sirve de respaldo.
+2. En la sección Webhooks de la aplicación, dar de alta la URL `https://<API_DOMAIN>/api/payments/mercadopago/webhook` con el evento de **Pagos**, y copiar la **clave secreta** a `MP_WEBHOOK_SECRET`. La API también envía esta URL en cada preferencia (`notification_url`, a partir de `APP_PUBLIC_API_URL`), por lo que la del panel solo sirve de respaldo.
 3. `APP_PUBLIC_API_URL` debe ser la URL pública HTTPS de la API, sin barra final. Traefik ya la expone; el webhook no requiere sesión y se protege solo con la firma.
 4. El `MP_ACCESS_TOKEN` es el de la cuenta del negocio; hay que confirmar con Salazar SAC qué medios de pago habilita su cuenta (tarjetas, Yape, etc.). La API excluye los medios diferidos (efectivo en agente, depósito), porque un pedido de comida no puede esperar horas a un pago.
 5. **Probar en desarrollo**: Mercado Pago no puede llamar a `localhost`. Para ver llegar los avisos reales, exponer el backend con un túnel (por ejemplo `cloudflared tunnel --url http://localhost:8080`) y poner su URL en `APP_PUBLIC_API_URL`; usar credenciales y usuarios de prueba. Sin túnel el flujo se puede probar con los tests automáticos, que simulan la pasarela.
