@@ -1,7 +1,7 @@
 # Spec: HU-39 — Ver y ajustar el carrito desde el ícono del navegador superior
 
 **Épica**: [E3. Carrito de compras](../../docs/epicas.md#e3)
-**Estado**: En implementación
+**Estado**: Hecha
 
 ## Objetivo
 
