@@ -73,9 +73,9 @@ describe('CartLink', () => {
     expect(card()).toBeInTheDocument();
 
     await userEvent.unhover(card()!);
-    act(() => void vi.advanceTimersByTime(100));
+    act(() => void vi.advanceTimersByTime(300));
     expect(card()).toBeInTheDocument();
-    act(() => void vi.advanceTimersByTime(100));
+    act(() => void vi.advanceTimersByTime(150));
     expect(card()).not.toBeInTheDocument();
   });
 
@@ -86,7 +86,7 @@ describe('CartLink', () => {
 
     await userEvent.hover(link);
     await userEvent.unhover(link);
-    act(() => void vi.advanceTimersByTime(100));
+    act(() => void vi.advanceTimersByTime(300));
     await userEvent.hover(link);
     act(() => void vi.advanceTimersByTime(500));
 

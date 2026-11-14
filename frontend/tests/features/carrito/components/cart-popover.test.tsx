@@ -116,7 +116,7 @@ describe('CartPopover', () => {
 
     await userEvent.click(await screen.findByRole('button', { name: 'Eliminar Plato 1 del carrito' }));
 
-    expect(screen.getByText('Tu carrito está vacío.')).toBeInTheDocument();
+    expect(await screen.findByText('Tu carrito está vacío.')).toBeInTheDocument();
   });
 
   it('la lista se desplaza y el total queda fuera de ella', async () => {

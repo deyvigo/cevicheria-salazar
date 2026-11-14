@@ -1,7 +1,7 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CartPopoverRow } from '@/features/carrito/components/cart-popover-row';
 import { useCartStore } from '@/features/carrito/cart-store';
 import type { Product } from '@/features/catalogo/catalog-api';
@@ -57,6 +57,12 @@ describe('CartPopoverRow', () => {
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
   });
 
+  it('muestra el precio unitario del plato', () => {
+    renderRow(product({ price: 32 }), 2);
+
+    expect(screen.getByText('S/ 32.00')).toBeInTheDocument();
+  });
+
   it('+ suma y − resta una unidad', async () => {
     renderRow(product(), 2);
 
@@ -77,17 +83,41 @@ describe('CartPopoverRow', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Quitar una unidad de Ceviche clásico' }));
 
-    expect(useCartStore.getState().items).toEqual([]);
+    await waitFor(() => expect(useCartStore.getState().items).toEqual([]));
     expect(useCartStore.getState().lastRemoved?.name).toBe('Ceviche clásico');
   });
 
-  it('el botón de eliminar lo quita de inmediato', async () => {
+  it('el botón de eliminar desvanece la fila y luego quita el plato', async () => {
     renderRow(product(), 3);
 
     await userEvent.click(screen.getByRole('button', { name: 'Eliminar Ceviche clásico del carrito' }));
 
-    expect(useCartStore.getState().items).toEqual([]);
+    expect(screen.getByRole('listitem')).toHaveClass('opacity-0');
+    expect(useCartStore.getState().items).toHaveLength(1);
+    await waitFor(() => expect(useCartStore.getState().items).toEqual([]));
     expect(useCartStore.getState().lastRemoved?.name).toBe('Ceviche clásico');
+  });
+
+  it('con movimiento reducido lo quita de inmediato, sin desvanecer', async () => {
+    vi.stubGlobal('matchMedia', () => ({ matches: true }));
+    try {
+      renderRow(product(), 3);
+
+      await userEvent.click(screen.getByRole('button', { name: 'Eliminar Ceviche clásico del carrito' }));
+
+      expect(useCartStore.getState().items).toEqual([]);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('los botones + y − son cuadrados: no heredan la altura mínima del botón base', () => {
+    renderRow(product(), 2);
+
+    for (const name of ['Agregar una unidad de Ceviche clásico', 'Quitar una unidad de Ceviche clásico']) {
+      const button = screen.getByRole('button', { name });
+      expect(button).toHaveClass('size-8', 'min-h-8!');
+    }
   });
 
   it('un plato agotado lo indica bajo el nombre, no puede crecer y se puede quitar', async () => {

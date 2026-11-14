@@ -4,8 +4,10 @@ import { MinusIcon } from '@/components/icons/minus-icon';
 import { PlusIcon } from '@/components/icons/plus-icon';
 import { TrashIcon } from '@/components/icons/trash-icon';
 import { quantityCap, useCartStore } from '@/features/carrito/cart-store';
+import { formatPrice } from '@/features/catalogo/format';
 import { DishImage } from '@/features/catalogo/components/dish-image';
 import type { Product } from '@/features/catalogo/catalog-api';
+import { useFadeOut } from '@/lib/use-fade-out';
 
 export function CartPopoverRow({ product, quantity }: { product: Product; quantity: number }) {
   const setQuantity = useCartStore((state) => state.setQuantity);
@@ -17,13 +19,18 @@ export function CartPopoverRow({ product, quantity }: { product: Product; quanti
     stock: product.stock,
   };
 
+  const { leaving, start: fadeOut } = useFadeOut();
+
   function change(next: number) {
-    if (next <= 0) remove(product.id, product.name);
+    if (leaving) return;
+    if (next <= 0) fadeOut(() => remove(product.id, product.name));
     else setQuantity(purchasable, next);
   }
 
   return (
-    <li className="flex items-center gap-3">
+    <li
+      className={`flex items-center gap-3 transition-opacity duration-250 ease-out ${leaving ? 'pointer-events-none opacity-0' : 'opacity-100'}`}
+    >
       <DishImage
         src={product.imageUrl}
         alt={product.name}
@@ -33,6 +40,7 @@ export function CartPopoverRow({ product, quantity }: { product: Product; quanti
         <span title={product.name} className="truncate text-sm font-bold text-ink">
           {product.name}
         </span>
+        <span className="text-xs text-ink-muted">{formatPrice(product.price)}</span>
         {!product.available ? (
           <span className="truncate text-xs text-error-text">Agotado, no suma al total</span>
         ) : null}
@@ -42,7 +50,7 @@ export function CartPopoverRow({ product, quantity }: { product: Product; quanti
             variant="secondary"
             aria-label={`Quitar una unidad de ${product.name}`}
             onClick={() => change(quantity - 1)}
-            className="h-8 min-h-8 w-8 px-0!"
+            className="size-8 min-h-8! px-0!"
           >
             <MinusIcon strokeWidth={2.5} />
           </Button>
@@ -59,7 +67,7 @@ export function CartPopoverRow({ product, quantity }: { product: Product; quanti
             aria-label={`Agregar una unidad de ${product.name}`}
             disabled={quantity >= quantityCap(purchasable, quantity)}
             onClick={() => change(quantity + 1)}
-            className="h-8 min-h-8 w-8 px-0!"
+            className="size-8 min-h-8! px-0!"
           >
             <PlusIcon strokeWidth={2.5} />
           </Button>

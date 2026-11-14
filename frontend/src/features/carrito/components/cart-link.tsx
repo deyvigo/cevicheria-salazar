@@ -4,7 +4,7 @@ import { selectProductCount, useCartStore } from '@/features/carrito/cart-store'
 import { CartPopover } from '@/features/carrito/components/cart-popover';
 import { CartIcon } from '@/components/icons/cart-icon';
 
-const CLOSE_DELAY_MS = 150;
+const CLOSE_DELAY_MS = 400;
 
 export function CartLink() {
   const count = useCartStore(selectProductCount);
