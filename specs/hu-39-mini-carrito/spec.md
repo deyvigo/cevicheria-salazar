@@ -39,7 +39,7 @@ Aparece anclada bajo el ícono del carrito, sobre el contenido de la página, y 
 ## Comportamiento al pasar el cursor
 
 - La tarjeta se abre al pasar el cursor sobre el ícono y se mantiene abierta mientras el cursor esté sobre el ícono o sobre la tarjeta (hay que poder moverse del ícono a la tarjeta sin que se cierre).
-- Se cierra al sacar el cursor de ambos, con un breve retardo para evitar parpadeos.
+- Se cierra al sacar el cursor de ambos, con un retardo de 400 ms: evita parpadeos y deja llegar a la tarjeta aunque el cursor se desvíe del ícono.
 - Accesible por teclado: se abre también al enfocar el ícono, y **Escape** la cierra. El contenido de la tarjeta se alcanza con Tab.
 - Hacer clic en el ícono sigue llevando a `/cart`.
 - **No se muestra en `/cart` ni en las pantallas del checkout** (`/checkout/*`): ahí el carrito ya está a la vista y la tarjeta taparía el contenido. En esas rutas el ícono solo enlaza a `/cart`.
@@ -47,13 +47,14 @@ Aparece anclada bajo el ícono del carrito, sobre el contenido de la página, y 
 ## Criterios de aceptación
 
 - **Dado** un carrito con platos, **cuando** paso el cursor sobre el ícono del carrito, **entonces** aparece la tarjeta con una fila por plato.
-- **Dado** la tarjeta abierta, **cuando** miro una fila, **entonces** veo la imagen pequeña del plato, su nombre, su cantidad con **−** y **+**, y el botón de eliminar.
+- **Dado** la tarjeta abierta, **cuando** miro una fila, **entonces** veo la imagen pequeña del plato, su nombre, su precio unitario (`S/ 32.00`), su cantidad con **−** y **+**, y el botón de eliminar.
 - **Dado** un plato con un nombre muy largo, **cuando** abro la tarjeta, **entonces** el nombre se recorta con puntos suspensivos en una sola línea y la fila no se desborda.
 - **Dado** la tarjeta abierta, **cuando** presiono **+**, **entonces** la cantidad aumenta en 1 y el total se actualiza.
 - **Dado** un plato con cantidad 3, **cuando** presiono **−**, **entonces** baja a 2 y el total se actualiza.
 - **Dado** un plato con cantidad igual al `stock`, **cuando** miro su fila, **entonces** **+** está deshabilitado.
-- **Dado** un plato con cantidad 1, **cuando** presiono **−**, **entonces** el plato se elimina del carrito y veo la notificación "Quitamos {nombre} de tu carrito".
-- **Dado** la tarjeta abierta, **cuando** presiono el botón de eliminar de un plato, **entonces** el plato se quita de inmediato y veo esa notificación.
+- **Dado** un plato con cantidad 1, **cuando** presiono **−**, **entonces** la fila se desvanece (el mismo fade de `/cart`) y luego el plato se elimina del carrito, con la notificación "Quitamos {nombre} de tu carrito".
+- **Dado** la tarjeta abierta, **cuando** presiono el botón de eliminar de un plato, **entonces** la fila se desvanece como en `/cart` y luego el plato se quita y veo esa notificación; con movimiento reducido (`prefers-reduced-motion`) se quita de inmediato, sin fade.
+- **Dado** una fila de la tarjeta, **cuando** miro **−** y **+**, **entonces** son botones cuadrados (32 × 32 px).
 - **Dado** la tarjeta abierta, **cuando** miro el total, **entonces** es la suma de precio por cantidad de los platos disponibles (los agotados no suman), con formato `S/ 32.00`, igual que el subtotal de `/cart`.
 - **Dado** la tarjeta abierta, **cuando** presiono "Vaciar carrito", **entonces** el carrito queda sin platos, la insignia del ícono desaparece y la tarjeta muestra el estado vacío.
 - **Dado** que cambio cantidades, elimino o vacío desde la tarjeta, **cuando** abro `/cart` o recargo la página, **entonces** veo los mismos cambios (misma fuente que HU-13 y HU-16).

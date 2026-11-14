@@ -46,7 +46,7 @@ Contenido de la tarjeta, sin lógica de apertura. Usa `Card` y llama a `useCartD
 `CartLink` pasa a envolver el ícono y la tarjeta en un contenedor `relative`:
 
 - **Rutas sin tarjeta**: `useLocation()`; si `pathname === '/cart'` o empieza por `/checkout`, se renderiza solo el `Link` actual (sin contenedor ni listeners).
-- Estado `open`. Se abre con `onMouseEnter` y `onFocus` del contenedor; se cierra con `onMouseLeave` tras un retardo de 150 ms (cancelable si el cursor vuelve a entrar) y con `onBlur` cuando `relatedTarget` queda fuera del contenedor (el retardo no aplica al foco).
+- Estado `open`. Se abre con `onMouseEnter` y `onFocus` del contenedor; se cierra con `onMouseLeave` tras un retardo de 400 ms (cancelable si el cursor vuelve a entrar) y con `onBlur` cuando `relatedTarget` queda fuera del contenedor (el retardo no aplica al foco).
 - **Sin hueco entre ícono y tarjeta**: la tarjeta se posiciona con `absolute right-0 top-full` dentro del mismo contenedor y con un `pt-2` transparente sobre ella, de modo que el cursor pasa del ícono a la tarjeta sin salir del contenedor (más el retardo como red de seguridad).
 - **Teclado**: un `keydown` en el contenedor cierra con **Escape** y devuelve el foco al enlace del ícono, igual que el menú de usuario del header (`header.tsx`).
 - La tarjeta se cierra también al cambiar de ruta (`useEffect` sobre `pathname`), por si se llega a `/cart` con "Ver carrito".
@@ -75,7 +75,7 @@ Contenido de la tarjeta, sin lógica de apertura. Usa `Card` y llama a `useCartD
 - **Un `emptyCart` aparte de `clear`**: `clear` lo usa el flujo de pedido confirmado y no debe notificar.
 - **Botones solo −/+, sin campo**: lo pide la spec; la tarjeta es para ajustes rápidos y `/cart` sigue siendo el lugar de edición completa.
 - **"Ver carrito" como `Link` con estilo de botón**: `Button` no admite renderizar un enlace; se reutilizan sus clases en un `Link` para conservar la semántica de enlace (abrir en pestaña nueva, etc.).
-- **Retardo de cierre de 150 ms**: evita que la tarjeta parpadee si el cursor roza el borde al ir del ícono a la tarjeta.
+- **Retardo de cierre de 400 ms**: evita que la tarjeta parpadee si el cursor roza el borde al ir del ícono a la tarjeta.
 - **Sin cambios de backend ni de modelo de datos.**
 
 ## Impacto en docs/
