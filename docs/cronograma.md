@@ -138,6 +138,8 @@ Duración de cada sprint: 3 semanas (lunes a viernes). Historias en [historias.m
 | HU-20 | Detallar el pago contraentrega (efectivo con monto opcional o Yape) y crear el pedido | Usuario | Alta | 3 | ✓ |
 | HU-25 | Ver el historial de mis pedidos con su estado de entrega (En preparación, En camino, Entregado) | Usuario | Media | 3 | ✓ |
 | HU-21 | Confirmar el pedido con su número y correo de confirmación (paso final del checkout) | Usuario | Alta | 3 |  |
+| HU-32 | Ver los pedidos comprados en el panel, con filtros, orden y actualización en tiempo real (SSE) | Usuario | Alta | 3 |  |
+| HU-33 | Cambiar la etapa de entrega de un pedido (En preparación, En camino, Entregado) desde el panel | Usuario | Alta | 3 |  |
 
 ### Eventos Scrum
 

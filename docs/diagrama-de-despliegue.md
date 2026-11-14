@@ -36,6 +36,6 @@ La definición ejecutable de este entorno es `docker-compose.prod.yml` (la API s
 ### Flujo de despliegue
 
 1. El navegador del Cliente/Administrador resuelve `cevicheria-salazar.site` hacia Cloudflare Pages para obtener la app React, y `api.cevicheria-salazar.site` / `media.cevicheria-salazar.site` hacia el VPS para los datos y las imágenes.
-2. Traefik recibe todo el tráfico HTTPS del VPS en los puertos 80/443, termina TLS con Let's Encrypt y enruta internamente a cada contenedor por su puerto interno (`:8080` API, `:3902` Garage).
+2. Traefik recibe todo el tráfico HTTPS del VPS en los puertos 80/443, termina TLS con Let's Encrypt y enruta internamente a cada contenedor por su puerto interno (`:8080` API, `:3902` Garage). La conexión de eventos del panel de administración (`/api/admin/orders/events`, HU-32) es una respuesta que se mantiene abierta; la API envía un comentario de latido cada 25 segundos para que ni Traefik ni el proxy de Cloudflare la cierren por inactividad.
 3. Dentro de la red de Docker Compose, la API habla con PostgreSQL por el puerto `:5432`, con Garage por API S3 y con Redis por el puerto `:6379`; los dos primeros persisten en volúmenes dedicados, mientras que Redis queda en memoria y se descarta si el contenedor se reinicia.
 4. Solo la API sale hacia los servicios externos (Google, Mercado Pago, SMTP); el frontend en Cloudflare Pages nunca los contacta directamente.

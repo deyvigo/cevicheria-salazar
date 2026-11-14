@@ -169,6 +169,7 @@ Para proteger también el VPS:
 
 Consideraciones:
 
+- El panel de administración mantiene abierta una conexión SSE (`/api/admin/orders/events`, HU-32). La API envía un latido cada 25 segundos, por debajo del límite de inactividad de Cloudflare (100 s). Si una respuesta larga llegara cortada o con retraso, revisar que ningún middleware de Traefik comprima o almacene en búfer las respuestas de `api.`.
 - Let's Encrypt con desafío HTTP sigue funcionando detrás del proxy mientras el puerto 80 sea accesible.
 - El plan gratuito limita las subidas a 100 MB; las imágenes tienen un máximo de 5 MB, así que no afecta.
 - El proxy no cambia el comportamiento de `SameSite=Strict`, porque el dominio raíz y `api` siguen en el mismo sitio.
