@@ -5,12 +5,14 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { QueryWrapper } from '@tests/utils/query-wrapper';
 import { AuthProvider } from '@/context/auth-context';
 import * as categoryApi from '@/features/admin/admin-category-api';
+import * as orderApi from '@/features/admin/admin-order-api';
 import * as productApi from '@/features/admin/admin-product-api';
 import * as authApi from '@/features/auth/auth-api';
 import { router as appRouter } from '@/router';
 
 vi.mock('@/features/auth/auth-api');
 vi.mock('@/features/admin/admin-category-api');
+vi.mock('@/features/admin/admin-order-api');
 vi.mock('@/features/admin/admin-product-api');
 
 function renderPanel(path: string) {
@@ -38,6 +40,8 @@ describe('Panel de administración', () => {
       role: 'ADMINISTRADOR',
       hasPassword: true,
     });
+    vi.mocked(orderApi.listAdminOrders).mockResolvedValue({ items: [], page: 1, pageSize: 20, totalItems: 0, totalPages: 0 });
+    vi.mocked(orderApi.listAdminOrderZones).mockResolvedValue([]);
   });
 
   it('/admin redirige a Platos, resaltada, sin el header de la tienda', async () => {
@@ -107,12 +111,18 @@ describe('Panel de administración', () => {
     expect(await screen.findByText('Ceviche mixto')).toBeInTheDocument();
   });
 
-  it.each(['Pedidos', 'Reportes'])('la sección %s muestra su estado vacío', async (name) => {
-    const path = { Pedidos: 'pedidos', Reportes: 'reportes' }[name];
-    renderPanel(`/admin/${path}`);
+  it('la sección Reportes muestra su estado vacío', async () => {
+    renderPanel('/admin/reportes');
 
-    expect(await screen.findByRole('heading', { name })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Reportes' })).toBeInTheDocument();
     expect(screen.getByText('Aún no hay nada por mostrar.')).toBeInTheDocument();
+  });
+
+  it('la sección Pedidos muestra la tabla de pedidos dentro del panel', async () => {
+    renderPanel('/admin/pedidos');
+
+    expect(await screen.findByRole('heading', { name: 'Pedidos' })).toBeInTheDocument();
+    expect(await screen.findByText('No hay pedidos activos')).toBeInTheDocument();
   });
 
   it('una sección inexistente muestra "Página no encontrada" con la navegación visible', async () => {

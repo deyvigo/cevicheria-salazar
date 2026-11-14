@@ -9,7 +9,7 @@ Duración de cada sprint: 3 semanas (lunes a viernes). Historias en [historias.m
 | Sprint 0 | 07/09/2026 | 25/09/2026 | Documentación inicial, diagramas, entorno, registro y login |
 | Sprint 1 | 28/09/2026 | 16/10/2026 | Catálogo de productos y carrito de compras                  |
 | Sprint 2 | 19/10/2026 | 06/11/2026 | Perfil del cliente: direcciones de entrega                  |
-| Sprint 3 | 09/11/2026 | 27/11/2026 | Confirmación del pedido                                     |
+| Sprint 3 | 09/11/2026 | 27/11/2026 | Confirmación del pedido y gestión de pedidos del panel     |
 
 ---
 
@@ -151,13 +151,15 @@ Duración de cada sprint: 3 semanas (lunes a viernes). Historias en [historias.m
 
 ## Sprint 3 (09/11/2026 – 27/11/2026)
 
-**Objetivo del sprint:** que el Cliente reciba la confirmación de su pedido, con su número y un correo de confirmación, como paso final del checkout. El resto del backlog del sprint se define en su Sprint Planning.
+**Objetivo del sprint:** que el Cliente reciba la confirmación de su pedido, con su número y un correo de confirmación, como paso final del checkout, y que el Administrador vea los pedidos en el panel, con actualización en tiempo real, y cambie su etapa de entrega. El resto del backlog del sprint se define en su Sprint Planning.
 
 ### Elementos del backlog incluidos
 
 | ID    | Elemento                                                                             | Tipo    | Prioridad | Semana | Hecho |
 | ----- | ------------------------------------------------------------------------------------ | ------- | --------- | ------ | ----- |
 | HU-21 | Confirmar el pedido con su número y correo de confirmación (paso final del checkout) | Usuario | Alta      | 1      | ✓     |
+| HU-32 | Ver los pedidos comprados en el panel, con filtros, orden y actualización en tiempo real (SSE) | Usuario | Alta      | 2      |       |
+| HU-33 | Cambiar la etapa de entrega de un pedido (En preparación, En camino, Entregado) desde el panel | Usuario | Alta      | 2      |       |
 
 ### Eventos Scrum
 

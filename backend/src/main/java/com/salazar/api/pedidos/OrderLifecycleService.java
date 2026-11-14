@@ -140,6 +140,8 @@ public class OrderLifecycleService {
         }
         Order saved = orderRepository.save(order);
         if (cashOnDelivery) {
+            // Online orders reach the admin panel only once they are paid
+            events.publishEvent(new OrderChangedEvent(OrderChangedEvent.Type.CREATED, saved.getId()));
             events.publishEvent(new OrderConfirmedEvent(saved.getId()));
         }
         return saved;

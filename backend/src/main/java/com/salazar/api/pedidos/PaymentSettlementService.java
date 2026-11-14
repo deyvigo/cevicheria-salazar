@@ -57,6 +57,7 @@ public class PaymentSettlementService {
                 && CURRENCY.equals(gatewayPayment.currency());
         if (order.isPending() && amountMatches) {
             order.markPaid();
+            events.publishEvent(new OrderChangedEvent(OrderChangedEvent.Type.CREATED, order.getId()));
             events.publishEvent(new OrderConfirmedEvent(order.getId()));
         } else if (order.getStatus() == OrderStatus.PAGADO && known) {
             // A repeated notification for the payment that already paid the order: nothing to do

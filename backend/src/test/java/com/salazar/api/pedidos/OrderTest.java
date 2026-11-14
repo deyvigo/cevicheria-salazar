@@ -1,6 +1,9 @@
 package com.salazar.api.pedidos;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import com.salazar.api.common.exception.OrderDeliveryConflictException;
 
 import com.salazar.api.pedidos.dto.OrderResponse;
 import java.math.BigDecimal;
@@ -64,5 +67,49 @@ class OrderTest {
         assertThat(OrderResponse.from(paid, null, "Ana Pérez").deliveryCode()).isEqualTo("1234");
         assertThat(OrderResponse.from(online, null, "Ana Pérez").deliveryCode()).isNull();
         assertThat(OrderResponse.from(cancelled, null, "Ana Pérez").deliveryCode()).isNull();
+    }
+
+    private Order purchased() {
+        Order order = order(PaymentMethod.ONLINE);
+        order.markPaid();
+        return order;
+    }
+
+    @Test
+    void deliveryAdvancesOneStepAtATime() {
+        Order order = purchased();
+
+        order.advanceDelivery(DeliveryStatus.EN_PREPARACION);
+        assertThat(order.getDeliveryStatus()).isEqualTo(DeliveryStatus.EN_CAMINO);
+        order.advanceDelivery(DeliveryStatus.EN_CAMINO);
+        assertThat(order.getDeliveryStatus()).isEqualTo(DeliveryStatus.ENTREGADO);
+    }
+
+    @Test
+    void aDeliveredOrderCannotAdvanceFurther() {
+        Order order = purchased();
+        order.advanceDelivery(DeliveryStatus.EN_PREPARACION);
+        order.advanceDelivery(DeliveryStatus.EN_CAMINO);
+
+        assertThatThrownBy(() -> order.advanceDelivery(DeliveryStatus.ENTREGADO))
+                .isInstanceOf(OrderDeliveryConflictException.class);
+    }
+
+    @Test
+    void aStaleViewOfTheStageIsRejectedAndLeavesTheOrderUntouched() {
+        Order order = purchased();
+        order.advanceDelivery(DeliveryStatus.EN_PREPARACION);
+
+        assertThatThrownBy(() -> order.advanceDelivery(DeliveryStatus.EN_PREPARACION))
+                .isInstanceOf(OrderDeliveryConflictException.class);
+        assertThat(order.getDeliveryStatus()).isEqualTo(DeliveryStatus.EN_CAMINO);
+    }
+
+    @Test
+    void anOrderStillPendingPaymentHasNoDeliveryToAdvance() {
+        Order order = order(PaymentMethod.ONLINE);
+
+        assertThatThrownBy(() -> order.advanceDelivery(DeliveryStatus.EN_PREPARACION))
+                .isInstanceOf(OrderDeliveryConflictException.class);
     }
 }
