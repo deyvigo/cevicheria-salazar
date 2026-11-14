@@ -157,7 +157,7 @@ Duración de cada sprint: 3 semanas (lunes a viernes). Historias en [historias.m
 
 | ID    | Elemento                                                                             | Tipo    | Prioridad | Semana | Hecho |
 | ----- | ------------------------------------------------------------------------------------ | ------- | --------- | ------ | ----- |
-| HU-21 | Confirmar el pedido con su número y correo de confirmación (paso final del checkout) | Usuario | Alta      | 1      || ✓ |
+| HU-21 | Confirmar el pedido con su número y correo de confirmación (paso final del checkout) | Usuario | Alta      | 1      | ✓     |
 
 ### Eventos Scrum
 
