@@ -1,3 +1,4 @@
+import { limaDay } from '@/lib/lima-dates';
 import type {
   DeliveryType,
   OrderListParams,
@@ -106,14 +107,6 @@ export function hasActiveFilters(view: OrdersView): boolean {
     view.zone !== '' ||
     view.range !== 'all'
   );
-}
-
-const LIMA_DAY = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Lima' });
-const DAY_MS = 24 * 60 * 60 * 1000;
-
-// Lima has no daylight saving, so stepping by 24 hours always lands on the previous calendar day
-function limaDay(now: Date, daysAgo = 0): string {
-  return LIMA_DAY.format(new Date(now.getTime() - daysAgo * DAY_MS));
 }
 
 export function dateRange(view: Pick<OrdersView, 'range' | 'from' | 'to'>, now = new Date()): { from?: string; to?: string } {

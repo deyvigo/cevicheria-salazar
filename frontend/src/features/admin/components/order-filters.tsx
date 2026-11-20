@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/button';
-import { ChevronDownIcon } from '@/components/icons/chevron-down-icon';
 import { SearchIcon } from '@/components/icons/search-icon';
 import { Input } from '@/components/input';
+import { FilterSelect } from '@/features/admin/components/filter-select';
 import { RANGES, STAGES, hasActiveFilters, type OrdersView, type RangePreset } from '@/features/admin/admin-orders-view';
 import { DELIVERY_LABELS, PAYMENT_LABELS, PAYMENT_STATUS_LABELS, TYPE_LABELS } from '@/features/admin/order-labels';
 
@@ -19,35 +19,6 @@ const RANGE_LABELS: Record<RangePreset, string> = {
   week: 'Últimos 7 días',
   custom: 'Personalizado',
 };
-
-// Same look as the catalog's sort select: the native arrow is hidden and the design system chevron is drawn instead
-function FilterSelect({
-  label,
-  value,
-  onChange,
-  children,
-}: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  children: ReactNode;
-}) {
-  return (
-    <label className="flex flex-col gap-2 text-sm font-bold text-ink">
-      {label}
-      <div className="relative">
-        <select
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-          className="h-12 appearance-none rounded-md border border-border-strong bg-surface pr-11 pl-4 text-base font-normal text-ink focus:border-focus-ring focus:outline-none"
-        >
-          {children}
-        </select>
-        <ChevronDownIcon className="pointer-events-none absolute top-1/2 right-4 h-5 w-5 -translate-y-1/2 text-ink-muted" />
-      </div>
-    </label>
-  );
-}
 
 interface OrderFiltersProps {
   view: OrdersView;

@@ -111,11 +111,11 @@ describe('Panel de administración', () => {
     expect(await screen.findByText('Ceviche mixto')).toBeInTheDocument();
   });
 
-  it('la sección Reportes muestra su estado vacío', async () => {
+  it('la sección Reportes muestra el reporte de ventas dentro del panel', async () => {
     renderPanel('/admin/reportes');
 
     expect(await screen.findByRole('heading', { name: 'Reportes' })).toBeInTheDocument();
-    expect(screen.getByText('Aún no hay nada por mostrar.')).toBeInTheDocument();
+    expect(screen.getByLabelText('Periodo')).toBeInTheDocument();
   });
 
   it('la sección Pedidos muestra la tabla de pedidos dentro del panel', async () => {
