@@ -18,6 +18,7 @@ const DETAIL: ProductDetail = {
   description: 'Pescado fresco con limón.',
   price: 32,
   rating: 4.5,
+  reviewCount: 2,
   available: true,
   stock: 10,
   category: { id: 2, name: 'Ceviches', slug: 'ceviches' },
@@ -42,6 +43,9 @@ function renderAt(entry: string | { pathname: string; state: unknown }) {
 describe('ProductDetailPage', () => {
   beforeEach(() => {
     vi.mocked(catalogApi.getProduct).mockReset();
+    vi.mocked(catalogApi.getReviews)
+      .mockReset()
+      .mockResolvedValue({ items: [], page: 1, pageSize: 10, totalItems: 0, totalPages: 0 });
     localStorage.clear();
     useCartStore.setState({ items: [], lastAdded: null, lastRemoved: null });
   });

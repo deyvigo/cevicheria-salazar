@@ -55,6 +55,7 @@ export function useProduct(id: number | null) {
         description: found.description,
         price: found.price,
         rating: found.rating,
+        reviewCount: null,
         available: found.available,
         stock: found.stock,
         category: null,
