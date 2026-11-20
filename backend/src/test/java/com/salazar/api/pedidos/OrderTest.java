@@ -106,6 +106,49 @@ class OrderTest {
         assertThat(order.getDeliveryStatus()).isEqualTo(DeliveryStatus.ENTREGADO);
     }
 
+    private Order cashOnDelivery() {
+        return new Order(
+                1L, "SAL-000001", "1234", PaymentMethod.CONTRAENTREGA, DeliveryType.RECOJO, new BigDecimal("85.00"),
+                BigDecimal.ZERO.setScale(2), null);
+    }
+
+    @Test
+    void deliveringACashOnDeliveryOrderMarksItPaid() {
+        Order order = cashOnDelivery();
+        walk(order, DeliveryStatus.CONFIRMADO, DeliveryStatus.EN_PREPARACION, DeliveryStatus.LISTO_PARA_RECOGER);
+        assertThat(order.getStatus()).isEqualTo(OrderStatus.PENDIENTE_COBRO);
+        assertThat(order.getPaidAt()).isNull();
+
+        walk(order, DeliveryStatus.ENTREGADO);
+
+        assertThat(order.getStatus()).isEqualTo(OrderStatus.PAGADO);
+        assertThat(order.getPaidAt()).isNotNull();
+    }
+
+    @Test
+    void aCashOnDeliveryOrderThatIsNotDeliveredStaysPendingCollection() {
+        Order order = cashOnDelivery();
+        walk(order, DeliveryStatus.CONFIRMADO);
+
+        order.moveDelivery(DeliveryStatus.CONFIRMADO, DeliveryStatus.CANCELADO, "Sin insumos", null);
+
+        assertThat(order.getStatus()).isEqualTo(OrderStatus.PENDIENTE_COBRO);
+        assertThat(order.getPaidAt()).isNull();
+    }
+
+    @Test
+    void deliveringAnOnlineOrderKeepsItsPaymentDate() {
+        Order order = purchased(DeliveryType.RECOJO);
+        java.time.Instant paidAt = order.getPaidAt();
+
+        walk(order, DeliveryStatus.CONFIRMADO, DeliveryStatus.EN_PREPARACION, DeliveryStatus.LISTO_PARA_RECOGER,
+                DeliveryStatus.ENTREGADO);
+
+        assertThat(order.getStatus()).isEqualTo(OrderStatus.PAGADO);
+        assertThat(order.getPaidAt()).isEqualTo(paidAt);
+        assertThat(order.getPurchasedAt()).isEqualTo(paidAt);
+    }
+
     @Test
     void aDeliveryOrderGoesThroughReadyToShipAndOnTheWay() {
         Order order = purchased(DeliveryType.ENTREGA);

@@ -299,6 +299,24 @@ class AdminOrdersIT extends OrderITSupport {
     }
 
     @Test
+    void deliveringACashOnDeliveryOrderMarksItPaidAndKeepsItsPlaceInTheList() throws Exception {
+        long cash = insert(buyerId, Seed.paid("2026-11-01T10:00:00Z").cash("EFECTIVO", "100").delivery("LISTO_PARA_RECOGER"));
+        long newer = insert(buyerId, Seed.paid("2026-11-05T10:00:00Z"));
+        long older = insert(buyerId, Seed.paid("2026-10-20T10:00:00Z"));
+        assertThat(ids(list(""))).containsExactly(newer, cash, older);
+
+        change(cash, "LISTO_PARA_RECOGER", "ENTREGADO", null).andExpect(status().isOk());
+
+        assertThat(jdbcTemplate.queryForObject("SELECT status FROM orders WHERE id = ?", String.class, cash))
+                .isEqualTo("PAGADO");
+        assertThat(jdbcTemplate.queryForObject("SELECT paid_at IS NOT NULL FROM orders WHERE id = ?", Boolean.class, cash))
+                .isTrue();
+        assertThat(ids(list("?deliveryStatus=ALL&paymentStatus=PAGADO"))).contains(cash);
+        assertThat(ids(list("?deliveryStatus=ALL&paymentStatus=PENDIENTE_COBRO"))).doesNotContain(cash);
+        assertThat(ids(list("?deliveryStatus=ALL"))).containsExactly(newer, cash, older);
+    }
+
+    @Test
     void deliveringNeedsTheDeliveryCodeTheCustomerWasGiven() throws Exception {
         long id = insert(buyerId, Seed.paid("2026-11-01T10:00:00Z").delivery("LISTO_PARA_RECOGER"));
         String url = URL + "/" + id + "/delivery-status";

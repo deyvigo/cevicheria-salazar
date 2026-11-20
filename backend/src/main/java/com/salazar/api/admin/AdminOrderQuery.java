@@ -82,7 +82,9 @@ class AdminOrderQuery {
     }
 
     private Expression<Instant> purchasedAt(CriteriaBuilder cb, Root<Order> order) {
-        return cb.coalesce(order.<Instant>get("paidAt"), order.<Instant>get("createdAt"));
+        return cb.<Instant>selectCase()
+                .when(cb.equal(order.get("paymentMethod"), PaymentMethod.CONTRAENTREGA), order.<Instant>get("createdAt"))
+                .otherwise(cb.coalesce(order.<Instant>get("paidAt"), order.<Instant>get("createdAt")));
     }
 
     private List<Predicate> predicates(CriteriaBuilder cb, Root<Order> order, Root<User> user, AdminOrderFilter filter) {

@@ -45,6 +45,6 @@ public record AdminOrderRow(
     }
 
     public static Instant purchasedAt(Order order) {
-        return order.getPaidAt() != null ? order.getPaidAt() : order.getCreatedAt();
+        return order.getPurchasedAt();
     }
 }
