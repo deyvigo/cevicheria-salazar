@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -35,7 +36,7 @@ class AdminOrdersIT extends OrderITSupport {
 
     private record Seed(String status, String delivery, String type, String zone, String collection, String total, String paidAt) {
         static Seed paid(String paidAt) {
-            return new Seed("PAGADO", "EN_PREPARACION", "RECOJO", null, null, "30.00", paidAt);
+            return new Seed("PAGADO", "PENDIENTE", "RECOJO", null, null, "30.00", paidAt);
         }
 
         Seed delivery(String value) {
@@ -57,6 +58,19 @@ class AdminOrdersIT extends OrderITSupport {
         Seed status(String value) {
             return new Seed(value, delivery, type, zone, collection, total, paidAt);
         }
+    }
+
+    private static String move(String from, String to, String reason) {
+        return "{\"from\":\"" + from + "\",\"to\":\"" + to + "\"" + (reason == null ? "" : ",\"reason\":\"" + reason + "\"")
+                + (to.equals("ENTREGADO") ? ",\"deliveryCode\":\"1234\"" : "") + "}";
+    }
+
+    private org.springframework.test.web.servlet.ResultActions change(long id, String from, String to, String reason)
+            throws Exception {
+        return mockMvc.perform(patch(URL + "/" + id + "/delivery-status")
+                .contentType("application/json")
+                .content(move(from, to, reason))
+                .cookie(admin.access()));
     }
 
     private long insert(long userId, Seed seed) {
@@ -95,9 +109,13 @@ class AdminOrdersIT extends OrderITSupport {
             mockMvc.perform(get(path)).andExpect(status().isUnauthorized());
             mockMvc.perform(get(path).cookie(buyer.access())).andExpect(status().isForbidden());
         }
-        mockMvc.perform(patch(URL + "/1/delivery-status?from=EN_PREPARACION")).andExpect(status().isUnauthorized());
-        mockMvc.perform(patch(URL + "/1/delivery-status?from=EN_PREPARACION").cookie(buyer.access()))
+        mockMvc.perform(patch(URL + "/1/delivery-status").contentType("application/json").content(move("PENDIENTE", "CONFIRMADO", null)))
+                .andExpect(status().isUnauthorized());
+        mockMvc.perform(patch(URL + "/1/delivery-status").contentType("application/json").content(move("PENDIENTE", "CONFIRMADO", null))
+                        .cookie(buyer.access()))
                 .andExpect(status().isForbidden());
+        mockMvc.perform(patch(URL + "/1/refund")).andExpect(status().isUnauthorized());
+        mockMvc.perform(patch(URL + "/1/refund").cookie(buyer.access())).andExpect(status().isForbidden());
     }
 
     @Test
@@ -252,28 +270,103 @@ class AdminOrdersIT extends OrderITSupport {
         long pending = insert(buyerId, Seed.paid("2026-11-01T10:00:00Z").status("PENDIENTE_PAGO"));
 
         mockMvc.perform(get(URL + "/" + pending).cookie(admin.access())).andExpect(status().isNotFound());
-        mockMvc.perform(patch(URL + "/" + pending + "/delivery-status?from=EN_PREPARACION").cookie(admin.access()))
-                .andExpect(status().isNotFound());
+        change(pending, "PENDIENTE", "CONFIRMADO", null).andExpect(status().isNotFound());
         mockMvc.perform(get(URL + "/999999").cookie(admin.access())).andExpect(status().isNotFound());
     }
 
     @Test
-    void advancesOneStepAtATimeAndRejectsStaleOrFinishedRequests() throws Exception {
+    void movesAlongTheFlowOfThePickupOrderAndRejectsStaleSkippedOrFinishedRequests() throws Exception {
         long id = insert(buyerId, Seed.paid("2026-11-01T10:00:00Z"));
-        String advance = URL + "/" + id + "/delivery-status";
 
-        mockMvc.perform(patch(advance + "?from=EN_CAMINO").cookie(admin.access())).andExpect(status().isConflict());
-        mockMvc.perform(patch(advance + "?from=NOPE").cookie(admin.access())).andExpect(status().isBadRequest());
-        mockMvc.perform(patch(advance + "?from=EN_PREPARACION").cookie(admin.access())).andExpect(status().isOk());
-        assertThat(deliveryOf(id)).isEqualTo("EN_CAMINO");
+        change(id, "EN_PREPARACION", "LISTO_PARA_RECOGER", null).andExpect(status().isConflict());
+        change(id, "PENDIENTE", "ENTREGADO", null).andExpect(status().isConflict());
+        mockMvc.perform(patch(URL + "/" + id + "/delivery-status").contentType("application/json")
+                        .content(move("NOPE", "CONFIRMADO", null)).cookie(admin.access()))
+                .andExpect(status().isBadRequest());
+        change(id, "PENDIENTE", "CONFIRMADO", null).andExpect(status().isOk());
+        assertThat(deliveryOf(id)).isEqualTo("CONFIRMADO");
 
         // A second administrator still looking at the old row must not move it twice
-        mockMvc.perform(patch(advance + "?from=EN_PREPARACION").cookie(admin.access())).andExpect(status().isConflict());
-        assertThat(deliveryOf(id)).isEqualTo("EN_CAMINO");
+        change(id, "PENDIENTE", "CONFIRMADO", null).andExpect(status().isConflict());
+        assertThat(deliveryOf(id)).isEqualTo("CONFIRMADO");
 
-        mockMvc.perform(patch(advance + "?from=EN_CAMINO").cookie(admin.access())).andExpect(status().isOk());
-        mockMvc.perform(patch(advance + "?from=ENTREGADO").cookie(admin.access())).andExpect(status().isConflict());
+        change(id, "CONFIRMADO", "EN_PREPARACION", null).andExpect(status().isOk());
+        change(id, "EN_PREPARACION", "LISTO_PARA_ENVIO", null).andExpect(status().isConflict());
+        change(id, "EN_PREPARACION", "LISTO_PARA_RECOGER", null).andExpect(status().isOk());
+        change(id, "LISTO_PARA_RECOGER", "ENTREGADO", null).andExpect(status().isOk());
+        change(id, "ENTREGADO", "CANCELADO", "tarde").andExpect(status().isConflict());
         assertThat(deliveryOf(id)).isEqualTo("ENTREGADO");
+    }
+
+    @Test
+    void deliveringNeedsTheDeliveryCodeTheCustomerWasGiven() throws Exception {
+        long id = insert(buyerId, Seed.paid("2026-11-01T10:00:00Z").delivery("LISTO_PARA_RECOGER"));
+        String url = URL + "/" + id + "/delivery-status";
+
+        for (String body : new String[] {
+            "{\"from\":\"LISTO_PARA_RECOGER\",\"to\":\"ENTREGADO\"}",
+            "{\"from\":\"LISTO_PARA_RECOGER\",\"to\":\"ENTREGADO\",\"deliveryCode\":\"0000\"}"}) {
+            mockMvc.perform(patch(url).contentType("application/json").content(body).cookie(admin.access()))
+                    .andExpect(status().isBadRequest());
+        }
+        assertThat(deliveryOf(id)).isEqualTo("LISTO_PARA_RECOGER");
+        change(id, "LISTO_PARA_RECOGER", "ENTREGADO", null).andExpect(status().isOk());
+        assertThat(deliveryOf(id)).isEqualTo("ENTREGADO");
+    }
+
+    @Test
+    void aDeliveryOrderPassesThroughReadyToShipAndOnTheWay() throws Exception {
+        long id = insert(buyerId, Seed.paid("2026-11-01T10:00:00Z").zone("Miraflores"));
+
+        for (String[] step : new String[][] {
+            {"PENDIENTE", "CONFIRMADO"}, {"CONFIRMADO", "EN_PREPARACION"}, {"EN_PREPARACION", "LISTO_PARA_ENVIO"},
+            {"LISTO_PARA_ENVIO", "EN_CAMINO"}, {"EN_CAMINO", "ENTREGADO"}}) {
+            change(id, step[0], step[1], null).andExpect(status().isOk());
+        }
+        assertThat(deliveryOf(id)).isEqualTo("ENTREGADO");
+    }
+
+    @Test
+    void rejectingNeedsAReasonGivesTheStockBackAndFlagsThePaidOrderForRefund() throws Exception {
+        long dish = product("Ceviche " + System.nanoTime(), "30.00", 5);
+        long orderId = createOnlineOrder(buyer, orderBody("RECOJO", null, "ONLINE", new long[] {dish, 2}));
+        jdbcTemplate.update("UPDATE orders SET status = 'PAGADO', paid_at = now() WHERE id = ?", orderId);
+        assertThat(jdbcTemplate.queryForObject("SELECT stock FROM products WHERE id = ?", Integer.class, dish)).isEqualTo(3);
+
+        change(orderId, "PENDIENTE", "RECHAZADO", " ").andExpect(status().isBadRequest());
+        assertThat(deliveryOf(orderId)).isEqualTo("PENDIENTE");
+
+        change(orderId, "PENDIENTE", "RECHAZADO", "Sin insumos")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.deliveryReason").value("Sin insumos"))
+                .andExpect(jsonPath("$.refundStatus").value("PENDIENTE"));
+        assertThat(jdbcTemplate.queryForObject("SELECT stock FROM products WHERE id = ?", Integer.class, dish)).isEqualTo(5);
+        assertThat(list("?refund=PENDIENTE&deliveryStatus=ALL").get("totalItems").asInt()).isEqualTo(1);
+
+        mockMvc.perform(patch(URL + "/" + orderId + "/refund").cookie(admin.access()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.refundStatus").value("REEMBOLSADO"));
+        mockMvc.perform(patch(URL + "/" + orderId + "/refund").cookie(admin.access())).andExpect(status().isConflict());
+    }
+
+    @Test
+    void aFailedDeliveryKeepsTheStockAndOwesNoRefund() throws Exception {
+        long id = insert(buyerId, Seed.paid("2026-11-01T10:00:00Z").delivery("LISTO_PARA_RECOGER"));
+
+        change(id, "LISTO_PARA_RECOGER", "FALLIDO", "No recogió")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.refundStatus").doesNotExist());
+    }
+
+    @Test
+    void sortsByTheFlowAndTheActiveViewHidesFinalStatuses() throws Exception {
+        long rejected = insert(buyerId, Seed.paid("2026-11-01T10:00:00Z").delivery("RECHAZADO"));
+        long ready = insert(buyerId, Seed.paid("2026-11-02T10:00:00Z").delivery("LISTO_PARA_RECOGER"));
+        long pending = insert(buyerId, Seed.paid("2026-11-03T10:00:00Z"));
+
+        assertThat(ids(list("?sort=deliveryStatus&dir=asc&deliveryStatus=ALL"))).containsExactly(pending, ready, rejected);
+        assertThat(ids(list(""))).containsExactlyInAnyOrder(pending, ready);
+        assertThat(ids(list("?deliveryStatus=RECHAZADO"))).containsExactly(rejected);
     }
 
     @Test
@@ -281,8 +374,7 @@ class AdminOrdersIT extends OrderITSupport {
         long id = insert(buyerId, Seed.paid("2026-11-01T10:00:00Z"));
         ExecutorService pool = Executors.newFixedThreadPool(2);
         try {
-            Callable<Integer> call = () -> mockMvc.perform(
-                            patch(URL + "/" + id + "/delivery-status?from=EN_PREPARACION").cookie(admin.access()))
+            Callable<Integer> call = () -> change(id, "PENDIENTE", "CONFIRMADO", null)
                     .andReturn()
                     .getResponse()
                     .getStatus();
@@ -291,7 +383,7 @@ class AdminOrdersIT extends OrderITSupport {
                 statuses.add(future.get());
             }
             assertThat(statuses).containsExactlyInAnyOrder(200, 409);
-            assertThat(deliveryOf(id)).isEqualTo("EN_CAMINO");
+            assertThat(deliveryOf(id)).isEqualTo("CONFIRMADO");
         } finally {
             pool.shutdownNow();
         }
@@ -312,8 +404,7 @@ class AdminOrdersIT extends OrderITSupport {
                 .andExpect(request().asyncStarted())
                 .andReturn();
 
-        mockMvc.perform(patch(URL + "/" + id + "/delivery-status?from=EN_PREPARACION").cookie(admin.access()))
-                .andExpect(status().isOk());
+        change(id, "PENDIENTE", "CONFIRMADO", null).andExpect(status().isOk());
 
         String body = awaitContent(stream, "event:pedido-actualizado", "{\"orderId\":" + id + "}");
         assertThat(body).doesNotContain("María", "Av. Arequipa", "total");
@@ -342,14 +433,12 @@ class AdminOrdersIT extends OrderITSupport {
         MvcResult before = mockMvc.perform(get(URL + "/events").cookie(admin.access()))
                 .andExpect(request().asyncStarted())
                 .andReturn();
-        mockMvc.perform(patch(URL + "/" + first + "/delivery-status?from=EN_PREPARACION").cookie(admin.access()))
-                .andExpect(status().isOk());
+        change(first, "PENDIENTE", "CONFIRMADO", null).andExpect(status().isOk());
         String seen = awaitContent(before, "{\"orderId\":" + first + "}");
         String lastId = seen.lines().filter(line -> line.startsWith("id:")).reduce((a, b) -> b).orElseThrow().substring(3);
 
         // The panel is "offline" while the second order changes, then reconnects with the id of the last event it saw
-        mockMvc.perform(patch(URL + "/" + second + "/delivery-status?from=EN_PREPARACION").cookie(admin.access()))
-                .andExpect(status().isOk());
+        change(second, "PENDIENTE", "CONFIRMADO", null).andExpect(status().isOk());
         MvcResult after = mockMvc.perform(get(URL + "/events").cookie(admin.access()).header("Last-Event-ID", lastId))
                 .andExpect(request().asyncStarted())
                 .andReturn();

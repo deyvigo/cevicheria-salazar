@@ -2,10 +2,13 @@ package com.salazar.api.admin;
 
 import com.salazar.api.admin.dto.AdminOrderDetail;
 import com.salazar.api.admin.dto.AdminOrderRow;
+import com.salazar.api.admin.dto.ChangeDeliveryRequest;
 import com.salazar.api.catalogo.dto.PageResponse;
 import com.salazar.api.pedidos.DeliveryStatus;
 import com.salazar.api.pedidos.DeliveryType;
 import com.salazar.api.pedidos.OrderStatus;
+import com.salazar.api.pedidos.RefundStatus;
+import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -37,11 +41,12 @@ public class AdminOrderController {
             @RequestParam(required = false) DeliveryType type,
             @RequestParam(required = false) AdminOrderFilter.Payment payment,
             @RequestParam(required = false) OrderStatus paymentStatus,
+            @RequestParam(required = false) RefundStatus refund,
             @RequestParam(required = false) String zone,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
         AdminOrderFilter filter = new AdminOrderFilter(
-                deliveryStatus, type, payment, paymentStatus, blankToNull(zone), blankToNull(q), from, to);
+                deliveryStatus, type, payment, paymentStatus, refund, blankToNull(zone), blankToNull(q), from, to);
         return orderService.list(filter, AdminOrderSort.from(sort), !"asc".equalsIgnoreCase(dir), page);
     }
 
@@ -61,8 +66,13 @@ public class AdminOrderController {
     }
 
     @PatchMapping("/{id}/delivery-status")
-    public AdminOrderRow advance(@PathVariable Long id, @RequestParam DeliveryStatus from) {
-        return orderService.advance(id, from);
+    public AdminOrderRow changeDelivery(@PathVariable Long id, @Valid @RequestBody ChangeDeliveryRequest request) {
+        return orderService.changeDelivery(id, request.from(), request.to(), request.reason(), request.deliveryCode());
+    }
+
+    @PatchMapping("/{id}/refund")
+    public AdminOrderRow refund(@PathVariable Long id) {
+        return orderService.markRefunded(id);
     }
 
     private String blankToNull(String value) {

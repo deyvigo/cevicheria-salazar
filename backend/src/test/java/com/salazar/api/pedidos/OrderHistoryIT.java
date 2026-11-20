@@ -67,7 +67,7 @@ class OrderHistoryIT extends OrderITSupport {
         assertThat(items.get(1).get("id").asLong()).isEqualTo(older);
         assertThat(items.get(0).get("itemNames").get(0).asText()).startsWith("Chicha ");
         assertThat(items.get(0).get("total").decimalValue()).isEqualByComparingTo("30.00");
-        assertThat(items.get(0).get("deliveryStatus").asText()).isEqualTo("EN_PREPARACION");
+        assertThat(items.get(0).get("deliveryStatus").asText()).isEqualTo("PENDIENTE");
         assertThat(items.get(0).get("code").asText()).startsWith("SAL-");
         assertThat(items.get(0).has("deliveryCode")).isFalse();
     }
@@ -83,7 +83,7 @@ class OrderHistoryIT extends OrderITSupport {
 
         JsonNode item = list(customer, null).get("items").get(0);
 
-        assertThat(item.get("deliveryStatus").asText()).isEqualTo("EN_PREPARACION");
+        assertThat(item.get("deliveryStatus").asText()).isEqualTo("PENDIENTE");
         assertThat(item.get("purchasedAt").asText()).isNotBlank();
     }
 

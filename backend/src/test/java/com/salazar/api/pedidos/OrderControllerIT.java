@@ -313,4 +313,34 @@ class OrderControllerIT extends OrderITSupport {
         mockMvc.perform(get(URL + "/" + orderId).cookie(other.access())).andExpect(status().isNotFound());
         mockMvc.perform(get(URL + "/987654321").cookie(owner.access())).andExpect(status().isNotFound());
     }
+
+    @Test
+    void theCustomerCancelsAPendingPurchasedOrderAndGetsTheStockBack() throws Exception {
+        Customer customer = register();
+        long dish = product("Ceviche " + UUID.randomUUID(), "30.00", 5);
+        long orderId = createOnlineOrder(customer, orderBody("RECOJO", null, "ONLINE", new long[] {dish, 2}));
+        jdbcTemplate.update("UPDATE orders SET status = 'PAGADO', paid_at = now() WHERE id = ?", orderId);
+
+        mockMvc.perform(post(URL + "/" + orderId + "/cancel").cookie(customer.access()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.deliveryStatus").value("CANCELADO"))
+                .andExpect(jsonPath("$.deliveryReason").value("Cancelado por el cliente"))
+                .andExpect(jsonPath("$.refundStatus").value("PENDIENTE"));
+
+        assertThat(jdbcTemplate.queryForObject("SELECT stock FROM products WHERE id = ?", Integer.class, dish)).isEqualTo(5);
+        mockMvc.perform(post(URL + "/" + orderId + "/cancel").cookie(customer.access())).andExpect(status().isConflict());
+    }
+
+    @Test
+    void aConfirmedOrderCannotBeCancelledByTheCustomerNorAnotherCustomersOrder() throws Exception {
+        Customer owner = register();
+        Customer other = register();
+        long dish = product("Ceviche " + UUID.randomUUID(), "30.00", 5);
+        long orderId = createOnlineOrder(owner, orderBody("RECOJO", null, "ONLINE", new long[] {dish, 1}));
+        jdbcTemplate.update(
+                "UPDATE orders SET status = 'PAGADO', paid_at = now(), delivery_status = 'CONFIRMADO' WHERE id = ?", orderId);
+
+        mockMvc.perform(post(URL + "/" + orderId + "/cancel").cookie(owner.access())).andExpect(status().isConflict());
+        mockMvc.perform(post(URL + "/" + orderId + "/cancel").cookie(other.access())).andExpect(status().isNotFound());
+    }
 }

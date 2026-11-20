@@ -107,7 +107,7 @@ class AdminOrderStreamIT {
 
         waitFor(() -> lines.stream().anyMatch(line -> line.contains("connected")));
 
-        orderService.advance(orderId, DeliveryStatus.EN_PREPARACION);
+        orderService.changeDelivery(orderId, DeliveryStatus.PENDIENTE, DeliveryStatus.CONFIRMADO, null, null);
 
         waitFor(() -> lines.contains("event:pedido-actualizado") && lines.contains("data:{\"orderId\":" + orderId + "}"));
 
@@ -116,7 +116,7 @@ class AdminOrderStreamIT {
         HttpURLConnection list = open("GET", "/api/admin/orders?deliveryStatus=ALL", cookie);
         assertThat(list.getResponseCode()).isEqualTo(200);
         assertThat(new String(list.getInputStream().readAllBytes(), StandardCharsets.UTF_8))
-                .contains("\"deliveryStatus\":\"EN_CAMINO\"");
+                .contains("\"deliveryStatus\":\"CONFIRMADO\"");
     }
 
     private void waitFor(BooleanSupplier condition) throws Exception {

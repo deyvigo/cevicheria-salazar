@@ -235,7 +235,7 @@ class CashOnDeliveryOrderIT extends OrderITSupport {
         assertThat(mail.deliveryCode()).matches("[0-9]{4}");
         assertThat(mail.deliveryCodeHint()).contains("repartidor");
         assertThat(mail.paymentStatus()).isEqualTo("Pago pendiente al recibir");
-        assertThat(mail.deliveryStatus()).isEqualTo("En preparación");
+        assertThat(mail.deliveryStatus()).isEqualTo("Pendiente de confirmación");
         assertThat(mail.receiving()).contains("Casa").contains("Av. Arequipa 123, Lince").contains("Puerta verde");
         assertThat(mail.paymentSummary()).contains("S/ 100.00").contains("vuelto S/ 31.50");
         assertThat(mail.items()).hasSize(1);
@@ -299,7 +299,7 @@ class CashOnDeliveryOrderIT extends OrderITSupport {
         mockMvc.perform(get("/api/orders/" + orderId).cookie(owner.access()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.customerName").value("María Quispe"))
-                .andExpect(jsonPath("$.deliveryStatus").value("EN_PREPARACION"))
+                .andExpect(jsonPath("$.deliveryStatus").value("PENDIENTE"))
                 .andExpect(jsonPath("$.address.label").value("Casa"))
                 .andExpect(jsonPath("$.address.text").value("Av. Arequipa 123, Lince"))
                 .andExpect(jsonPath("$.address.reference").value("Puerta verde"))

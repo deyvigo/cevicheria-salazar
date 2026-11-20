@@ -170,6 +170,33 @@ public class OrderLifecycleService {
         return true;
     }
 
+    /**
+     * Moves the delivery of a purchased order. A rejection or cancellation gives the stock back; the payment status
+     * is left alone, a paid order is flagged for refund instead. When {@code ownerId} is given the order must be theirs.
+     */
+    @Transactional
+    public Order changeDelivery(
+            Long orderId, DeliveryStatus expected, DeliveryStatus to, String reason, String deliveryCode, Long ownerId) {
+        Order order = orderRepository
+                .findByIdForUpdate(orderId)
+                .filter(found -> ownerId == null || found.getUserId().equals(ownerId))
+                .filter(Order::isConfirmed)
+                .orElseThrow(OrderNotFoundException::new);
+        order.moveDelivery(expected, to, reason, deliveryCode);
+        if (to.releasesStock()) {
+            Set<Long> ids = new TreeSet<>();
+            order.getItems().forEach(item -> ids.add(item.getProductId()));
+            for (Product product : productRepository.findAllByIdInForUpdate(ids)) {
+                order.getItems().stream()
+                        .filter(item -> item.getProductId().equals(product.getId()))
+                        .forEach(item -> product.increaseStock(item.getQuantity()));
+            }
+        }
+        events.publishEvent(new OrderChangedEvent(OrderChangedEvent.Type.UPDATED, order.getId()));
+        events.publishEvent(new OrderDeliveryChangedEvent(order.getId(), to));
+        return order;
+    }
+
     private void release(Order order, Map<Long, Product> lockedProducts, String reason) {
         order.cancel(reason);
         for (OrderItem item : order.getItems()) {

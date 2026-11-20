@@ -8,14 +8,27 @@ function reached() {
 
 describe('DeliveryProgress', () => {
   it.each([
-    ['EN_PREPARACION', 'En preparación', 1],
-    ['EN_CAMINO', 'En camino', 2],
-    ['ENTREGADO', 'Entregado', 3],
-  ] as const)('%s marca %i punto(s) y muestra el texto', (status, label, dots) => {
-    render(<DeliveryProgress status={status} />);
+    ['PENDIENTE', 'Pendiente', 1],
+    ['CONFIRMADO', 'Confirmado', 2],
+    ['EN_PREPARACION', 'Preparando', 3],
+    ['LISTO_PARA_ENVIO', 'Preparando', 3],
+    ['EN_CAMINO', 'En camino', 4],
+    ['ENTREGADO', 'Entregado', 5],
+  ] as const)('entrega: %s muestra "%s" y marca %i punto(s)', (status, label, dots) => {
+    render(<DeliveryProgress status={status} type="ENTREGA" />);
 
     expect(screen.getByText(label)).toBeInTheDocument();
-    expect(screen.getAllByTestId('delivery-dot')).toHaveLength(3);
+    expect(screen.getAllByTestId('delivery-dot')).toHaveLength(5);
+    expect(reached()).toBe(dots);
+  });
+
+  it.each([
+    ['LISTO_PARA_RECOGER', 'Listo para recoger', 4],
+    ['ENTREGADO', 'Recogido', 5],
+  ] as const)('recojo: %s muestra "%s" y marca %i punto(s)', (status, label, dots) => {
+    render(<DeliveryProgress status={status} type="RECOJO" />);
+
+    expect(screen.getByText(label)).toBeInTheDocument();
     expect(reached()).toBe(dots);
   });
 });

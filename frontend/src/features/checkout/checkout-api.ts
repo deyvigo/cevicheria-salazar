@@ -1,4 +1,4 @@
-import type { DeliveryStatus } from '@/features/perfil/order-api';
+import type { DeliveryStatus, RefundStatus } from '@/features/perfil/order-api';
 import { api } from '@/lib/api';
 
 export interface DeliveryCost {
@@ -51,6 +51,8 @@ export interface Order {
   // The following only come with a confirmed order
   customerName: string | null;
   deliveryStatus: DeliveryStatus;
+  deliveryReason: string | null;
+  refundStatus: RefundStatus | null;
   // Null with Recojo en tienda
   address: { label: string; text: string; reference: string | null } | null;
   purchasedAt: string;

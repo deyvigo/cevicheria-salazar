@@ -1,8 +1,8 @@
 import type { Page } from '@/features/catalogo/catalog-api';
-import type { DeliveryStatus } from '@/features/perfil/order-api';
+import type { DeliveryStatus, RefundStatus } from '@/features/perfil/order-api';
 import { api } from '@/lib/api';
 
-export type { DeliveryStatus };
+export type { DeliveryStatus, RefundStatus };
 export type DeliveryType = 'ENTREGA' | 'RECOJO';
 export type PaymentMethod = 'ONLINE' | 'CONTRAENTREGA';
 export type CollectionMethod = 'EFECTIVO' | 'YAPE';
@@ -25,6 +25,8 @@ export interface AdminOrderRow {
   total: number;
   cashChange: number | null;
   deliveryStatus: DeliveryStatus;
+  deliveryReason: string | null;
+  refundStatus: RefundStatus | null;
 }
 
 export interface AdminOrderItem {
@@ -55,6 +57,7 @@ export interface OrderListParams {
   type?: DeliveryType;
   payment?: PaymentFilter;
   paymentStatus?: PaymentStatus;
+  refund?: RefundStatus;
   zone?: string;
   from?: string;
   to?: string;
@@ -70,8 +73,18 @@ export async function getAdminOrder(id: number): Promise<AdminOrderDetail> {
   return data;
 }
 
-export async function advanceAdminOrder(id: number, from: DeliveryStatus): Promise<AdminOrderRow> {
-  const { data } = await api.patch<AdminOrderRow>(`/admin/orders/${id}/delivery-status`, null, { params: { from } });
+export async function changeAdminOrderStatus(
+  id: number,
+  from: DeliveryStatus,
+  to: DeliveryStatus,
+  details: { reason?: string; deliveryCode?: string } = {},
+): Promise<AdminOrderRow> {
+  const { data } = await api.patch<AdminOrderRow>(`/admin/orders/${id}/delivery-status`, { from, to, ...details });
+  return data;
+}
+
+export async function refundAdminOrder(id: number): Promise<AdminOrderRow> {
+  const { data } = await api.patch<AdminOrderRow>(`/admin/orders/${id}/refund`);
   return data;
 }
 
