@@ -50,4 +50,10 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @Query(value = "SELECT nextval('order_code_seq')", nativeQuery = true)
     long nextCodeNumber();
+
+    @Query("""
+            select count(i) > 0 from OrderItem i
+            where i.productId = :productId and i.order.userId = :userId
+              and i.order.deliveryStatus = com.salazar.api.pedidos.DeliveryStatus.ENTREGADO""")
+    boolean hasDeliveredProduct(@Param("userId") Long userId, @Param("productId") Long productId);
 }

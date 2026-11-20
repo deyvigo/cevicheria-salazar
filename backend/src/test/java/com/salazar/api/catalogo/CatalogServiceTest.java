@@ -38,10 +38,14 @@ class CatalogServiceTest {
     @Mock
     private ProductRepository productRepository;
 
+    @Mock
+    private ReviewRepository reviewRepository;
+
     private CatalogService service() {
         return new CatalogService(
                 categoryRepository,
                 productRepository,
+                reviewRepository,
                 new ImageUrlResolver(
                         new StorageProperties("http://s3.test", "garage", "key", "secret", "platos", "http://media.test")),
                 new CatalogProperties(18));

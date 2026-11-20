@@ -113,6 +113,10 @@ public class Product {
         this.stock += quantity;
     }
 
+    public void setRating(BigDecimal rating) {
+        this.rating = rating;
+    }
+
     public void deactivate() {
         this.active = false;
     }
