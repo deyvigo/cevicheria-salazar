@@ -176,6 +176,14 @@ public class Order {
         return cashAmount == null ? null : cashAmount.subtract(total);
     }
 
+    /**
+     * The date the order counts as bought: when it was paid online, or when it was placed for cash on delivery, whose
+     * payment date is the delivery and must not move the order in the lists.
+     */
+    public Instant getPurchasedAt() {
+        return paymentMethod == PaymentMethod.CONTRAENTREGA || paidAt == null ? createdAt : paidAt;
+    }
+
     /** Confirmed orders whose delivery code the customer may already see. */
     public boolean isConfirmed() {
         return status == OrderStatus.PAGADO || status == OrderStatus.PENDIENTE_COBRO;
@@ -252,6 +260,9 @@ public class Order {
         this.deliveryStatus = to;
         this.deliveryReason = to.needsReason() ? cleanReason : null;
         this.deliveryUpdatedAt = Instant.now();
+        if (to == DeliveryStatus.ENTREGADO && status == OrderStatus.PENDIENTE_COBRO) {
+            markPaid();
+        }
         if (to.releasesStock() && status == OrderStatus.PAGADO) {
             this.refundStatus = RefundStatus.PENDIENTE;
         }

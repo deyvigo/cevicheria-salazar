@@ -96,7 +96,7 @@ public class OrderService {
                         order.getCode(),
                         namesByOrder.getOrDefault(order.getId(), List.of()),
                         order.getTotal(),
-                        order.getPaidAt() != null ? order.getPaidAt() : order.getCreatedAt(),
+                        order.getPurchasedAt(),
                         order.getDeliveryStatus(),
                         order.getDeliveryType(),
                         order.getDeliveryReason(),

@@ -39,7 +39,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @Query(
             value = "select o from Order o where o.userId = :userId and o.status in :statuses"
-                    + " order by coalesce(o.paidAt, o.createdAt) desc, o.id desc",
+                    + " order by case when o.paymentMethod = com.salazar.api.pedidos.PaymentMethod.CONTRAENTREGA then o.createdAt"
+                    + " else coalesce(o.paidAt, o.createdAt) end desc, o.id desc",
             countQuery = "select count(o) from Order o where o.userId = :userId and o.status in :statuses")
     Page<Order> findPurchased(
             @Param("userId") Long userId, @Param("statuses") List<OrderStatus> statuses, Pageable pageable);
