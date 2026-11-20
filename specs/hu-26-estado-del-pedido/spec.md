@@ -11,7 +11,7 @@ Que el cliente vea en qué punto está su pedido (recibido, confirmado, preparan
 
 - Hoy `orders.delivery_status` vale `EN_PREPARACION`, `EN_CAMINO` o `ENTREGADO`; un pedido comprado entra directo a preparación y Recojo usa el mismo flujo y textos que Entrega (HU-32/33).
 - El cliente solo ve el estado al consultar "Mis pedidos"; no hay avisos.
-- `orders.status` solo describe el pago y no cambia por esta historia.
+- `orders.status` solo describe el pago y no cambia por esta historia, salvo en un caso: un pedido contraentrega pasa a `PAGADO` al entregarse (ver "Pago contraentrega").
 
 ## Actor(es)
 
@@ -62,6 +62,13 @@ Finales: `ENTREGADO`, `RECHAZADO`, `CANCELADO`, `FALLIDO`. `EN_CAMINO` no se can
 
 - **Dado** que un pedido pasa a `RECHAZADO` o `CANCELADO`, **cuando** se confirma, **entonces** se repone el stock de sus platos; `FALLIDO` no repone.
 - **Dado** que un pedido pagado en línea (`status = PAGADO`) pasa a `RECHAZADO` o `CANCELADO`, **cuando** se confirma, **entonces** queda marcado "reembolso pendiente"; el administrador lo reembolsa a mano en Mercado Pago y lo marca "Reembolsado" desde el detalle. El pago contraentrega no genera reembolso.
+
+### Pago contraentrega
+
+- **Dado** un pedido contraentrega (`PENDIENTE_COBRO`), **cuando** el administrador lo pasa a `ENTREGADO` (con el código de entrega correcto), **entonces** su estado de pago pasa a `PAGADO` y queda registrada la fecha de pago (el momento de la entrega): el dinero se cobra al recibir.
+- **Dado** un pedido contraentrega que termina `RECHAZADO`, `CANCELADO` o `FALLIDO`, **cuando** se confirma, **entonces** sigue en `PENDIENTE_COBRO` (nunca se cobró) y no genera reembolso.
+- **Dado** un pedido pagado en línea, **cuando** se entrega, **entonces** su estado de pago y su fecha de pago no cambian (el pago ya lo fijó el webhook de Mercado Pago).
+- **Dado** que un pedido contraentrega pasa a `PAGADO` al entregarse, **cuando** el cliente o el administrador miran las listas, **entonces** su fecha de compra y su posición no cambian: la fecha de compra de la contraentrega sigue siendo la de creación del pedido, y solo el pago en línea usa la fecha de pago.
 
 ### Cliente
 
