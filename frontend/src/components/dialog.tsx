@@ -67,22 +67,25 @@ export function Dialog({ open, title, onClose, children, wide }: DialogProps) {
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className={`max-h-[90vh] w-full overflow-y-auto rounded-xl bg-surface p-6 shadow-lg focus:outline-none ${wide ? 'max-w-2xl' : 'max-w-md'}`}
+        // The rounded panel clips and an inner box scrolls, so the scrollbar follows the corners instead of sticking out of them
+        className={`flex max-h-[90vh] w-full flex-col overflow-hidden rounded-xl bg-surface shadow-lg focus:outline-none ${wide ? 'max-w-2xl' : 'max-w-md'}`}
       >
-        <div className="flex items-center justify-between gap-4">
-          <h2 id={titleId} className="font-display text-ink text-left text-[22px] leading-7 font-semibold">
-            {title}
-          </h2>
-          <button
-            type="button"
-            aria-label="Cerrar"
-            onClick={onClose}
-            className="flex h-10 w-10 flex-none items-center justify-center rounded-md text-ink hover:bg-surface-celeste focus-visible:shadow-focus focus-visible:outline-none"
-          >
-            <CloseIcon />
-          </button>
+        <div className="overflow-y-auto p-6">
+          <div className="flex items-center justify-between gap-4">
+            <h2 id={titleId} className="font-display text-ink text-left text-[22px] leading-7 font-semibold">
+              {title}
+            </h2>
+            <button
+              type="button"
+              aria-label="Cerrar"
+              onClick={onClose}
+              className="flex h-10 w-10 flex-none items-center justify-center rounded-md text-ink hover:bg-surface-celeste focus-visible:shadow-focus focus-visible:outline-none"
+            >
+              <CloseIcon />
+            </button>
+          </div>
+          <div className="mt-4">{children}</div>
         </div>
-        <div className="mt-4">{children}</div>
       </div>
     </div>
   );

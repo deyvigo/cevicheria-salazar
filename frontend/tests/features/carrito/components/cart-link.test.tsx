@@ -1,6 +1,6 @@
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, useNavigate } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { QueryWrapper } from '@tests/utils/query-wrapper';
 import * as cartApi from '@/features/carrito/cart-api';
@@ -53,6 +53,29 @@ describe('CartLink', () => {
     expect(card()).toBeInTheDocument();
     expect(await screen.findByText('Plato 1')).toBeInTheDocument();
     expect(link).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('no reabre la tarjeta al volver a la ruta donde se abrió tras pasar por el checkout', async () => {
+    let navigate!: ReturnType<typeof useNavigate>;
+    function Nav() {
+      navigate = useNavigate();
+      return null;
+    }
+    render(
+      <MemoryRouter initialEntries={['/menu']}>
+        <QueryWrapper>
+          <Nav />
+          <CartLink />
+        </QueryWrapper>
+      </MemoryRouter>,
+    );
+    await userEvent.hover(screen.getByRole('link', { name: 'Carrito, 1 producto' }));
+    expect(card()).toBeInTheDocument();
+
+    act(() => void navigate('/checkout/resultado'));
+    act(() => void navigate('/menu'));
+
+    expect(card()).not.toBeInTheDocument();
   });
 
   it('el clic en el ícono sigue enlazando a /cart', () => {

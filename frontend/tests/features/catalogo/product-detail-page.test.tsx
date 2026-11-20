@@ -25,9 +25,13 @@ const DETAIL: ProductDetail = {
 };
 
 function renderAt(entry: string | { pathname: string; state: unknown }) {
-  const router = createMemoryRouter([{ path: '/products/:id', element: <ProductDetailPage /> }], {
-    initialEntries: [entry],
-  });
+  const router = createMemoryRouter(
+    [
+      { path: '/products/:id', element: <ProductDetailPage /> },
+      { path: '/cart', element: <p>Pantalla del carrito</p> },
+    ],
+    { initialEntries: [entry] },
+  );
   return render(
     <QueryWrapper>
       <RouterProvider router={router} />
@@ -301,6 +305,36 @@ describe('ProductDetailPage', () => {
       expect(await field()).toHaveValue('3');
     });
 
+    it('"Comprar" va debajo de "Agregar", suma la cantidad elegida y lleva al carrito', async () => {
+      vi.mocked(catalogApi.getProduct).mockResolvedValue(DETAIL);
+      const user = userEvent.setup();
+      renderAt('/products/7');
+
+      await field();
+      await user.click(screen.getByRole('button', { name: 'Agregar una unidad de Ceviche clásico' }));
+      const [add, buy] = screen.getAllByRole('button', { name: /Agregar al carrito|Comprar/ });
+      expect(add).toHaveTextContent('Agregar al carrito');
+      expect(buy).toHaveTextContent('Comprar');
+
+      await user.click(buy);
+
+      expect(useCartStore.getState().items).toEqual([{ productId: 7, quantity: 2 }]);
+      expect(await screen.findByText('Pantalla del carrito')).toBeInTheDocument();
+    });
+
+    it('con el plato ya en el carrito "Comprar" no suma más y lleva al carrito', async () => {
+      useCartStore.setState({ items: [{ productId: 7, quantity: 2 }] });
+      vi.mocked(catalogApi.getProduct).mockResolvedValue(DETAIL);
+      const user = userEvent.setup();
+      renderAt('/products/7');
+
+      await field();
+      await user.click(screen.getByRole('button', { name: 'Comprar Ceviche clásico' }));
+
+      expect(useCartStore.getState().items).toEqual([{ productId: 7, quantity: 2 }]);
+      expect(await screen.findByText('Pantalla del carrito')).toBeInTheDocument();
+    });
+
     it('antes de agregar el mínimo es 1 y se recorta al stock', async () => {
       vi.mocked(catalogApi.getProduct).mockResolvedValue({
         ...DETAIL,
@@ -400,6 +434,7 @@ describe('ProductDetailPage', () => {
 
       expect(await field()).toBeDisabled();
       expect(screen.getByRole('button', { name: 'Agregar al carrito' })).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Comprar Ceviche clásico' })).toBeDisabled();
     });
   });
 });

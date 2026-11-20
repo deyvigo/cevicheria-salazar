@@ -13,7 +13,7 @@ export function AddToCartButton({
 }: {
   product: AddableProduct | null;
   label: string;
-  variant?: 'primary' | 'secondary';
+  variant?: 'primary' | 'secondary' | 'outline';
   quantity?: number;
   onAdd?: () => void;
   className?: string;
