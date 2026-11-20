@@ -56,7 +56,7 @@ export function MyOrdersPage() {
           <ul className="flex flex-col gap-4">
             {data.items.map((order) => (
               <li key={order.id}>
-                <OrderCard order={order} />
+                <OrderCard order={order} page={data.page} />
               </li>
             ))}
           </ul>

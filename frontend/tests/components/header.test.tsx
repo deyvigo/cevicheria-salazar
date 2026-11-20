@@ -171,12 +171,27 @@ describe('Header', () => {
 
     await user.click(await screen.findByRole('button', { name: /María/ }));
     expect(screen.getByRole('menuitem', { name: 'Mi perfil' })).toHaveAttribute('href', '/perfil');
+    expect(screen.getByRole('menuitem', { name: 'Mis pedidos' })).toHaveAttribute('href', '/perfil/mis-pedidos');
     customer.unmount();
 
     vi.mocked(authApi.me).mockResolvedValue({ ...maria, role: 'ADMINISTRADOR' });
     renderHeader();
     await user.click(await screen.findByRole('button', { name: /María/ }));
     expect(screen.queryByRole('menuitem', { name: 'Mi perfil' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: 'Mis pedidos' })).not.toBeInTheDocument();
+  });
+
+  it('"Mis pedidos" del menú lleva a la lista y cierra el menú', async () => {
+    const user = userEvent.setup();
+    vi.mocked(authApi.me).mockResolvedValue(maria);
+    renderHeader();
+
+    await user.click(await screen.findByRole('button', { name: /María/ }));
+    const items = screen.getAllByRole('menuitem').map((item) => item.textContent);
+    expect(items).toEqual(['Mi perfil', 'Mis pedidos', 'Cerrar sesión']);
+    await user.click(screen.getByRole('menuitem', { name: 'Mis pedidos' }));
+
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
   });
 
   it('cierra el menú al hacer clic fuera', async () => {

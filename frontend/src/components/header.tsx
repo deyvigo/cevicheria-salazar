@@ -108,6 +108,16 @@ export function Header() {
                     Mi perfil
                   </Link>
                 ) : null}
+                {user.role === 'CLIENTE' ? (
+                  <Link
+                    to="/perfil/mis-pedidos"
+                    role="menuitem"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex min-h-12 w-full items-center rounded-md px-4 text-left text-base text-ink hover:bg-surface-celeste focus-visible:shadow-focus focus-visible:outline-none"
+                  >
+                    Mis pedidos
+                  </Link>
+                ) : null}
                 <button
                   type="button"
                   role="menuitem"

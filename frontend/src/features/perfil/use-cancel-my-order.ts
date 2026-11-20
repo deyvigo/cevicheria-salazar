@@ -7,6 +7,10 @@ export function useCancelMyOrder() {
   return useMutation({
     mutationFn: (id: number) => cancelMyOrder(id),
     // Also on failure: a conflict means the restaurant already moved the order, so show what it is now
-    onSettled: () => client.invalidateQueries({ queryKey: MY_ORDERS_QUERY_KEY }),
+    onSettled: (_data, _error, id) =>
+      Promise.all([
+        client.invalidateQueries({ queryKey: MY_ORDERS_QUERY_KEY }),
+        client.invalidateQueries({ queryKey: ['order', id] }),
+      ]),
   });
 }
