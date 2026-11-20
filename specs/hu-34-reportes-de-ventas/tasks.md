@@ -33,7 +33,7 @@ Requiere `plan.md`. Cada tarea indica qué criterio(s) de `spec.md` cubre y cóm
 ## Docs
 
 - [x] Actualizar `docs/diagrama-de-arquitectura.md` y `docs/diagrama-de-base-de-datos.md` (solo texto, las imágenes no cambian)
-- [ ] Agregar HU-34 a `docs/cronograma.md` en el sprint que se planifique — cubre: Reglas del proyecto — verificación: revisión de los `.md`
+- [x] Agregar HU-34 a `docs/cronograma.md` (Sprint 3, semana 2) — cubre: Reglas del proyecto — verificación: revisión de los `.md`
 
 ## Cierre
 
