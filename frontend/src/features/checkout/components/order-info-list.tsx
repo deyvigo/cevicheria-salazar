@@ -9,7 +9,7 @@ export function OrderInfoList({ order }: { order: Order }) {
     <dl className="grid gap-4 rounded-lg border border-border bg-surface p-4 sm:grid-cols-2">
       {order.customerName ? <Item label="Nombre">{order.customerName}</Item> : null}
       <Item label="Estado del pago">{paymentStatusText(order)}</Item>
-      <Item label="Estado de la entrega">{deliveryStatusLabel(order.deliveryStatus)}</Item>
+      <Item label="Estado de la entrega">{deliveryStatusLabel(order.deliveryStatus, order.deliveryType)}</Item>
       <Item label="Cómo lo recibirás">
         {order.deliveryType === 'RECOJO' || order.address === null ? (
           'Recojo en tienda'

@@ -51,7 +51,9 @@ const preparing: orderApi.AdminOrderRow = {
   paymentStatus: 'PENDIENTE_COBRO',
   total: 92,
   cashChange: 8,
-  deliveryStatus: 'EN_PREPARACION',
+  deliveryStatus: 'LISTO_PARA_ENVIO',
+  deliveryReason: null,
+  refundStatus: null,
 };
 const onTheWay: orderApi.AdminOrderRow = {
   ...preparing,
@@ -121,7 +123,7 @@ describe('AdminOrdersPage', () => {
     expect(within(row).getByText('Vuelto S/ 8.00')).toBeInTheDocument();
     expect(within(row).getByText('Por cobrar')).toBeInTheDocument();
     expect(within(row).getByText('S/ 92.00')).toBeInTheDocument();
-    expect(within(row).getByText('En preparación')).toBeInTheDocument();
+    expect(within(row).getByText('Listo para envío')).toBeInTheDocument();
     expect(screen.getByText('2 pedidos')).toBeInTheDocument();
     const pickup = screen.getByText('José Ñañez').closest('tr')!;
     expect(within(pickup).getByText('Online')).toBeInTheDocument();
@@ -253,22 +255,22 @@ describe('AdminOrdersPage', () => {
     it('marcar en camino avanza el pedido sin pedir confirmación', async () => {
       const user = userEvent.setup();
       vi.mocked(orderApi.listAdminOrders).mockResolvedValue(pageOf([preparing]));
-      vi.mocked(orderApi.advanceAdminOrder).mockResolvedValue({ ...preparing, deliveryStatus: 'EN_CAMINO' });
+      vi.mocked(orderApi.changeAdminOrderStatus).mockResolvedValue({ ...preparing, deliveryStatus: 'EN_CAMINO' });
       renderPage();
       await screen.findByText('María Quispe');
 
       await user.click(screen.getByRole('button', { name: 'Marcar en camino' }));
 
-      expect(orderApi.advanceAdminOrder).toHaveBeenCalledWith(1, 'EN_PREPARACION');
+      expect(orderApi.changeAdminOrderStatus).toHaveBeenCalledWith(1, 'LISTO_PARA_ENVIO', 'EN_CAMINO', { reason: undefined, deliveryCode: undefined });
       const row = screen.getByText('María Quispe').closest('tr')!;
       expect(await within(row).findByText('En camino')).toBeInTheDocument();
       expect(within(row).getByRole('button', { name: 'Marcar entregado' })).toBeInTheDocument();
     });
 
-    it('marcar entregado pide confirmación y se puede cancelar', async () => {
+    it('marcar entregado pide el código de entrega y no avanza sin él', async () => {
       const user = userEvent.setup();
       vi.mocked(orderApi.listAdminOrders).mockResolvedValue(pageOf([onTheWay]));
-      vi.mocked(orderApi.advanceAdminOrder).mockResolvedValue({ ...onTheWay, deliveryStatus: 'ENTREGADO' });
+      vi.mocked(orderApi.changeAdminOrderStatus).mockResolvedValue({ ...onTheWay, deliveryStatus: 'ENTREGADO' });
       renderPage();
       await screen.findByText('José Ñañez');
 
@@ -277,21 +279,49 @@ describe('AdminOrdersPage', () => {
       expect(within(dialog).getByText(/SAL-001043/)).toBeInTheDocument();
       await user.click(within(dialog).getByRole('button', { name: 'Cancelar' }));
 
-      expect(orderApi.advanceAdminOrder).not.toHaveBeenCalled();
+      expect(orderApi.changeAdminOrderStatus).not.toHaveBeenCalled();
 
       await user.click(screen.getByRole('button', { name: 'Marcar entregado' }));
-      await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Marcar entregado' }));
+      const second = screen.getByRole('dialog');
+      await user.click(within(second).getByRole('button', { name: 'Marcar entregado' }));
+      expect(await within(second).findByText('Ingresa el código de 4 dígitos.')).toBeInTheDocument();
+      expect(orderApi.changeAdminOrderStatus).not.toHaveBeenCalled();
 
-      expect(orderApi.advanceAdminOrder).toHaveBeenCalledWith(2, 'EN_CAMINO');
+      expect(within(second).getAllByLabelText(/Dígito \d de 4/)).toHaveLength(4);
+      await user.type(within(second).getByLabelText('Dígito 1 de 4'), '1234');
+      await user.click(within(second).getByRole('button', { name: 'Marcar entregado' }));
+
+      expect(orderApi.changeAdminOrderStatus).toHaveBeenCalledWith(2, 'EN_CAMINO', 'ENTREGADO', {
+        reason: undefined,
+        deliveryCode: '1234',
+      });
       const row = screen.getByText('José Ñañez').closest('tr')!;
       expect(await within(row).findByText('Entregado')).toBeInTheDocument();
       expect(within(row).queryByRole('button', { name: /Marcar/ })).not.toBeInTheDocument();
     });
 
+    it('si el código no coincide el diálogo sigue abierto y lo dice', async () => {
+      const user = userEvent.setup();
+      vi.mocked(orderApi.listAdminOrders).mockResolvedValue(pageOf([onTheWay]));
+      vi.mocked(orderApi.changeAdminOrderStatus).mockRejectedValue(
+        new AxiosError('bad', '400', undefined, undefined, { status: 400 } as never),
+      );
+      renderPage();
+      await screen.findByText('José Ñañez');
+
+      await user.click(screen.getByRole('button', { name: 'Marcar entregado' }));
+      const dialog = screen.getByRole('dialog');
+      await user.type(within(dialog).getByLabelText('Dígito 1 de 4'), '9999');
+      await user.click(within(dialog).getByRole('button', { name: 'Marcar entregado' }));
+
+      expect(await within(dialog).findByText(/El código no coincide/)).toBeInTheDocument();
+      expect(screen.getByRole('dialog', { name: 'Marcar como entregado' })).toBeInTheDocument();
+    });
+
     it('si otro administrador ya lo movió avisa y refresca', async () => {
       const user = userEvent.setup();
       vi.mocked(orderApi.listAdminOrders).mockResolvedValue(pageOf([preparing]));
-      vi.mocked(orderApi.advanceAdminOrder).mockRejectedValue(
+      vi.mocked(orderApi.changeAdminOrderStatus).mockRejectedValue(
         new AxiosError('conflict', '409', undefined, undefined, { status: 409 } as never),
       );
       renderPage();
@@ -303,10 +333,84 @@ describe('AdminOrdersPage', () => {
       await waitFor(() => expect(vi.mocked(orderApi.listAdminOrders).mock.calls.length).toBeGreaterThan(1));
     });
 
+    it('aceptar un pedido pendiente lo confirma sin pedir confirmación', async () => {
+      const user = userEvent.setup();
+      const pending = { ...preparing, deliveryStatus: 'PENDIENTE' as const };
+      vi.mocked(orderApi.listAdminOrders).mockResolvedValue(pageOf([pending]));
+      vi.mocked(orderApi.changeAdminOrderStatus).mockResolvedValue({ ...pending, deliveryStatus: 'CONFIRMADO' });
+      renderPage();
+      await screen.findByText('María Quispe');
+
+      await user.click(screen.getByRole('button', { name: 'Aceptar' }));
+
+      expect(orderApi.changeAdminOrderStatus).toHaveBeenCalledWith(1, 'PENDIENTE', 'CONFIRMADO', { reason: undefined, deliveryCode: undefined });
+      const row = screen.getByText('María Quispe').closest('tr')!;
+      expect(await within(row).findByRole('button', { name: 'Empezar preparación' })).toBeInTheDocument();
+    });
+
+    it('rechazar pide un motivo obligatorio y lo envía', async () => {
+      const user = userEvent.setup();
+      const pending = { ...preparing, deliveryStatus: 'PENDIENTE' as const };
+      vi.mocked(orderApi.listAdminOrders).mockResolvedValue(pageOf([pending]));
+      vi.mocked(orderApi.changeAdminOrderStatus).mockResolvedValue({
+        ...pending,
+        deliveryStatus: 'RECHAZADO',
+        deliveryReason: 'Sin insumos',
+      });
+      renderPage();
+      await screen.findByText('María Quispe');
+
+      await user.click(screen.getByRole('button', { name: 'Rechazar' }));
+      const dialog = screen.getByRole('dialog', { name: 'Rechazar el pedido SAL-001042' });
+      await user.click(within(dialog).getByRole('button', { name: 'Rechazar' }));
+
+      expect(await within(dialog).findByText('Indica el motivo.')).toBeInTheDocument();
+      expect(orderApi.changeAdminOrderStatus).not.toHaveBeenCalled();
+
+      await user.type(within(dialog).getByLabelText('Motivo'), 'Sin insumos');
+      await user.click(within(dialog).getByRole('button', { name: 'Rechazar' }));
+
+      expect(orderApi.changeAdminOrderStatus).toHaveBeenCalledWith(1, 'PENDIENTE', 'RECHAZADO', { reason: 'Sin insumos', deliveryCode: undefined });
+      const row = screen.getByText('María Quispe').closest('tr')!;
+      expect(await within(row).findByText('Rechazado')).toBeInTheDocument();
+    });
+
+    it('un pedido pagado en línea y rechazado muestra el reembolso pendiente y se puede marcar', async () => {
+      const user = userEvent.setup();
+      const rejected = {
+        ...onTheWay,
+        deliveryStatus: 'RECHAZADO' as const,
+        deliveryReason: 'Sin insumos',
+        refundStatus: 'PENDIENTE' as const,
+      };
+      vi.mocked(orderApi.listAdminOrders).mockResolvedValue(pageOf([rejected]));
+      vi.mocked(orderApi.getAdminOrder).mockResolvedValue({
+        order: rejected,
+        customerPhone: '987654321',
+        addressText: null,
+        addressReference: null,
+        items: [],
+        subtotal: 30,
+        discount: 0,
+        deliveryPrice: 0,
+        cashAmount: null,
+      });
+      vi.mocked(orderApi.refundAdminOrder).mockResolvedValue({ ...rejected, refundStatus: 'REEMBOLSADO' });
+      renderPage();
+      expect(await screen.findByText('Reembolso pendiente')).toBeInTheDocument();
+
+      await user.click(screen.getByRole('button', { name: 'Ver detalle del pedido SAL-001043' }));
+      const dialog = await screen.findByRole('dialog', { name: 'Pedido SAL-001043' });
+      expect(await within(dialog).findByText('Sin insumos')).toBeInTheDocument();
+      await user.click(within(dialog).getByRole('button', { name: 'Marcar reembolsado' }));
+
+      expect(orderApi.refundAdminOrder).toHaveBeenCalledWith(2);
+    });
+
     it('un error cualquiera deja la fila como estaba y lo dice', async () => {
       const user = userEvent.setup();
       vi.mocked(orderApi.listAdminOrders).mockResolvedValue(pageOf([preparing]));
-      vi.mocked(orderApi.advanceAdminOrder).mockRejectedValue(new Error('network'));
+      vi.mocked(orderApi.changeAdminOrderStatus).mockRejectedValue(new Error('network'));
       renderPage();
       await screen.findByText('María Quispe');
 
@@ -485,7 +589,7 @@ describe('AdminOrdersPage', () => {
       const user = userEvent.setup();
       const fresh = { ...preparing, id: 50, code: 'SAL-001050', customerName: 'Rosa Pérez' };
       vi.mocked(orderApi.listAdminOrders).mockResolvedValue(pageOf([fresh]));
-      vi.mocked(orderApi.advanceAdminOrder).mockResolvedValue({ ...fresh, deliveryStatus: 'EN_CAMINO' });
+      vi.mocked(orderApi.changeAdminOrderStatus).mockResolvedValue({ ...fresh, deliveryStatus: 'EN_CAMINO' });
       renderPage();
       await screen.findByText('Rosa Pérez');
       act(() => stream().emit('pedido-creado', 50));

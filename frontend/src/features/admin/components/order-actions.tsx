@@ -1,23 +1,40 @@
 import { Button } from '@/components/button';
 import type { AdminOrderRow } from '@/features/admin/admin-order-api';
-import { ADVANCE_LABELS } from '@/features/admin/order-labels';
+import { primaryAction, secondaryActions, type OrderAction } from '@/features/admin/order-actions';
 
-interface AdvanceStatusButtonProps {
+interface OrderActionsProps {
   order: AdminOrderRow;
   busy: boolean;
-  onAdvance: (order: AdminOrderRow) => void;
+  onAction: (order: AdminOrderRow, action: OrderAction) => void;
 }
 
-export function AdvanceStatusButton({ order, busy, onAdvance }: AdvanceStatusButtonProps) {
-  if (order.deliveryStatus === 'ENTREGADO') return null;
+export function OrderActions({ order, busy, onAction }: OrderActionsProps) {
+  const primary = primaryAction(order);
+  const secondary = secondaryActions(order);
+  if (!primary && secondary.length === 0) return null;
   return (
-    <Button
-      variant={order.deliveryStatus === 'EN_CAMINO' ? 'primary' : 'secondary'}
-      disabled={busy}
-      onClick={() => onAdvance(order)}
-      className="min-h-10 px-4 whitespace-nowrap"
-    >
-      {ADVANCE_LABELS[order.deliveryStatus]}
-    </Button>
+    <div className="flex flex-wrap items-center gap-2">
+      {secondary.map((action) => (
+        <Button
+          key={action.to}
+          variant="outline"
+          disabled={busy}
+          onClick={() => onAction(order, action)}
+          className="min-h-10 px-4 whitespace-nowrap"
+        >
+          {action.label}
+        </Button>
+      ))}
+      {primary ? (
+        <Button
+          variant={primary.needsCode ? 'primary' : 'secondary'}
+          disabled={busy}
+          onClick={() => onAction(order, primary)}
+          className="min-h-10 px-4 whitespace-nowrap"
+        >
+          {primary.label}
+        </Button>
+      ) : null}
+    </div>
   );
 }

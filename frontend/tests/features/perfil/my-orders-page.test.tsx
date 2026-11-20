@@ -16,6 +16,9 @@ function order(id: number, name = `Plato ${id}`): orderApi.OrderSummary {
     total: 30,
     purchasedAt: '2026-11-07T14:00:00Z',
     deliveryStatus: 'EN_PREPARACION',
+    deliveryType: 'RECOJO',
+    deliveryReason: null,
+    refundStatus: null,
   };
 }
 

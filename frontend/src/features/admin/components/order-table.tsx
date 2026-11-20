@@ -1,7 +1,8 @@
 import { ChevronDownIcon } from '@/components/icons/chevron-down-icon';
 import type { AdminOrderRow, OrderSortField, SortDirection } from '@/features/admin/admin-order-api';
-import { AdvanceStatusButton } from '@/features/admin/components/advance-status-button';
+import { OrderActions } from '@/features/admin/components/order-actions';
 import { OrderStatusBadge } from '@/features/admin/components/order-status-badge';
+import type { OrderAction } from '@/features/admin/order-actions';
 import {
   formatDateTime,
   PAYMENT_LABELS,
@@ -19,7 +20,7 @@ interface OrderTableProps {
   newOrderIds: ReadonlySet<number>;
   onSort: (field: OrderSortField) => void;
   onOpen: (order: AdminOrderRow) => void;
-  onAdvance: (order: AdminOrderRow) => void;
+  onAction: (order: AdminOrderRow, action: OrderAction) => void;
 }
 
 const HEADER = 'px-4 py-3 text-left text-base font-bold text-ink whitespace-nowrap';
@@ -53,7 +54,7 @@ function SortHeader({
   );
 }
 
-export function OrderTable({ orders, sort, dir, busyId, newOrderIds, onSort, onOpen, onAdvance }: OrderTableProps) {
+export function OrderTable({ orders, sort, dir, busyId, newOrderIds, onSort, onOpen, onAction }: OrderTableProps) {
   const header = (field: OrderSortField, label: string) => (
     <SortHeader field={field} label={label} sort={sort} dir={dir} onSort={onSort} />
   );
@@ -119,9 +120,12 @@ export function OrderTable({ orders, sort, dir, busyId, newOrderIds, onSort, onO
                 <td className={`${CELL} whitespace-nowrap`}>{formatPrice(order.total)}</td>
                 <td className={CELL}>
                   <OrderStatusBadge status={order.deliveryStatus} />
+                  {order.refundStatus === 'PENDIENTE' ? (
+                    <span className="mt-1 block text-sm font-bold text-error-text">Reembolso pendiente</span>
+                  ) : null}
                 </td>
                 <td className={CELL}>
-                  <AdvanceStatusButton order={order} busy={busyId === order.id} onAdvance={onAdvance} />
+                  <OrderActions order={order} busy={busyId === order.id} onAction={onAction} />
                 </td>
               </tr>
             );

@@ -40,7 +40,9 @@ const paid: checkoutApi.Order = {
   cashAmount: null,
   change: null,
   customerName: 'María Quispe',
-  deliveryStatus: 'EN_PREPARACION',
+  deliveryStatus: 'PENDIENTE',
+  deliveryReason: null,
+  refundStatus: null,
   address: { label: 'Casa', text: 'Av. Arequipa 123, Lince', reference: 'Puerta verde' },
   purchasedAt: '2026-11-07T19:30:00Z',
   paidAt: '2026-11-07T19:35:00Z',
@@ -162,7 +164,7 @@ describe('OrderResultPage', () => {
       expect(await screen.findByText('Recibimos tu pago')).toBeInTheDocument();
       expect(screen.getByText('María Quispe')).toBeInTheDocument();
       expect(screen.getByText('Pagado')).toBeInTheDocument();
-      expect(screen.getByText('En preparación')).toBeInTheDocument();
+      expect(screen.getByText('Pendiente')).toBeInTheDocument();
       expect(screen.getByText('Entrega a domicilio')).toBeInTheDocument();
       expect(screen.getByText('Casa: Av. Arequipa 123, Lince')).toBeInTheDocument();
       expect(screen.getByText('Referencia: Puerta verde')).toBeInTheDocument();

@@ -7,14 +7,16 @@ import type {
 } from '@/features/admin/admin-order-api';
 
 export const DELIVERY_LABELS: Record<DeliveryStatus, string> = {
+  PENDIENTE: 'Pendiente',
+  CONFIRMADO: 'Confirmado',
   EN_PREPARACION: 'En preparación',
+  LISTO_PARA_RECOGER: 'Listo para recoger',
+  LISTO_PARA_ENVIO: 'Listo para envío',
   EN_CAMINO: 'En camino',
   ENTREGADO: 'Entregado',
-};
-
-export const ADVANCE_LABELS: Record<Exclude<DeliveryStatus, 'ENTREGADO'>, string> = {
-  EN_PREPARACION: 'Marcar en camino',
-  EN_CAMINO: 'Marcar entregado',
+  RECHAZADO: 'Rechazado',
+  CANCELADO: 'Cancelado',
+  FALLIDO: 'No entregado',
 };
 
 export const TYPE_LABELS: Record<DeliveryType, string> = { ENTREGA: 'Entrega', RECOJO: 'Recojo' };

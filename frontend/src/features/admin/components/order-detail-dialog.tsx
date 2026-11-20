@@ -1,8 +1,9 @@
 import { Button } from '@/components/button';
 import { Dialog } from '@/components/dialog';
 import type { AdminOrderRow } from '@/features/admin/admin-order-api';
-import { AdvanceStatusButton } from '@/features/admin/components/advance-status-button';
+import { OrderActions } from '@/features/admin/components/order-actions';
 import { OrderStatusBadge } from '@/features/admin/components/order-status-badge';
+import type { OrderAction } from '@/features/admin/order-actions';
 import {
   formatDateTime,
   PAYMENT_LABELS,
@@ -18,7 +19,8 @@ interface OrderDetailDialogProps {
   open: boolean;
   busyId: number | null;
   onClose: () => void;
-  onAdvance: (order: AdminOrderRow) => void;
+  onAction: (order: AdminOrderRow, action: OrderAction) => void;
+  onRefund: (order: AdminOrderRow) => void;
 }
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
@@ -30,7 +32,7 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
   );
 }
 
-export function OrderDetailDialog({ orderId, open, busyId, onClose, onAdvance }: OrderDetailDialogProps) {
+export function OrderDetailDialog({ orderId, open, busyId, onClose, onAction, onRefund }: OrderDetailDialogProps) {
   const { data, isPending, isError, refetch } = useAdminOrder(orderId);
   const order = data?.order;
 
@@ -63,6 +65,10 @@ export function OrderDetailDialog({ orderId, open, busyId, onClose, onAdvance }:
             <Row label="Entrega">
               <OrderStatusBadge status={order.deliveryStatus} />
             </Row>
+            {order.deliveryReason ? <Row label="Motivo">{order.deliveryReason}</Row> : null}
+            {order.refundStatus ? (
+              <Row label="Reembolso">{order.refundStatus === 'PENDIENTE' ? 'Pendiente' : 'Reembolsado'}</Row>
+            ) : null}
           </dl>
 
           <ul className="flex flex-col divide-y divide-border rounded-lg border border-border">
@@ -85,8 +91,13 @@ export function OrderDetailDialog({ orderId, open, busyId, onClose, onAdvance }:
             </Row>
           </dl>
 
-          <div className="flex justify-end">
-            <AdvanceStatusButton order={order} busy={busyId === order.id} onAdvance={onAdvance} />
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            {order.refundStatus === 'PENDIENTE' ? (
+              <Button variant="outline" disabled={busyId === order.id} onClick={() => onRefund(order)}>
+                Marcar reembolsado
+              </Button>
+            ) : null}
+            <OrderActions order={order} busy={busyId === order.id} onAction={onAction} />
           </div>
         </div>
       ) : null}

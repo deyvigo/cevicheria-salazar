@@ -9,7 +9,20 @@ import type {
 } from '@/features/admin/admin-order-api';
 
 export const SORT_FIELDS: OrderSortField[] = ['code', 'date', 'customer', 'zone', 'total', 'deliveryStatus'];
-export const STAGES: StageFilter[] = ['ACTIVE', 'EN_PREPARACION', 'EN_CAMINO', 'ENTREGADO', 'ALL'];
+export const STAGES: StageFilter[] = [
+  'ACTIVE',
+  'PENDIENTE',
+  'CONFIRMADO',
+  'EN_PREPARACION',
+  'LISTO_PARA_RECOGER',
+  'LISTO_PARA_ENVIO',
+  'EN_CAMINO',
+  'ENTREGADO',
+  'RECHAZADO',
+  'CANCELADO',
+  'FALLIDO',
+  'ALL',
+];
 export const RANGES = ['all', 'today', 'yesterday', 'week', 'custom'] as const;
 export type RangePreset = (typeof RANGES)[number];
 

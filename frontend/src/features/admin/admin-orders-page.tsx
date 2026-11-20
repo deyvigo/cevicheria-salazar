@@ -3,7 +3,6 @@ import axios from 'axios';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/button';
-import { Dialog } from '@/components/dialog';
 import { Notification } from '@/components/notification';
 import { Pagination } from '@/components/pagination';
 import { listAdminOrders, type AdminOrderRow, type OrderSortField } from '@/features/admin/admin-order-api';
@@ -22,7 +21,10 @@ import { OrderDetailDialog } from '@/features/admin/components/order-detail-dial
 import { OrderFilters } from '@/features/admin/components/order-filters';
 import { OrderTable } from '@/features/admin/components/order-table';
 import { useAdminOrders, useAdminOrderZones } from '@/features/admin/use-admin-orders';
-import { useAdvanceOrder } from '@/features/admin/use-advance-order';
+import { OrderCodeDialog } from '@/features/admin/components/order-code-dialog';
+import { OrderReasonDialog } from '@/features/admin/components/order-reason-dialog';
+import type { OrderAction } from '@/features/admin/order-actions';
+import { useChangeOrderStatus, useRefundOrder } from '@/features/admin/use-change-order-status';
 
 const REFRESH_DELAY_MS = 300;
 
@@ -39,14 +41,21 @@ export function AdminOrdersPage() {
   const { data, isPending, isError, isPlaceholderData, refetch } = useAdminOrders(query);
   const zones = useAdminOrderZones();
   const connected = useOrdersConnection();
-  const advance = useAdvanceOrder();
+  const changeStatus = useChangeOrderStatus();
+  const refund = useRefundOrder();
   const { newOrderIds, markSeen, markAllSeen } = useNewOrders();
   const [openId, setOpenId] = useState<number | null>(null);
-  const [confirming, setConfirming] = useState<AdminOrderRow | null>(null);
+  const [delivering, setDelivering] = useState<{ order: AdminOrderRow; action: OrderAction } | null>(null);
+  const [codeError, setCodeError] = useState<string | null>(null);
+  const [reasoning, setReasoning] = useState<{ order: AdminOrderRow; action: OrderAction } | null>(null);
   const [notice, setNotice] = useState<Notice | null>(null);
   const [newOrders, setNewOrders] = useState(0);
   const refreshTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const busyId = advance.isPending ? (advance.variables?.id ?? null) : null;
+  const busyId = changeStatus.isPending
+    ? (changeStatus.variables?.order.id ?? null)
+    : refund.isPending
+      ? (refund.variables?.id ?? null)
+      : null;
 
   useEffect(() => () => clearTimeout(refreshTimer.current), []);
 
@@ -104,10 +113,10 @@ export function AdminOrdersPage() {
     void client.invalidateQueries({ queryKey: ADMIN_ORDERS_LIST_KEY });
   }
 
-  async function advanceOrder(order: AdminOrderRow) {
+  async function run(order: AdminOrderRow, action: () => Promise<unknown>) {
     markSeen(order.id);
     try {
-      await advance.mutateAsync(order);
+      await action();
     } catch (error) {
       const conflict = axios.isAxiosError(error) && error.response?.status === 409;
       setNotice({
@@ -117,16 +126,42 @@ export function AdminOrdersPage() {
     }
   }
 
-  // Delivered is final, so it is the only step that asks first
-  function requestAdvance(order: AdminOrderRow) {
-    if (order.deliveryStatus === 'EN_CAMINO') setConfirming(order);
-    else void advanceOrder(order);
+  function changeOrder(order: AdminOrderRow, to: OrderAction['to'], details: { reason?: string; deliveryCode?: string } = {}) {
+    return run(order, () => changeStatus.mutateAsync({ order, to, ...details }));
   }
 
-  function confirmDelivered() {
-    const order = confirming;
-    setConfirming(null);
-    if (order) void advanceOrder(order);
+  // A rejection or cancellation needs a reason, and delivering needs the code the customer was given
+  function requestAction(order: AdminOrderRow, action: OrderAction) {
+    if (action.needsReason) setReasoning({ order, action });
+    else if (action.needsCode) {
+      setCodeError(null);
+      setDelivering({ order, action });
+    }
+    else void changeOrder(order, action.to);
+  }
+
+  async function submitReason(order: AdminOrderRow, action: OrderAction, reason: string) {
+    setReasoning(null);
+    await changeOrder(order, action.to, { reason });
+  }
+
+  async function submitCode(order: AdminOrderRow, action: OrderAction, deliveryCode: string) {
+    markSeen(order.id);
+    try {
+      await changeStatus.mutateAsync({ order, to: action.to, deliveryCode });
+      setDelivering(null);
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 400) {
+        setCodeError('El código no coincide. Pídeselo de nuevo al cliente.');
+        return;
+      }
+      setDelivering(null);
+      const conflict = axios.isAxiosError(error) && error.response?.status === 409;
+      setNotice({
+        variant: 'error',
+        title: conflict ? 'El pedido ya había cambiado de estado' : 'No pudimos actualizar el pedido, intenta de nuevo',
+      });
+    }
   }
 
   const filtered = hasActiveFilters(view);
@@ -210,7 +245,7 @@ export function AdminOrdersPage() {
               markSeen(order.id);
               setOpenId(order.id);
             }}
-            onAdvance={requestAdvance}
+            onAction={requestAction}
           />
           <Pagination page={data.page} totalPages={data.totalPages} onPageChange={goToPage} />
         </>
@@ -218,23 +253,30 @@ export function AdminOrdersPage() {
 
       <OrderDetailDialog
         orderId={openId}
-        open={openId !== null && confirming === null}
+        open={openId !== null && delivering === null && reasoning === null}
         busyId={busyId}
         onClose={() => setOpenId(null)}
-        onAdvance={requestAdvance}
+        onAction={requestAction}
+        onRefund={(order) => void run(order, () => refund.mutateAsync(order))}
       />
 
-      <Dialog open={confirming !== null} title="Marcar como entregado" onClose={() => setConfirming(null)}>
-        <p className="text-base text-ink">
-          {`¿Marcar el pedido ${confirming?.code ?? ''} como entregado? Esta acción no se puede deshacer.`}
-        </p>
-        <div className="mt-6 flex justify-end gap-3">
-          <Button variant="outline" onClick={() => setConfirming(null)}>
-            Cancelar
-          </Button>
-          <Button onClick={confirmDelivered}>Marcar entregado</Button>
-        </div>
-      </Dialog>
+      <OrderReasonDialog
+        target={reasoning}
+        busy={changeStatus.isPending}
+        onClose={() => setReasoning(null)}
+        onSubmit={submitReason}
+      />
+
+      <OrderCodeDialog
+        target={delivering}
+        busy={changeStatus.isPending}
+        error={codeError}
+        onClose={() => {
+          setDelivering(null);
+          setCodeError(null);
+        }}
+        onSubmit={submitCode}
+      />
 
       {notice ? (
         <div className="fixed right-6 bottom-6 z-50">
