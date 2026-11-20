@@ -5,6 +5,7 @@ const NAMES = {
   name: 'product-name',
   price: 'product-price',
   cta: 'product-cta',
+  buy: 'product-buy',
   stepper: 'product-stepper',
 } as const;
 

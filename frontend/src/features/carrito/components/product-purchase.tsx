@@ -1,4 +1,5 @@
 import { useState, type CSSProperties } from 'react';
+import { BuyNowButton } from '@/features/carrito/components/buy-now-button';
 import { AddToCartButton } from '@/features/carrito/components/add-to-cart-button';
 import { QuantityStepper } from '@/features/carrito/components/quantity-stepper';
 import { useCartStore } from '@/features/carrito/cart-store';
@@ -7,10 +8,12 @@ import { useAddToCart, type AddableProduct } from '@/features/carrito/use-add-to
 export function ProductPurchase({
   product,
   ctaStyle,
+  buyStyle,
   stepperStyle,
 }: {
   product: AddableProduct;
   ctaStyle?: CSSProperties;
+  buyStyle?: CSSProperties;
   stepperStyle?: CSSProperties;
 }) {
   const { quantity, cap, canAdd, atLimit } = useAddToCart(product);
@@ -55,7 +58,7 @@ export function ProductPurchase({
         onChange={change}
       />
       {/* The slot keeps its height while the dish is in the cart so the stepper doesn't jump when the button returns */}
-      <div className="min-h-12">
+      <div className="min-h-10">
         {inCart ? null : (
           <AddToCartButton
             product={product}
@@ -66,10 +69,12 @@ export function ProductPurchase({
               setReturning(false);
             }}
             style={ctaStyle}
+            variant="outline"
             className={`w-full ${returning ? 'motion-safe:animate-slide-in-down' : ''}`}
           />
         )}
       </div>
+      <BuyNowButton product={product} quantity={inCart ? 0 : chosen} style={buyStyle} className="w-full" />
     </div>
   );
 }

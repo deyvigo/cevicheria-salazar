@@ -114,6 +114,7 @@ export function ProductDetailPage() {
               <ProductPurchase
                 product={product}
                 ctaStyle={sharedName('cta', transitioning)}
+                buyStyle={sharedName('buy', transitioning)}
                 stepperStyle={sharedName('stepper', transitioning)}
               />
             </div>

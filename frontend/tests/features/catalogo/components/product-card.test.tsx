@@ -27,6 +27,7 @@ function renderCard(product: Product) {
     [
       { path: '/ceviches', element: <ProductCard product={product} /> },
       { path: '/products/:id', element: <Probe /> },
+      { path: '/cart', element: <Probe /> },
     ],
     { initialEntries: ['/ceviches?page=2'] },
   );
@@ -49,11 +50,32 @@ describe('ProductCard', () => {
     expect(screen.queryByTestId('probe')).not.toBeInTheDocument();
   });
 
+  it('"Comprar" suma al carrito y lleva al carrito', async () => {
+    const user = userEvent.setup();
+    renderCard(PRODUCT);
+
+    await user.click(screen.getByRole('button', { name: 'Comprar Ceviche clásico' }));
+
+    expect(useCartStore.getState().items).toEqual([{ productId: 1, quantity: 1 }]);
+    expect(await screen.findByTestId('probe')).toHaveTextContent('/cart');
+  });
+
+  it('"Comprar" con todo el stock ya en el carrito no suma más y lleva al carrito', async () => {
+    const user = userEvent.setup();
+    useCartStore.setState({ items: [{ productId: 1, quantity: 1 }] });
+    renderCard({ ...PRODUCT, stock: 1 });
+
+    await user.click(screen.getByRole('button', { name: 'Comprar Ceviche clásico' }));
+
+    expect(useCartStore.getState().items).toEqual([{ productId: 1, quantity: 1 }]);
+    expect(await screen.findByTestId('probe')).toHaveTextContent('/cart');
+  });
+
   it('el botón no está dentro del enlace y el resto de la tarjeta sigue navegando', async () => {
     const user = userEvent.setup();
     renderCard(PRODUCT);
 
-    expect(screen.getByRole('link')).not.toContainElement(screen.getByRole('button'));
+    for (const button of screen.getAllByRole('button')) expect(screen.getByRole('link')).not.toContainElement(button);
 
     await user.click(screen.getByRole('heading', { name: 'Ceviche clásico' }));
     expect(await screen.findByTestId('probe')).toHaveTextContent('/products/1');
@@ -62,10 +84,11 @@ describe('ProductCard', () => {
   it.each([
     ['agotado', { available: false }],
     ['stock 0', { stock: 0 }],
-  ])('deshabilita el botón con %s sin mostrar stock ni disponibilidad', (_name, override) => {
+  ])('deshabilita los botones con %s sin mostrar stock ni disponibilidad', (_name, override) => {
     renderCard({ ...PRODUCT, ...override });
 
     expect(screen.getByRole('button', { name: /Agregar/ })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /Comprar/ })).toBeDisabled();
     expect(screen.queryByText(/agotado|disponible|stock/i)).not.toBeInTheDocument();
   });
 

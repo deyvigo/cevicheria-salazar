@@ -1,6 +1,7 @@
 import { Link, useLocation, useViewTransitionState } from 'react-router-dom';
 import { Card } from '@/components/card';
 import { AddToCartButton } from '@/features/carrito/components/add-to-cart-button';
+import { BuyNowButton } from '@/features/carrito/components/buy-now-button';
 import type { Product } from '@/features/catalogo/catalog-api';
 import { StarIcon } from '@/features/catalogo/components/star-icon';
 import { DishImage } from '@/features/catalogo/components/dish-image';
@@ -13,6 +14,7 @@ export function ProductCard({ product }: { product: Product }) {
   const to = `/products/${product.id}`;
   // Only the card involved in the navigation gets the shared names, so they never repeat in the grid
   const transitioning = useViewTransitionState(to);
+  const addable = { id: product.id, name: product.name, available: product.available, stock: product.stock };
 
   return (
     // The button is a sibling of the link, not a child: a button inside an anchor is invalid and would also navigate
@@ -62,18 +64,20 @@ export function ProductCard({ product }: { product: Product }) {
           <div aria-hidden="true" className="h-12" />
         </Card>
       </Link>
-      <AddToCartButton
-        product={{
-          id: product.id,
-          name: product.name,
-          available: product.available,
-          stock: product.stock,
-        }}
-        label="Agregar"
-        variant="secondary"
-        style={sharedName('cta', transitioning)}
-        className="absolute inset-x-4 bottom-4"
-      />
+      <div className="absolute inset-x-4 bottom-4 flex gap-2">
+        <AddToCartButton
+          product={addable}
+          label="Agregar"
+          variant="outline"
+          style={sharedName('cta', transitioning)}
+          className="flex-1 px-3"
+        />
+        <BuyNowButton
+          product={addable}
+          style={sharedName('buy', transitioning)}
+          className="flex-1 px-3"
+        />
+      </div>
     </div>
   );
 }
