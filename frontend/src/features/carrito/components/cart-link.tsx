@@ -9,10 +9,13 @@ const CLOSE_DELAY_MS = 400;
 export function CartLink() {
   const count = useCartStore(selectProductCount);
   const { pathname } = useLocation();
-  // Remembering where it was opened closes the card by itself when the route changes
-  const [openAt, setOpenAt] = useState<string | null>(null);
-  const open = openAt === pathname;
-  const setOpen = (next: boolean) => setOpenAt(next ? pathname : null);
+  const [open, setOpen] = useState(false);
+  // Closing during render on a route change: a remembered "open" would reappear when coming back to the same path
+  const [openedAt, setOpenedAt] = useState(pathname);
+  if (openedAt !== pathname) {
+    setOpenedAt(pathname);
+    setOpen(false);
+  }
   const containerRef = useRef<HTMLDivElement>(null);
   const linkRef = useRef<HTMLAnchorElement>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
