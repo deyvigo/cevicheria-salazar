@@ -9,7 +9,9 @@ import * as authApi from '@/features/auth/auth-api';
 import * as addressApi from '@/features/perfil/address-api';
 import { MyAddressesPage } from '@/features/perfil/my-addresses-page';
 import { MyOrdersPage } from '@/features/perfil/my-orders-page';
+import * as checkoutApi from '@/features/checkout/checkout-api';
 import * as orderApi from '@/features/perfil/order-api';
+import { OrderDetailPage } from '@/features/perfil/order-detail-page';
 import { MyInformationPage } from '@/features/perfil/my-information-page';
 import { ProfileGuard } from '@/features/perfil/profile-guard';
 import { ProfileLayout } from '@/features/perfil/profile-layout';
@@ -19,6 +21,7 @@ import { Navigate } from 'react-router-dom';
 vi.mock('@/features/auth/auth-api');
 vi.mock('@/features/perfil/address-api');
 vi.mock('@/features/perfil/order-api');
+vi.mock('@/features/checkout/checkout-api');
 
 const maria: AuthUser = {
   id: 1,
@@ -47,6 +50,7 @@ function renderAt(path: string) {
                   { path: 'mi-informacion', element: <MyInformationPage /> },
                   { path: 'mis-direcciones', element: <MyAddressesPage /> },
                   { path: 'mis-pedidos', element: <MyOrdersPage /> },
+                  { path: 'mis-pedidos/:orderId', element: <OrderDetailPage /> },
                   { path: '*', element: <ProfileNotFound /> },
                 ],
               },
@@ -142,6 +146,45 @@ describe('Perfil', () => {
 
     expect(await screen.findByText('Login')).toBeInTheDocument();
     expect(router.state.location.state).toEqual({ from: '/perfil/mis-pedidos' });
+  });
+
+  it('el detalle de un pedido conserva activa la pestaña "Mis pedidos"', async () => {
+    vi.mocked(authApi.me).mockResolvedValue(maria);
+    vi.mocked(checkoutApi.getOrder).mockResolvedValue({
+      id: 7,
+      code: 'SAL-000007',
+      status: 'PAGADO',
+      deliveryType: 'RECOJO',
+      paymentMethod: 'ONLINE',
+      subtotal: 30,
+      deliveryPrice: 0,
+      total: 30,
+      items: [{ productId: 1, name: 'Ceviche clásico', unitPrice: 30, quantity: 1, lineTotal: 30 }],
+      paymentStatus: 'approved',
+      deliveryCode: '1234',
+      collectionMethod: null,
+      cashAmount: null,
+      change: null,
+      customerName: 'María Quispe',
+      deliveryStatus: 'CONFIRMADO',
+      deliveryReason: null,
+      refundStatus: null,
+      address: null,
+      purchasedAt: '2026-11-07T19:30:00Z',
+      paidAt: '2026-11-07T19:35:00Z',
+    });
+    renderAt('/perfil/mis-pedidos/7');
+
+    expect(await screen.findByRole('heading', { name: 'Ceviche clásico' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Mis pedidos' })).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('lleva a iniciar sesión a un visitante del detalle, recordando el pedido', async () => {
+    vi.mocked(authApi.me).mockRejectedValue(new Error('401'));
+    const router = renderAt('/perfil/mis-pedidos/7');
+
+    expect(await screen.findByText('Login')).toBeInTheDocument();
+    expect(router.state.location.state).toEqual({ from: '/perfil/mis-pedidos/7' });
   });
 
   it('muestra la página 404 a un administrador', async () => {

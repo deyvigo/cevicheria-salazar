@@ -24,6 +24,7 @@ import { ProductDetailPage } from '@/features/catalogo/product-detail-page';
 import { HomePage } from '@/features/home/home-page';
 import { MyAddressesPage } from '@/features/perfil/my-addresses-page';
 import { MyOrdersPage } from '@/features/perfil/my-orders-page';
+import { OrderDetailPage } from '@/features/perfil/order-detail-page';
 import { MyInformationPage } from '@/features/perfil/my-information-page';
 import { PROFILE_SECTIONS } from '@/features/perfil/profile-sections';
 import { ProfileGuard } from '@/features/perfil/profile-guard';
@@ -74,6 +75,7 @@ export const router = createBrowserRouter([
               { path: 'mi-informacion', element: <MyInformationPage /> },
               { path: 'mis-direcciones', element: <MyAddressesPage /> },
               { path: 'mis-pedidos', element: <MyOrdersPage /> },
+              { path: 'mis-pedidos/:orderId', element: <OrderDetailPage /> },
               { path: '*', element: <ProfileNotFound /> },
             ],
           },

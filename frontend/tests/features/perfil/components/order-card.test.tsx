@@ -1,5 +1,6 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { OrderCard, orderTitle } from '@/features/perfil/components/order-card';
 import * as orderApi from '@/features/perfil/order-api';
@@ -21,14 +22,23 @@ const order: OrderSummary = {
 };
 
 function renderCard(value: OrderSummary) {
-  return render(<OrderCard order={value} />, { wrapper: QueryWrapper });
+  return render(
+    <MemoryRouter initialEntries={['/perfil/mis-pedidos']}>
+      <QueryWrapper>
+        <Routes>
+          <Route path="/perfil/mis-pedidos" element={<OrderCard order={value} page={2} />} />
+          <Route path="/perfil/mis-pedidos/:orderId" element={<p>detalle del pedido</p>} />
+        </Routes>
+      </QueryWrapper>
+    </MemoryRouter>,
+  );
 }
 
 describe('OrderCard', () => {
   it('muestra nombre, código, precio, fecha y estado', () => {
     renderCard(order);
 
-    expect(screen.getByRole('heading', { name: 'Ceviche clásico, Chicharrón de pota y 1 más' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /^Ceviche clásico, Chicharrón de pota y 1 más/ })).toBeInTheDocument();
     expect(screen.getByText('SAL-001042')).toBeInTheDocument();
     expect(screen.getByText('S/ 32.00')).toBeInTheDocument();
     expect(screen.getByText(/7 nov/)).toBeInTheDocument();
@@ -62,6 +72,27 @@ describe('OrderCard', () => {
     renderCard({ ...order, purchasedAt: '2026-11-08T04:30:00Z' });
 
     expect(screen.getByText(/7 nov/)).toBeInTheDocument();
+  });
+
+  it('la tarjeta entera lleva al detalle y el enlace se anuncia con el código', async () => {
+    const user = userEvent.setup();
+    renderCard(order);
+
+    const link = screen.getByRole('link', { name: /ver detalle del pedido SAL-001042/ });
+    expect(link).toHaveAttribute('href', '/perfil/mis-pedidos/1');
+    await user.click(link);
+
+    expect(screen.getByText('detalle del pedido')).toBeInTheDocument();
+  });
+
+  it('el botón de cancelar abre el diálogo y no navega al detalle', async () => {
+    const user = userEvent.setup();
+    renderCard({ ...order, deliveryStatus: 'PENDIENTE' });
+
+    await user.click(screen.getByRole('button', { name: 'Cancelar pedido' }));
+
+    expect(screen.getByRole('dialog', { name: 'Cancelar pedido' })).toBeInTheDocument();
+    expect(screen.queryByText('detalle del pedido')).not.toBeInTheDocument();
   });
 
   it('arma el título según cuántos platos hay', () => {

@@ -88,6 +88,7 @@ El carrito no requiere cuenta. El inicio de sesión se exige recién al realizar
 | HU-25 | Como cliente, quiero ver el historial de mis pedidos para revisar lo que he comprado.                                              | Media     |
 | HU-26 | Como cliente, quiero ver el estado de mi pedido actual (recibido, en preparación, en camino, entregado) para saber cuándo llegará. | Alta      |
 | HU-27 | Como cliente, quiero repetir un pedido anterior para ahorrar tiempo.                                                               | Baja      |
+| HU-40 | Como cliente, quiero entrar a Mis pedidos desde el menú de mi nombre y abrir un pedido con un clic para ver su detalle completo (platos, entrega, pago y estado) sin salir de mi perfil. | Media     |
 
 <a id="e6"></a>
 

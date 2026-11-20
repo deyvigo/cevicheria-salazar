@@ -7,10 +7,10 @@ import { deliveryStatusLabel } from '@/features/perfil/delivery-status';
 export function OrderInfoList({ order }: { order: Order }) {
   return (
     <dl className="grid gap-4 rounded-lg border border-border bg-surface p-4 sm:grid-cols-2">
-      {order.customerName ? <Item label="Nombre">{order.customerName}</Item> : null}
-      <Item label="Estado del pago">{paymentStatusText(order)}</Item>
-      <Item label="Estado de la entrega">{deliveryStatusLabel(order.deliveryStatus, order.deliveryType)}</Item>
-      <Item label="Cómo lo recibirás">
+      {order.customerName ? <InfoItem label="Nombre">{order.customerName}</InfoItem> : null}
+      <InfoItem label="Estado del pago">{paymentStatusText(order)}</InfoItem>
+      <InfoItem label="Estado de la entrega">{deliveryStatusLabel(order.deliveryStatus, order.deliveryType)}</InfoItem>
+      <InfoItem label="Cómo lo recibirás">
         {order.deliveryType === 'RECOJO' || order.address === null ? (
           'Recojo en tienda'
         ) : (
@@ -24,15 +24,15 @@ export function OrderInfoList({ order }: { order: Order }) {
             ) : null}
           </>
         )}
-      </Item>
-      <Item label="Cómo pagas">{paymentMethodText(order)}</Item>
-      <Item label="Fecha de compra">{formatDateTime(order.purchasedAt)}</Item>
-      <Item label="Fecha de pago">{order.paidAt ? formatDateTime(order.paidAt) : PAYMENT_PENDING_TEXT}</Item>
+      </InfoItem>
+      <InfoItem label="Cómo pagas">{paymentMethodText(order)}</InfoItem>
+      <InfoItem label="Fecha de compra">{formatDateTime(order.purchasedAt)}</InfoItem>
+      <InfoItem label="Fecha de pago">{order.paidAt ? formatDateTime(order.paidAt) : PAYMENT_PENDING_TEXT}</InfoItem>
     </dl>
   );
 }
 
-function Item({ label, children }: { label: string; children: ReactNode }) {
+export function InfoItem({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="flex flex-col gap-0.5">
       <dt className="text-sm text-ink-muted">{label}</dt>
