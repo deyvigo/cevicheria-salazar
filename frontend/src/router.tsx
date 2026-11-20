@@ -3,6 +3,7 @@ import { Layout } from '@/components/layout';
 import { AdminCategoriesPage } from '@/features/admin/admin-categories-page';
 import { AdminDeliveryZonesPage } from '@/features/admin/admin-delivery-zones-page';
 import { AdminOrdersPage } from '@/features/admin/admin-orders-page';
+import { AdminReportsPage } from '@/features/admin/admin-reports-page';
 import { AdminProductsPage } from '@/features/admin/admin-products-page';
 import { AdminGuard } from '@/features/admin/admin-guard';
 import { AdminLayout } from '@/features/admin/admin-layout';
@@ -95,7 +96,8 @@ export const router = createBrowserRouter([
           { path: 'categorias', element: <AdminCategoriesPage /> },
           { path: 'zonas-delivery', element: <AdminDeliveryZonesPage /> },
           { path: 'pedidos', element: <AdminOrdersPage /> },
-          ...ADMIN_SECTIONS.filter((section) => !['categorias', 'platos', 'zonas-delivery', 'pedidos'].includes(section.path)).map((section) => ({
+          { path: 'reportes', element: <AdminReportsPage /> },
+          ...ADMIN_SECTIONS.filter((section) => !['categorias', 'platos', 'zonas-delivery', 'pedidos', 'reportes'].includes(section.path)).map((section) => ({
             path: section.path,
             element: <AdminSectionPage title={section.label} />,
           })),
