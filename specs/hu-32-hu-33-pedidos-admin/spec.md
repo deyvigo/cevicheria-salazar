@@ -3,6 +3,8 @@
 **Épica**: [E6. Panel de administración](../../docs/epicas.md#e6)
 **Estado**: Hecha
 
+> HU-26 ([`specs/hu-26-estado-del-pedido`](../hu-26-estado-del-pedido/spec.md)) reemplaza los tres estados de esta spec por el flujo completo de 10 estados, con rutas distintas para Recojo y Entrega, aceptación manual y avisos al cliente. Lo que esta spec dice sobre "tres estados", "Recojo con los mismos textos" y "sin notificar al cliente" ya no aplica.
+
 ## Objetivo
 
 Que el Administrador vea en la sección **Pedidos** del panel los pedidos comprados, que la lista se actualice sola cuando entra un pedido o cambia uno (HU-32), y que pueda avanzar la etapa de entrega de cada pedido para que el cliente vea su avance (HU-33). Ambas historias comparten pantalla, endpoint y canal de tiempo real, por eso van en una sola spec y una sola rama.
