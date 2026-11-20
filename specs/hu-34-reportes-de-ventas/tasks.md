@@ -38,4 +38,4 @@ Requiere `plan.md`. Cada tarea indica qué criterio(s) de `spec.md` cubre y cóm
 ## Cierre
 
 - [x] `./mvnw test`, `./mvnw test -Dtest='*IT'`, `pnpm test --run` y `pnpm build` en verde
-- [ ] Revisión en navegador (gráficas, contraste de la dona, ancho móvil), repasar cada criterio de `spec.md` y marcar la spec como Hecha — cubre: todos — verificación: ejecución de los comandos y revisión manual en el navegador
+- [x] Revisión en navegador (gráficas, contraste de la dona, ancho móvil), repasar cada criterio de `spec.md` y marcar la spec como Hecha — cubre: todos — verificación: ejecución de los comandos y revisión manual en el navegador

@@ -1,7 +1,7 @@
 # Spec: HU-34 — Reporte de ventas
 
 **Épica**: [E6. Panel de administración](../../docs/epicas.md#e6)
-**Estado**: En implementación
+**Estado**: Hecha
 
 ## Objetivo
 
