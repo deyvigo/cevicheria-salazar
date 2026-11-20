@@ -1,9 +1,12 @@
-export function StarIcon({ className }: { className: string }) {
+import type { CSSProperties } from 'react';
+
+export function StarIcon({ className, style }: { className: string; style?: CSSProperties }) {
   return (
     // The stroke in the same color as the fill is what rounds the tips; the viewBox leaves room for it
     <svg
       viewBox="1 0.1 18 18"
       aria-hidden="true"
+      style={style}
       className={`flex-none fill-aji-500 stroke-aji-500 ${className}`}
       strokeWidth={1.5}
       strokeLinejoin="round"

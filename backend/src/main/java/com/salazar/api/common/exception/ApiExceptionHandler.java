@@ -62,6 +62,18 @@ public class ApiExceptionHandler {
                 .body(ApiError.of(HttpStatus.NOT_FOUND.value(), "No encontrado", ex.getMessage()));
     }
 
+    @ExceptionHandler(ReviewNotFoundException.class)
+    public ResponseEntity<ApiError> handleReviewNotFound(ReviewNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiError.of(HttpStatus.NOT_FOUND.value(), "No encontrado", ex.getMessage()));
+    }
+
+    @ExceptionHandler(ReviewNotAllowedException.class)
+    public ResponseEntity<ApiError> handleReviewNotAllowed(ReviewNotAllowedException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ApiError.of(HttpStatus.FORBIDDEN.value(), "Prohibido", ex.getMessage()));
+    }
+
     @ExceptionHandler(AddressNotFoundException.class)
     public ResponseEntity<ApiError> handleAddressNotFound(AddressNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)

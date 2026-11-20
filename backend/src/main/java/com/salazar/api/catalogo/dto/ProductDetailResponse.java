@@ -9,6 +9,7 @@ public record ProductDetailResponse(
         String description,
         BigDecimal price,
         BigDecimal rating,
+        long reviewCount,
         boolean available,
         int stock,
         CategoryResponse category,

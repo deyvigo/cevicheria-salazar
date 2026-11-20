@@ -23,6 +23,7 @@ public class CatalogService {
 
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
+    private final ReviewRepository reviewRepository;
     private final ImageUrlResolver imageUrlResolver;
     private final CatalogProperties properties;
 
@@ -63,6 +64,7 @@ public class CatalogService {
                 product.getDescription(),
                 product.getPrice(),
                 product.getRating(),
+                reviewRepository.countByProductId(product.getId()),
                 product.isOrderable(),
                 product.getStock(),
                 CategoryResponse.from(product.getCategory()),

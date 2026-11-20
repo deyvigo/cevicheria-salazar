@@ -3,7 +3,8 @@ import { useCallback } from 'react';
 import { Link, useLocation, useNavigate, useParams, useViewTransitionState } from 'react-router-dom';
 import { ProductPurchase } from '@/features/carrito/components/product-purchase';
 import { AvailabilityBadge } from '@/features/catalogo/components/availability-badge';
-import { StarIcon } from '@/features/catalogo/components/star-icon';
+import { FractionalStars } from '@/features/catalogo/components/fractional-stars';
+import { ReviewsSection } from '@/features/catalogo/components/reviews-section';
 import { ProductGallery } from '@/features/catalogo/components/product-gallery';
 import { formatPrice } from '@/features/catalogo/format';
 import { sharedName } from '@/features/catalogo/transition-names';
@@ -97,8 +98,8 @@ export function ProductDetailPage() {
               {product.name}
             </h1>
             {product.rating !== null ? (
-              <span className="flex items-center gap-1 text-base text-ink-muted">
-                <StarIcon className="h-5 w-5" />
+              <span className="flex items-center gap-2 text-base text-ink-muted">
+                <FractionalStars rating={product.rating} className="h-5 w-5" />
                 <span aria-label={`Calificación ${product.rating.toFixed(1)} de 5`}>{product.rating.toFixed(1)}</span>
               </span>
             ) : null}
@@ -121,6 +122,9 @@ export function ProductDetailPage() {
           </div>
         </div>
       )}
+      {product && id !== null ? (
+        <ReviewsSection productId={id} rating={product.rating} reviewCount={product.reviewCount} />
+      ) : null}
     </main>
   );
 }
