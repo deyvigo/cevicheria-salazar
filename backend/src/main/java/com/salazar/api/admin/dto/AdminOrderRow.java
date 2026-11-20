@@ -6,6 +6,7 @@ import com.salazar.api.pedidos.DeliveryType;
 import com.salazar.api.pedidos.Order;
 import com.salazar.api.pedidos.OrderStatus;
 import com.salazar.api.pedidos.PaymentMethod;
+import com.salazar.api.pedidos.RefundStatus;
 import java.math.BigDecimal;
 import java.time.Instant;
 
@@ -21,7 +22,9 @@ public record AdminOrderRow(
         OrderStatus paymentStatus,
         BigDecimal total,
         BigDecimal cashChange,
-        DeliveryStatus deliveryStatus) {
+        DeliveryStatus deliveryStatus,
+        String deliveryReason,
+        RefundStatus refundStatus) {
 
     public static AdminOrderRow from(Order order, String customerName) {
         return new AdminOrderRow(
@@ -36,7 +39,9 @@ public record AdminOrderRow(
                 order.getStatus(),
                 order.getTotal(),
                 order.getChange(),
-                order.getDeliveryStatus());
+                order.getDeliveryStatus(),
+                order.getDeliveryReason(),
+                order.getRefundStatus());
     }
 
     public static Instant purchasedAt(Order order) {

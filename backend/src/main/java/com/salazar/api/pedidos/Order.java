@@ -1,5 +1,6 @@
 package com.salazar.api.pedidos;
 
+import com.salazar.api.common.exception.FieldInvalidException;
 import com.salazar.api.common.exception.OrderDeliveryConflictException;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -27,6 +28,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Order {
+    public static final int MAX_REASON_LENGTH = 200;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -46,7 +49,20 @@ public class Order {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "delivery_status", nullable = false, length = 20)
-    private DeliveryStatus deliveryStatus = DeliveryStatus.EN_PREPARACION;
+    private DeliveryStatus deliveryStatus = DeliveryStatus.PENDIENTE;
+
+    @Column(name = "delivery_reason", length = 200)
+    private String deliveryReason;
+
+    @Column(name = "delivery_updated_at")
+    private Instant deliveryUpdatedAt;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "refund_status", length = 12)
+    private RefundStatus refundStatus;
+
+    @Column(name = "refunded_at")
+    private Instant refundedAt;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_method", nullable = false, updatable = false, length = 20)
@@ -212,17 +228,41 @@ public class Order {
         this.paidAt = Instant.now();
     }
 
-    /** Moves the delivery one step forward, only if the caller saw the stage the order is actually in. */
-    public void advanceDelivery(DeliveryStatus expected) {
+    /** Moves the delivery to a status allowed for this kind of order, only if the caller saw the stage it is really in. */
+    public void moveDelivery(DeliveryStatus expected, DeliveryStatus to, String reason, String enteredCode) {
         if (!isConfirmed()) {
             throw new OrderDeliveryConflictException("Este pedido aún no está comprado.");
         }
         if (deliveryStatus != expected) {
             throw new OrderDeliveryConflictException("El pedido ya había cambiado de estado.");
         }
-        this.deliveryStatus = deliveryStatus
-                .next()
-                .orElseThrow(() -> new OrderDeliveryConflictException("El pedido ya fue entregado."));
+        if (!deliveryStatus.canMoveTo(to, deliveryType)) {
+            throw new OrderDeliveryConflictException("El pedido no puede pasar de ese estado al elegido.");
+        }
+        if (to == DeliveryStatus.ENTREGADO && (enteredCode == null || !deliveryCode.equals(enteredCode.strip()))) {
+            throw new FieldInvalidException("deliveryCode", "El código de entrega no coincide.");
+        }
+        String cleanReason = reason == null || reason.isBlank() ? null : reason.strip();
+        if (to.needsReason() && cleanReason == null) {
+            throw new FieldInvalidException("reason", "Indica el motivo.");
+        }
+        if (cleanReason != null && cleanReason.length() > MAX_REASON_LENGTH) {
+            throw new FieldInvalidException("reason", "El motivo no puede superar los 200 caracteres.");
+        }
+        this.deliveryStatus = to;
+        this.deliveryReason = to.needsReason() ? cleanReason : null;
+        this.deliveryUpdatedAt = Instant.now();
+        if (to.releasesStock() && status == OrderStatus.PAGADO) {
+            this.refundStatus = RefundStatus.PENDIENTE;
+        }
+    }
+
+    public void markRefunded() {
+        if (refundStatus != RefundStatus.PENDIENTE) {
+            throw new OrderDeliveryConflictException("Este pedido no tiene un reembolso pendiente.");
+        }
+        this.refundStatus = RefundStatus.REEMBOLSADO;
+        this.refundedAt = Instant.now();
     }
 
     public void cancel(String reason) {

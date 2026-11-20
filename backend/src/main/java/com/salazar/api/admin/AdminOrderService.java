@@ -10,6 +10,7 @@ import com.salazar.api.common.exception.OrderNotFoundException;
 import com.salazar.api.pedidos.DeliveryStatus;
 import com.salazar.api.pedidos.Order;
 import com.salazar.api.pedidos.OrderChangedEvent;
+import com.salazar.api.pedidos.OrderLifecycleService;
 import com.salazar.api.pedidos.OrderRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class AdminOrderService {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final ApplicationEventPublisher events;
+    private final OrderLifecycleService lifecycle;
 
     @Transactional(readOnly = true)
     public PageResponse<AdminOrderRow> list(
@@ -51,11 +53,20 @@ public class AdminOrderService {
     }
 
     @Transactional
-    public AdminOrderRow advance(Long id, DeliveryStatus from) {
-        // Row lock: two administrators pressing the same button can't move the order twice
+    public AdminOrderRow changeDelivery(Long id, DeliveryStatus from, DeliveryStatus to, String reason, String deliveryCode) {
+        Order order = lifecycle.changeDelivery(id, from, to, reason, deliveryCode, null);
+        return row(order);
+    }
+
+    @Transactional
+    public AdminOrderRow markRefunded(Long id) {
         Order order = orderRepository.findByIdForUpdate(id).filter(Order::isConfirmed).orElseThrow(OrderNotFoundException::new);
-        order.advanceDelivery(from);
+        order.markRefunded();
         events.publishEvent(new OrderChangedEvent(OrderChangedEvent.Type.UPDATED, order.getId()));
+        return row(order);
+    }
+
+    private AdminOrderRow row(Order order) {
         User customer = userRepository.findById(order.getUserId()).orElseThrow(OrderNotFoundException::new);
         return AdminOrderRow.from(order, name(customer));
     }

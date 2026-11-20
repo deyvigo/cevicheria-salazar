@@ -41,4 +41,9 @@ public class OrderController {
     public OrderResponse get(Authentication authentication, @PathVariable Long id) {
         return orderService.getOwned(AuthenticatedUser.id(authentication), id);
     }
+
+    @PostMapping("/{id}/cancel")
+    public OrderResponse cancel(Authentication authentication, @PathVariable Long id) {
+        return orderService.cancelOwn(AuthenticatedUser.id(authentication), id);
+    }
 }

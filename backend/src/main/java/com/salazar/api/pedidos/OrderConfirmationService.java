@@ -100,11 +100,17 @@ public class OrderConfirmationService {
         return "Contraentrega: pagarás en efectivo " + when + " tu pedido";
     }
 
-    private String deliveryStatusLabel(DeliveryStatus status) {
+    static String deliveryStatusLabel(DeliveryStatus status) {
         return switch (status) {
-            case EN_PREPARACION -> "En preparación";
+            case PENDIENTE -> "Pendiente de confirmación";
+            case CONFIRMADO -> "Confirmado";
+            case EN_PREPARACION, LISTO_PARA_ENVIO -> "En preparación";
+            case LISTO_PARA_RECOGER -> "Listo para recoger";
             case EN_CAMINO -> "En camino";
             case ENTREGADO -> "Entregado";
+            case RECHAZADO -> "Rechazado";
+            case CANCELADO -> "Cancelado";
+            case FALLIDO -> "No entregado";
         };
     }
 

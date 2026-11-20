@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class OrderService {
     private static final int PAGE_SIZE = 10;
+    static final String CANCEL_BY_CUSTOMER = "Cancelado por el cliente";
 
     private final OrderLifecycleService lifecycle;
     private final OrderRepository orderRepository;
@@ -96,7 +97,10 @@ public class OrderService {
                         namesByOrder.getOrDefault(order.getId(), List.of()),
                         order.getTotal(),
                         order.getPaidAt() != null ? order.getPaidAt() : order.getCreatedAt(),
-                        order.getDeliveryStatus()))
+                        order.getDeliveryStatus(),
+                        order.getDeliveryType(),
+                        order.getDeliveryReason(),
+                        order.getRefundStatus()))
                 .toList();
         return new PageResponse<>(items, requested, PAGE_SIZE, result.getTotalElements(), result.getTotalPages());
     }
@@ -128,6 +132,13 @@ public class OrderService {
                 .map(Payment::getStatus)
                 .orElse(null);
         return OrderResponse.from(order, paymentStatus, customer.getFirstName() + " " + customer.getLastName());
+    }
+
+    public OrderResponse cancelOwn(Long userId, Long orderId) {
+        requireCustomer(userId);
+        lifecycle.changeDelivery(
+                orderId, DeliveryStatus.PENDIENTE, DeliveryStatus.CANCELADO, CANCEL_BY_CUSTOMER, null, userId);
+        return getOwned(userId, orderId);
     }
 
     private CheckoutRequest toCheckoutRequest(Order order) {

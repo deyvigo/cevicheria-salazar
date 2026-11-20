@@ -73,6 +73,36 @@ public class MailService {
         }
     }
 
+    // Called from an already asynchronous listener, so it doesn't need @Async; failures are only logged
+    public void sendOrderStatusEmail(OrderStatusMail mail) {
+        try {
+            JavaMailSender sender = mailSender.getIfAvailable();
+            if (sender == null) {
+                throw new IllegalStateException("SMTP no configurado (SMTP_HOST vacío)");
+            }
+            MimeMessage message = sender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
+            if (!from.isBlank()) {
+                helper.setFrom(from);
+            }
+            helper.setTo(mail.to());
+            helper.setSubject("Tu pedido " + mail.orderCode() + " - Salazar");
+            helper.setText(buildOrderStatusBody(mail), true);
+            sender.send(message);
+        } catch (Exception ex) {
+            log.error("No se pudo enviar el aviso de estado del pedido {}", mail.orderCode(), ex);
+        }
+    }
+
+    String buildOrderStatusBody(OrderStatusMail mail) {
+        return """
+                <p>Hola %s,</p>
+                <p><strong>%s</strong></p>
+                <p>Pedido: %s</p>
+                """
+                .formatted(escape(mail.firstName()), escape(mail.message()), escape(mail.orderCode()));
+    }
+
     String buildOrderConfirmationBody(OrderConfirmationMail mail) {
         StringBuilder rows = new StringBuilder();
         for (OrderConfirmationMail.Line line : mail.items()) {
@@ -81,7 +111,7 @@ public class MailService {
         }
         return """
                 <p>Hola %s,</p>
-                <p>Recibimos tu pedido en Salazar. Guarda este correo como constancia de tu compra.</p>
+                <p>Recibimos tu pedido, esperando confirmación. Guarda este correo como constancia de tu compra.</p>
                 <p>Código de pedido: <strong>%s</strong><br>
                 Código de entrega: <strong>%s</strong><br>
                 %s</p>

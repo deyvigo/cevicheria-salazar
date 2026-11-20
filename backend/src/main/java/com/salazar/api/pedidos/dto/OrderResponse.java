@@ -6,6 +6,7 @@ import com.salazar.api.pedidos.DeliveryType;
 import com.salazar.api.pedidos.Order;
 import com.salazar.api.pedidos.OrderStatus;
 import com.salazar.api.pedidos.PaymentMethod;
+import com.salazar.api.pedidos.RefundStatus;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
@@ -27,6 +28,8 @@ public record OrderResponse(
         BigDecimal change,
         String customerName,
         DeliveryStatus deliveryStatus,
+        String deliveryReason,
+        RefundStatus refundStatus,
         Address address,
         Instant purchasedAt,
         Instant paidAt) {
@@ -66,6 +69,8 @@ public record OrderResponse(
                 order.getChange(),
                 confirmed ? customerName : null,
                 order.getDeliveryStatus(),
+                order.getDeliveryReason(),
+                order.getRefundStatus(),
                 address,
                 order.getCreatedAt(),
                 order.getPaidAt());

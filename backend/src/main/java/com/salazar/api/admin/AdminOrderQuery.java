@@ -18,6 +18,7 @@ import jakarta.persistence.criteria.Root;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import org.springframework.stereotype.Repository;
@@ -26,6 +27,8 @@ import org.springframework.stereotype.Repository;
 class AdminOrderQuery {
     static final ZoneId LIMA = ZoneId.of("America/Lima");
     private static final List<OrderStatus> PURCHASED = List.of(OrderStatus.PAGADO, OrderStatus.PENDIENTE_COBRO);
+    private static final List<DeliveryStatus> ACTIVE_STATUSES =
+            Arrays.stream(DeliveryStatus.values()).filter(status -> !status.isFinal()).toList();
 
     @PersistenceContext
     private EntityManager em;
@@ -68,6 +71,16 @@ class AdminOrderQuery {
                 .getResultList();
     }
 
+    // Follows the flow of the order, not the alphabet; the negative endings go last
+    private Expression<Integer> flowRank(CriteriaBuilder cb, Root<Order> order) {
+        CriteriaBuilder.SimpleCase<DeliveryStatus, Integer> rank = cb.selectCase(order.<DeliveryStatus>get("deliveryStatus"));
+        DeliveryStatus[] values = DeliveryStatus.values();
+        for (int i = 0; i < values.length; i++) {
+            rank = rank.when(values[i], i);
+        }
+        return rank.otherwise(values.length);
+    }
+
     private Expression<Instant> purchasedAt(CriteriaBuilder cb, Root<Order> order) {
         return cb.coalesce(order.<Instant>get("paidAt"), order.<Instant>get("createdAt"));
     }
@@ -78,11 +91,11 @@ class AdminOrderQuery {
         list.add(order.get("status").in(PURCHASED));
 
         switch (filter.stage()) {
-            case ACTIVE -> list.add(order.get("deliveryStatus")
-                    .in(List.of(DeliveryStatus.EN_PREPARACION, DeliveryStatus.EN_CAMINO)));
+            case ACTIVE -> list.add(order.get("deliveryStatus").in(ACTIVE_STATUSES));
             case ALL -> {}
             default -> list.add(cb.equal(order.get("deliveryStatus"), filter.stage().single()));
         }
+        if (filter.refund() != null) list.add(cb.equal(order.get("refundStatus"), filter.refund()));
         if (filter.type() != null) list.add(cb.equal(order.get("deliveryType"), filter.type()));
         if (filter.paymentStatus() != null) list.add(cb.equal(order.get("status"), filter.paymentStatus()));
         if (filter.zone() != null) list.add(cb.equal(order.get("deliveryZoneName"), filter.zone()));
@@ -144,10 +157,7 @@ class AdminOrderQuery {
             case TOTAL -> result.add(direction(cb, order.get("total"), descending));
             case DELIVERYSTATUS -> result.add(direction(
                     cb,
-                    cb.selectCase()
-                            .when(cb.equal(order.get("deliveryStatus"), DeliveryStatus.EN_PREPARACION), 1)
-                            .when(cb.equal(order.get("deliveryStatus"), DeliveryStatus.EN_CAMINO), 2)
-                            .otherwise(3),
+                    flowRank(cb, order),
                     descending));
         }
         // Ties fall back to the newest purchase, then the id, so pages stay stable
