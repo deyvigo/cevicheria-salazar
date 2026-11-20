@@ -39,12 +39,18 @@ Por ahora modela el dominio de **autenticación y registro** (épica [E1](epicas
 - **products**: platos que se muestran en el catálogo (HU-07).
   - `name`, `description`, `price`: datos que ve el cliente (`price` en soles con dos decimales).
   - `category_id`: referencia a `categories`; un plato pertenece a una sola categoría.
-  - `rating`: calificación promedio de 0.0 a 5.0 (un decimal); `NULL` si aún no tiene.
+  - `rating`: calificación promedio de 0.0 a 5.0 (un decimal); `NULL` si aún no tiene. Desde HU-41 se recalcula como el promedio de `product_reviews` cada vez que se crea, edita o elimina una reseña.
   - `is_active`: un plato inactivo no aparece en el catálogo.
   - `is_available`: si el plato se puede pedir hoy (por defecto `true`). Un plato agotado sigue visible en el catálogo y su detalle lo indica (HU-10); el administrador lo cambia en HU-30.
   - `stock`: unidades que se pueden pedir hoy (entero mayor o igual que 0, por defecto 0). Un plato se puede pedir solo si `is_available` es `true` y `stock > 0`; la cantidad máxima en el carrito es el stock (HU-12). El administrador lo cambia en HU-29/HU-30 y el checkout lo descontará.
   - `created_at`: fecha de creación.
   - `deleted_at`: borrado lógico (soft delete, HU-29). Un plato eliminado deja de aparecer en la tienda y en el panel, pero la fila y sus imágenes se conservan para los pedidos históricos; las consultas filtran `deleted_at IS NULL`. Sigue referenciando su categoría, así que cuenta para impedir eliminarla (HU-31).
+
+- **product_reviews**: reseñas de los platos (HU-41, migración `V17__product_reviews.sql`).
+  - `product_id`: plato reseñado. `user_id`: autor; pasa a `NULL` si se elimina la cuenta y la reseña se muestra como "Cliente". `UNIQUE (product_id, user_id)`: una reseña por cliente y plato.
+  - `rating`: entero de 1 a 5, obligatorio. `comment`: texto opcional de hasta 500 caracteres.
+  - `created_at` y `updated_at`: la reseña se marca como "editada" cuando `updated_at` es posterior a `created_at`. Índice `(product_id, created_at DESC, id DESC)` para la lista del detalle del plato.
+  - Solo puede reseñar quien tiene un pedido `ENTREGADO` con el plato (`order_items.product_id`); la regla se valida en el servicio, no en la base.
 
 - **product_images**: imágenes de un plato, guardadas en el almacenamiento de objetos S3 (Garage; HU-07, HU-08).
   - `product_id`: plato al que pertenece; se borran en cascada con el plato.
@@ -96,6 +102,7 @@ Por ahora modela el dominio de **autenticación y registro** (épica [E1](epicas
 - `users (1) — (N) password_reset_tokens`: un usuario puede generar varias solicitudes de recuperación a lo largo del tiempo (por ejemplo, si no completa una anterior).
 - `users (1) — (N) addresses`: un cliente guarda varias direcciones de entrega.
 - `categories (1) — (N) products`: una categoría agrupa varios platos; cada plato pertenece a una sola categoría.
+- `products (1) — (N) product_reviews` y `users (1) — (N) product_reviews`: un plato tiene muchas reseñas y un cliente deja a lo más una por plato.
 - `products (1) — (N) product_images`: un plato tiene una o más imágenes; la de menor `position` es la principal.
 - `users (1) — (N) orders`: un cliente hace varios pedidos.
 - `orders (1) — (N) order_items`: un pedido tiene uno o más platos.
