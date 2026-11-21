@@ -110,7 +110,8 @@ export function SalesBarChart({ periods, granularity, from, to }: SalesBarChartP
         )}
       </div>
 
-      <table className="sr-only">
+      <div className="sr-only">
+        <table>
         <caption>Ventas por periodo</caption>
         <thead>
           <tr>
@@ -128,7 +129,8 @@ export function SalesBarChart({ periods, granularity, from, to }: SalesBarChartP
             </tr>
           ))}
         </tbody>
-      </table>
+        </table>
+      </div>
     </div>
   );
 }
