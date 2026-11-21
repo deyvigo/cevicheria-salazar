@@ -87,7 +87,7 @@ export function AdminNav() {
   return (
     <>
       <aside
-        className={`sticky top-0 flex h-svh flex-none flex-col border-r border-border bg-surface p-2 transition-[width] ${
+        className={`flex h-full flex-none flex-col border-r border-border bg-surface p-2 transition-[width] ${
           collapsed ? 'w-16' : 'w-64'
         }`}
       >

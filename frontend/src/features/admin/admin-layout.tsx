@@ -5,9 +5,9 @@ import { AdminNav } from '@/features/admin/components/admin-nav';
 export function AdminLayout() {
   return (
     <AdminOrdersLiveProvider>
-      <div className="flex min-h-svh">
+      <div className="flex h-svh overflow-hidden">
         <AdminNav />
-        <main className="min-w-0 flex-1 p-6">
+        <main className="min-w-0 flex-1 overflow-y-auto p-6">
           <Outlet />
         </main>
       </div>
