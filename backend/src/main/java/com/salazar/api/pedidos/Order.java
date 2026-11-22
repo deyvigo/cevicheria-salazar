@@ -112,6 +112,9 @@ public class Order {
     @Column(name = "cash_amount", updatable = false, precision = 10, scale = 2)
     private BigDecimal cashAmount;
 
+    @Column(name = "contact_phone", updatable = false, length = 20)
+    private String contactPhone;
+
     @Column(name = "expires_at")
     private Instant expiresAt;
 
@@ -170,6 +173,10 @@ public class Order {
     public void setCollection(CollectionMethod method, BigDecimal cashAmount) {
         this.collectionMethod = method;
         this.cashAmount = method == CollectionMethod.EFECTIVO ? cashAmount : null;
+    }
+
+    public void setContactPhone(String contactPhone) {
+        this.contactPhone = contactPhone;
     }
 
     public BigDecimal getChange() {

@@ -1,5 +1,6 @@
 package com.salazar.api.pedidos.dto;
 
+import com.salazar.api.auth.dto.PhoneRules;
 import com.salazar.api.pedidos.DeliveryType;
 import com.salazar.api.pedidos.PaymentMethod;
 import com.salazar.api.pedidos.CollectionMethod;
@@ -11,6 +12,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.util.List;
@@ -21,7 +23,8 @@ public record CreateOrderRequest(
         @NotNull(message = "El tipo de entrega es obligatorio.") DeliveryType deliveryType,
         Long addressId,
         @NotNull(message = "El método de pago es obligatorio.") PaymentMethod paymentMethod,
-        @Valid Collection collection) {
+        @Valid Collection collection,
+        @Pattern(regexp = PhoneRules.REGEXP, message = PhoneRules.MESSAGE) String contactPhone) {
     public record Collection(
             @NotNull(message = "Elige cómo pagarás.") CollectionMethod method,
             @DecimalMin(value = "0.01", message = "El monto debe ser mayor a cero.")
