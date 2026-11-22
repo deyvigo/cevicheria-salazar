@@ -30,6 +30,7 @@ const order: checkoutApi.Order = {
   cashAmount: null,
   change: null,
   customerName: 'María Quispe',
+  contactPhone: '987654321',
   deliveryStatus: 'EN_CAMINO',
   deliveryReason: null,
   refundStatus: null,

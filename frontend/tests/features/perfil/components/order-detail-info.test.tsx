@@ -19,6 +19,7 @@ const base: Order = {
   cashAmount: null,
   change: null,
   customerName: 'María Quispe',
+  contactPhone: '987654321',
   deliveryStatus: 'PENDIENTE',
   deliveryReason: null,
   refundStatus: null,
@@ -34,6 +35,8 @@ describe('OrderDetailInfo', () => {
     expect(screen.getByText('Entrega a domicilio')).toBeInTheDocument();
     expect(screen.getByText('Casa: Av. Arequipa 123, Lince')).toBeInTheDocument();
     expect(screen.getByText('Referencia: Puerta verde')).toBeInTheDocument();
+    expect(screen.getByText('Teléfono de contacto')).toBeInTheDocument();
+    expect(screen.getByText('987654321')).toBeInTheDocument();
     expect(screen.getByText('Pago en línea')).toBeInTheDocument();
     expect(screen.getByText('Pagado')).toBeInTheDocument();
     expect(screen.queryByText('Pendiente, se paga al recibir')).not.toBeInTheDocument();

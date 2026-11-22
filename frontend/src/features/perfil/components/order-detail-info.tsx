@@ -23,6 +23,7 @@ export function OrderDetailInfo({ order }: { order: Order }) {
           </>
         )}
       </InfoItem>
+      {order.contactPhone ? <InfoItem label="Teléfono de contacto">{order.contactPhone}</InfoItem> : null}
       <InfoItem label="Cómo pagas">
         <span className="block">{paymentMethodText(order)}</span>
         <span className="block text-ink-muted">{paymentStatusText(order)}</span>

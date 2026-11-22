@@ -21,6 +21,7 @@ export function PaymentStepPage() {
   const { user } = useAuth();
   const items = useCartStore((state) => state.items);
   const deliveryType = useCheckoutStore((state) => state.deliveryType);
+  const contactPhone = useCheckoutStore((state) => state.contactPhone);
   const selectedAddressId = useCheckoutStore((state) => state.selectedAddressId);
   const paymentMethod = useCheckoutStore((state) => state.paymentMethod);
   const setPaymentMethod = useCheckoutStore((state) => state.setPaymentMethod);
@@ -65,6 +66,7 @@ export function PaymentStepPage() {
       items: items.map((item) => ({ productId: item.productId, quantity: item.quantity })),
       deliveryType: isDelivery ? ('ENTREGA' as const) : ('RECOJO' as const),
       addressId: isDelivery ? selectedAddressId : null,
+      contactPhone: (contactPhone ?? user?.phone ?? '').trim(),
     };
     if (isCash && collectionMethod !== null) {
       // The amount only travels with cash and only when the customer filled it in

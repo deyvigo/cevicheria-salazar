@@ -18,6 +18,7 @@ const base: Order = {
   cashAmount: 100,
   change: 31.5,
   customerName: 'María Quispe',
+  contactPhone: '987654321',
   deliveryStatus: 'PENDIENTE',
   deliveryReason: null,
   refundStatus: null,

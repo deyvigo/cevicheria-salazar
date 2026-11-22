@@ -166,6 +166,7 @@ describe('Perfil', () => {
       cashAmount: null,
       change: null,
       customerName: 'María Quispe',
+      contactPhone: '987654321',
       deliveryStatus: 'CONFIRMADO',
       deliveryReason: null,
       refundStatus: null,

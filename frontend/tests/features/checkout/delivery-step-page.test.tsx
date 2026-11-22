@@ -111,6 +111,23 @@ describe('DeliveryStepPage', () => {
     expect(checkoutApi.getDeliveryCost).toHaveBeenCalledWith(1);
   });
 
+  it('el número de contacto parte con el teléfono del usuario y se puede editar', async () => {
+    renderPage();
+    const input = await screen.findByLabelText('Número de contacto');
+    await waitFor(() => expect(input).toHaveValue('987654321'));
+
+    const user = userEvent.setup();
+    await user.clear(input);
+    await user.type(input, '912345678');
+    expect(useCheckoutStore.getState().contactPhone).toBe('912345678');
+
+    await user.clear(input);
+    await user.type(input, '12');
+    await user.click(await screen.findByRole('radio', { name: /Casa/ }));
+    await waitFor(() => expect(summaryValue('Entrega')).toBe('S/ 8.50'));
+    expect(screen.getByRole('button', { name: 'Continuar' })).toBeDisabled();
+  });
+
   it('una dirección fuera de cobertura avisa y muestra S/ 0.00', async () => {
     renderPage();
     await userEvent.setup().click(await screen.findByRole('radio', { name: /Trabajo/ }));

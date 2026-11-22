@@ -40,6 +40,7 @@ const paid: checkoutApi.Order = {
   cashAmount: null,
   change: null,
   customerName: 'María Quispe',
+  contactPhone: '987654321',
   deliveryStatus: 'PENDIENTE',
   deliveryReason: null,
   refundStatus: null,
