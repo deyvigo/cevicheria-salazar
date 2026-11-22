@@ -14,12 +14,15 @@ interface CheckoutState {
   // How the customer will pay on delivery; kept as typed text so a half-written amount is not lost
   collectionMethod: CollectionMethod | null;
   cashAmount: string;
+  // Null until the customer edits it; the profile phone is used meanwhile
+  contactPhone: string | null;
   enter: (startedAsVisitor?: boolean) => void;
   setDeliveryType: (type: DeliveryType) => void;
   selectAddress: (id: number | null) => void;
   setPaymentMethod: (method: PaymentMethod | null) => void;
   setCollectionMethod: (method: CollectionMethod | null) => void;
   setCashAmount: (amount: string) => void;
+  setContactPhone: (phone: string) => void;
   reset: () => void;
 }
 
@@ -31,6 +34,7 @@ const INITIAL = {
   paymentMethod: null as PaymentMethod | null,
   collectionMethod: null as CollectionMethod | null,
   cashAmount: '',
+  contactPhone: null as string | null,
 };
 
 // Deliberately not persisted: a reload or a direct visit must start over from the cart
@@ -43,5 +47,6 @@ export const useCheckoutStore = create<CheckoutState>((set) => ({
   setPaymentMethod: (paymentMethod) => set({ paymentMethod }),
   setCollectionMethod: (collectionMethod) => set({ collectionMethod }),
   setCashAmount: (cashAmount) => set({ cashAmount }),
+  setContactPhone: (contactPhone) => set({ contactPhone }),
   reset: () => set(INITIAL),
 }));

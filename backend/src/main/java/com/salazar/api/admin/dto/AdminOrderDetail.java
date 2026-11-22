@@ -25,7 +25,7 @@ public record AdminOrderDetail(
                 .toList();
         return new AdminOrderDetail(
                 AdminOrderRow.from(order, customerName),
-                customerPhone,
+                order.getContactPhone() != null ? order.getContactPhone() : customerPhone,
                 order.getAddressText(),
                 order.getAddressReference(),
                 items,

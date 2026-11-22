@@ -119,6 +119,7 @@ public class OrderLifecycleService {
                 deliveryPrice,
                 // Cash on delivery is confirmed right away and never expires
                 cashOnDelivery ? null : Instant.now().plus(properties.paymentTtl()));
+        order.setContactPhone(request.contactPhone());
         if (cashOnDelivery) {
             order.setCollection(request.collection().method(), cashAmount);
         }

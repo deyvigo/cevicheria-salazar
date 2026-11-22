@@ -23,6 +23,7 @@ export interface CreateOrderPayload {
   paymentMethod: 'ONLINE' | 'CONTRAENTREGA';
   // Only with CONTRAENTREGA
   collection?: { method: OrderCollectionMethod; cashAmount: number | null };
+  contactPhone: string;
 }
 
 export interface CreatedOrder {
@@ -50,6 +51,8 @@ export interface Order {
   change: number | null;
   // The following only come with a confirmed order
   customerName: string | null;
+  // Null for orders placed before the contact number existed
+  contactPhone: string | null;
   deliveryStatus: DeliveryStatus;
   deliveryReason: string | null;
   refundStatus: RefundStatus | null;

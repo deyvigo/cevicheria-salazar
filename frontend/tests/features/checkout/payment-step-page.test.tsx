@@ -194,6 +194,7 @@ describe('PaymentStepPage', () => {
         items: [{ productId: 1, quantity: 2 }],
         deliveryType: 'ENTREGA',
         addressId: 1,
+        contactPhone: '987654321',
         paymentMethod: 'ONLINE',
       });
     });
@@ -359,6 +360,7 @@ describe('PaymentStepPage', () => {
         items: [{ productId: 1, quantity: 2 }],
         deliveryType: 'ENTREGA',
         addressId: 1,
+        contactPhone: '987654321',
         paymentMethod: 'CONTRAENTREGA',
         collection: { method: 'EFECTIVO', cashAmount: 100 },
       });
@@ -382,6 +384,7 @@ describe('PaymentStepPage', () => {
         expect.objectContaining({
           deliveryType: 'RECOJO',
           addressId: null,
+          contactPhone: '987654321',
           collection: { method: 'YAPE', cashAmount: null },
         }),
       );

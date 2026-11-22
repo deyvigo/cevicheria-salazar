@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/button';
+import { Input } from '@/components/input';
 import { useAuth } from '@/context/auth-context';
 import { useCartStore } from '@/features/carrito/cart-store';
 import { OrderSummary } from '@/features/carrito/components/order-summary';
@@ -15,6 +16,8 @@ import { useDeliveryCost } from '@/features/checkout/use-delivery-cost';
 import { AddressDialog } from '@/features/perfil/components/address-dialog';
 import { useAddresses } from '@/features/perfil/use-addresses';
 
+const PHONE_PATTERN = /^9[0-9]{8}$/;
+
 export function DeliveryStepPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -23,6 +26,8 @@ export function DeliveryStepPage() {
   const setDeliveryType = useCheckoutStore((state) => state.setDeliveryType);
   const selectedAddressId = useCheckoutStore((state) => state.selectedAddressId);
   const selectAddress = useCheckoutStore((state) => state.selectAddress);
+  const contactPhone = useCheckoutStore((state) => state.contactPhone);
+  const setContactPhone = useCheckoutStore((state) => state.setContactPhone);
   const startedAsVisitor = useCheckoutStore((state) => state.startedAsVisitor);
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -49,7 +54,9 @@ export function DeliveryStepPage() {
     delivery = cost.data ? cost.data.price : 'loading';
   }
   const notCovered = hasSelection && cost.data?.covered === false;
-  const canContinue = !isDelivery || (hasSelection && cost.data?.covered === true);
+  const phoneValue = contactPhone ?? user?.phone ?? '';
+  const phoneValid = PHONE_PATTERN.test(phoneValue.trim());
+  const canContinue = phoneValid && (!isDelivery || (hasSelection && cost.data?.covered === true));
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-8">
@@ -81,6 +88,19 @@ export function DeliveryStepPage() {
             </div>
           ) : null}
           {notCovered ? <CoverageNotice /> : null}
+          <h2 className="font-display text-[24px] leading-8 font-semibold text-ink">Contacto</h2>
+          <Input
+            label="Número de contacto"
+            name="contactPhone"
+            type="tel"
+            inputMode="numeric"
+            maxLength={9}
+            placeholder="987654321"
+            hint="Te llamaremos a este número si hay algún problema con tu pedido."
+            error={phoneValue.trim() !== '' && !phoneValid ? 'Ingresa un teléfono de 9 dígitos que empiece con 9.' : undefined}
+            value={phoneValue}
+            onChange={(event) => setContactPhone(event.target.value)}
+          />
         </div>
         <aside className="sticky top-24 border-l border-border pl-6">
           <OrderSummary summary={summary} delivery={delivery}>

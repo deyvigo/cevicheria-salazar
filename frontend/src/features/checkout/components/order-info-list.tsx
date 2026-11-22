@@ -8,6 +8,7 @@ export function OrderInfoList({ order }: { order: Order }) {
   return (
     <dl className="grid gap-4 rounded-lg border border-border bg-surface p-4 sm:grid-cols-2">
       {order.customerName ? <InfoItem label="Nombre">{order.customerName}</InfoItem> : null}
+      {order.contactPhone ? <InfoItem label="Teléfono de contacto">{order.contactPhone}</InfoItem> : null}
       <InfoItem label="Estado del pago">{paymentStatusText(order)}</InfoItem>
       <InfoItem label="Estado de la entrega">{deliveryStatusLabel(order.deliveryStatus, order.deliveryType)}</InfoItem>
       <InfoItem label="Cómo lo recibirás">
