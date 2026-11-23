@@ -132,7 +132,7 @@ Traefik enruta `media.cevicheria-salazar.site` al puerto 3902 de Garage. La API 
 
 ## Publicar cambios
 
-La rama `deploy` es la que corre en producción; no hay CI/CD, el PR solo actualiza la rama.
+La rama `deploy` es la que corre en producción; no hay CD, el PR solo actualiza la rama. Los tests corren en GitHub Actions (CI) en cada push y PR, y el PR hacia `deploy` debe tener los checks en verde antes de mergear.
 
 1. Verificar en `develop` lo que se publica (`./mvnw test`, `pnpm test --run`, `pnpm build`).
 2. Abrir un PR de `develop` hacia `deploy` y mergearlo.

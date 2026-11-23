@@ -1,0 +1,53 @@
+name: Backend
+
+on:
+  push:
+    branches: [develop, deploy, main, 'feature/**', 'release/**', 'hotfix/**']
+    paths: ['backend/**', 'docker/postgres/**', '.github/workflows/backend.yml']
+  pull_request:
+    branches: [develop, deploy]
+    paths: ['backend/**', 'docker/postgres/**', '.github/workflows/backend.yml']
+
+concurrency:
+  group: backend-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: backend
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - run: ./mvnw -B test
+      - uses: actions/upload-artifact@v6
+        if: failure()
+        with:
+          name: surefire-reports-unit
+          path: backend/target/surefire-reports
+
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - run: ./mvnw -B test -Dtest='*IT' -Dsurefire.failIfNoSpecifiedTests=false
+      - uses: actions/upload-artifact@v6
+        if: failure()
+        with:
+          name: surefire-reports-integration
+          path: backend/target/surefire-reports
