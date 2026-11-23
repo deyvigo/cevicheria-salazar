@@ -126,6 +126,7 @@ Git flow con ramas creadas a mano (sin la extensión `git-flow`) y commits en fo
   3. Frontend: `feat(frontend): add ... (HU-XX)`.
      Omitir el segmento que la historia no toque. Usar `fix`, `refactor`, etc. cuando corresponda.
 - **Antes de commitear**: `./mvnw test` y `./mvnw test -Dtest='*IT'` (los `*IT` no corren en el build por defecto y necesitan Docker), `pnpm test --run` y `pnpm build`.
+- **CI**: GitHub Actions (`.github/workflows/backend.yml` y `frontend.yml`) corre estas mismas verificaciones (más `pnpm lint`) en cada push y en cada PR hacia `develop` o `deploy`; solo se ejecuta el workflow cuyas carpetas cambiaron. No mergear con un check en rojo.
 - **Push y PR**: `git push -u origin <rama>` y PR contra `develop`, con título y cuerpo en inglés: título igual al commit principal, cuerpo con Summary y Verification (qué se probó y qué falta ver en navegador). Si `gh` no está instalado, dar el enlace `https://github.com/deyvigo/cevicheria-salazar/compare/develop...<rama>` con título y descripción listos para pegar. El merge lo hace el usuario.
 - **Tras el merge**: `git checkout develop`, `git pull origin develop`, borrar la rama local (`git branch -d`) y la remota (`git push origin --delete <rama>`), solo si el usuario lo confirma.
 

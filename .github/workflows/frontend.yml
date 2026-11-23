@@ -1,0 +1,38 @@
+name: Frontend
+
+on:
+  push:
+    branches: [develop, deploy, main, 'feature/**', 'release/**', 'hotfix/**']
+    paths: ['frontend/**', 'design-system/**', '.github/workflows/frontend.yml']
+  pull_request:
+    branches: [develop, deploy]
+    paths: ['frontend/**', 'design-system/**', '.github/workflows/frontend.yml']
+
+concurrency:
+  group: frontend-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: frontend
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.20.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm test --run
+      - run: pnpm build
