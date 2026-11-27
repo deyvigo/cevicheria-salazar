@@ -47,6 +47,7 @@ public class OrderLifecycleService {
     private final AddressService addressService;
     private final OrderCodeGenerator codeGenerator;
     private final OrderProperties properties;
+    private final CouponService couponService;
     private final ApplicationEventPublisher events;
 
     @Transactional
@@ -98,15 +99,19 @@ public class OrderLifecycleService {
         }
 
         BigDecimal deliveryPrice = zone == null ? BigDecimal.ZERO.setScale(2) : zone.getPrice();
+        CouponService.Applied coupon = request.couponCode() == null || request.couponCode().isBlank()
+                ? null
+                : couponService.applyForOrder(request.couponCode(), subtotal, userId);
+        BigDecimal discount = coupon == null ? BigDecimal.ZERO.setScale(2) : coupon.discount();
+        BigDecimal total = subtotal.subtract(discount).add(deliveryPrice);
         boolean cashOnDelivery = request.paymentMethod() == PaymentMethod.CONTRAENTREGA;
         BigDecimal cashAmount = cashOnDelivery && request.collection().method() == CollectionMethod.EFECTIVO
                 ? request.collection().cashAmount()
                 : null;
         // Checked before any stock is taken so a short amount never reserves anything
-        if (cashAmount != null && cashAmount.compareTo(subtotal.add(deliveryPrice)) < 0) {
+        if (cashAmount != null && cashAmount.compareTo(total) < 0) {
             throw new FieldInvalidException(
-                    "cashAmount",
-                    "El monto debe ser al menos S/ " + subtotal.add(deliveryPrice).setScale(2, RoundingMode.UNNECESSARY) + ".");
+                    "cashAmount", "El monto debe ser al menos S/ " + total.setScale(2, RoundingMode.UNNECESSARY) + ".");
         }
 
         Order order = new Order(
@@ -120,6 +125,9 @@ public class OrderLifecycleService {
                 // Cash on delivery is confirmed right away and never expires
                 cashOnDelivery ? null : Instant.now().plus(properties.paymentTtl()));
         order.setContactPhone(request.contactPhone());
+        if (coupon != null) {
+            order.applyCoupon(coupon.coupon(), coupon.discount());
+        }
         if (cashOnDelivery) {
             order.setCollection(request.collection().method(), cashAmount);
         }

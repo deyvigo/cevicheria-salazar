@@ -164,6 +164,7 @@ Duración de cada sprint: 3 semanas (lunes a viernes). Historias en [historias.m
 | HU-40 | Ver el detalle de un pedido desde Mis pedidos y acceder a Mis pedidos desde el menú del nombre | Usuario | Media     | 2      | ✓     |
 | HU-41 | Dejar reseñas (calificación y comentario) en los platos entregados y leerlas en el detalle del plato | Usuario | Media     | 2      | ✓     |
 | HU-34 | Ver el reporte de ventas en el panel (por día y por método de pago, con platos más vendidos y filtros) | Usuario | Baja      | 2      | ✓     |
+| HU-42 | Aplicar un cupón de descuento en el paso Pago del checkout                           | Usuario | Media     | 3      | ✓     |
 
 ### Eventos Scrum
 

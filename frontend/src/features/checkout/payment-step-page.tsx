@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/button';
 import { useAuth } from '@/context/auth-context';
@@ -9,11 +9,13 @@ import { useCartProducts } from '@/features/carrito/use-cart-products';
 import { Notification } from '@/components/notification';
 import { CheckoutStepper } from '@/features/checkout/components/checkout-stepper';
 import { CashOnDeliveryForm } from '@/features/checkout/components/cash-on-delivery-form';
+import { CouponForm } from '@/features/checkout/components/coupon-form';
 import { PaymentMethodSelector } from '@/features/checkout/components/payment-method-selector';
 import { useCheckoutStore } from '@/features/checkout/checkout-store';
 import { parseCashAmount, validateCashAmount } from '@/features/checkout/cash-amount';
 import { redirectToCheckout } from '@/features/checkout/redirect-to-checkout';
 import { useCreateOrder, createOrderErrorMessage } from '@/features/checkout/use-create-order';
+import { couponErrorMessage, isCouponRejection, useCouponQuote } from '@/features/checkout/use-coupon-quote';
 import { useDeliveryCost } from '@/features/checkout/use-delivery-cost';
 import { formatPrice } from '@/features/catalogo/format';
 
@@ -30,6 +32,8 @@ export function PaymentStepPage() {
   const cashAmount = useCheckoutStore((state) => state.cashAmount);
   const setCashAmount = useCheckoutStore((state) => state.setCashAmount);
   const startedAsVisitor = useCheckoutStore((state) => state.startedAsVisitor);
+  const couponCode = useCheckoutStore((state) => state.couponCode);
+  const setCouponCode = useCheckoutStore((state) => state.setCouponCode);
 
   const isDelivery = deliveryType === 'delivery';
   const cost = useDeliveryCost(selectedAddressId, isDelivery);
@@ -37,7 +41,23 @@ export function PaymentStepPage() {
   const ids = items.map((item) => item.productId).sort((a, b) => a - b);
   const products = useCartProducts(ids);
   const productsById = new Map((products.data ?? []).map((product) => [product.id, product]));
-  const summary = computeOrderSummary(items, productsById);
+  const orderItems = items.map((item) => ({ productId: item.productId, quantity: item.quantity }));
+  const couponQuote = useCouponQuote(couponCode, orderItems);
+  const [couponNotice, setCouponNotice] = useState<string | null>(null);
+  const couponRejection = isCouponRejection(couponQuote.error) ? couponQuote.error : null;
+
+  // A changed cart can leave the coupon out (below its minimum, for instance): it is dropped and the customer told why
+  useEffect(() => {
+    if (couponRejection && couponCode !== null) {
+      setCouponNotice(`Quitamos el cupón ${couponCode}: ${couponErrorMessage(couponRejection)}`);
+      setCouponCode(null);
+    }
+  }, [couponRejection, couponCode, setCouponCode]);
+
+  // Paying waits until the discount on screen is the one the server agrees with
+  const couponSettled = couponCode === null || (couponQuote.isSuccess && !couponQuote.isPlaceholderData);
+  const discount = couponCode !== null && couponQuote.data ? couponQuote.data.discount : 0;
+  const summary = computeOrderSummary(items, productsById, discount);
 
   const delivery: number | 'loading' = isDelivery ? (cost.data ? cost.data.price : 'loading') : 0;
 
@@ -48,7 +68,8 @@ export function PaymentStepPage() {
   const isCash = paymentMethod === 'cash_on_delivery';
   const total = summary !== null && delivery !== 'loading' ? summary.total + delivery : null;
   // Once the order exists the customer is on their way to the provider: a second click would create another order
-  const canPay = isOnline && total !== null && !cost.isError && !createOrder.isPending && !createOrder.isSuccess;
+  const canPay =
+    isOnline && total !== null && couponSettled && !cost.isError && !createOrder.isPending && !createOrder.isSuccess;
 
   const cashAmountError = validateCashAmount(cashAmount, total);
   const canConfirm =
@@ -56,18 +77,26 @@ export function PaymentStepPage() {
     collectionMethod !== null &&
     cashAmountError === null &&
     total !== null &&
+    couponSettled &&
     !cost.isError &&
     !createOrder.isPending &&
     !createOrder.isSuccess;
 
   function submit() {
     setErrorMessage(null);
+    setCouponNotice(null);
     const base = {
-      items: items.map((item) => ({ productId: item.productId, quantity: item.quantity })),
+      items: orderItems,
       deliveryType: isDelivery ? ('ENTREGA' as const) : ('RECOJO' as const),
       addressId: isDelivery ? selectedAddressId : null,
       contactPhone: (contactPhone ?? user?.phone ?? '').trim(),
+      ...(couponCode !== null ? { couponCode } : {}),
     };
+    // The coupon may stop applying between quoting and ordering; the server's reason is shown and the coupon dropped
+    function onOrderError(error: unknown, cashOnDelivery: boolean) {
+      if (isCouponRejection(error)) setCouponCode(null);
+      setErrorMessage(createOrderErrorMessage(error, cashOnDelivery));
+    }
     if (isCash && collectionMethod !== null) {
       // The amount only travels with cash and only when the customer filled it in
       const amount = collectionMethod === 'cash' ? parseCashAmount(cashAmount) : null;
@@ -79,7 +108,7 @@ export function PaymentStepPage() {
         },
         {
           onSuccess: (created) => void navigate(`/checkout/resultado?pedido=${created.orderId}`),
-          onError: (error) => setErrorMessage(createOrderErrorMessage(error, true)),
+          onError: (error) => onOrderError(error, true),
         },
       );
       return;
@@ -90,7 +119,7 @@ export function PaymentStepPage() {
         onSuccess: (created) => {
           if (created.checkoutUrl) redirectToCheckout(created.checkoutUrl);
         },
-        onError: (error) => setErrorMessage(createOrderErrorMessage(error)),
+        onError: (error) => onOrderError(error, false),
       },
     );
   }
@@ -123,8 +152,21 @@ export function PaymentStepPage() {
           ) : null}
         </div>
         <aside className="sticky top-24 border-l border-border pl-6">
-          <OrderSummary summary={summary} delivery={delivery}>
+          <OrderSummary summary={summary} delivery={delivery} couponCode={couponCode}>
             <div className="flex flex-col gap-3">
+              <CouponForm
+                items={orderItems}
+                appliedCode={couponCode}
+                appliedError={
+                  couponQuote.isError && !couponRejection ? couponErrorMessage(couponQuote.error) : null
+                }
+                disabled={createOrder.isPending || createOrder.isSuccess}
+                onApplied={(quote) => {
+                  setCouponNotice(null);
+                  setCouponCode(quote.code);
+                }}
+                onRemove={() => setCouponCode(null)}
+              />
               {isOnline ? (
                 <Button className="w-full" disabled={!canPay} onClick={submit}>
                   {total === null ? 'Pagar' : `Pagar ${formatPrice(total)}`}
@@ -148,6 +190,16 @@ export function PaymentStepPage() {
           </OrderSummary>
         </aside>
       </div>
+      {couponNotice && !errorMessage ? (
+        <div className="fixed right-6 bottom-6 z-50">
+          <Notification
+            variant="error"
+            title="Cupón quitado"
+            message={couponNotice}
+            onClose={() => setCouponNotice(null)}
+          />
+        </div>
+      ) : null}
       {errorMessage ? (
         <div className="fixed right-6 bottom-6 z-50">
           <Notification

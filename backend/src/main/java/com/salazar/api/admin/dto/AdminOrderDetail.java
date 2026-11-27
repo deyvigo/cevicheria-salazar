@@ -13,6 +13,7 @@ public record AdminOrderDetail(
         List<Item> items,
         BigDecimal subtotal,
         BigDecimal discount,
+        String couponCode,
         BigDecimal deliveryPrice,
         BigDecimal cashAmount) {
 
@@ -31,6 +32,7 @@ public record AdminOrderDetail(
                 items,
                 order.getSubtotal(),
                 order.getDiscount(),
+                order.getCouponCode(),
                 order.getDeliveryPrice(),
                 order.getCashAmount());
     }

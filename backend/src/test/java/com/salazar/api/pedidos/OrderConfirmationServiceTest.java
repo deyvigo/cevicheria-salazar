@@ -109,5 +109,22 @@ class OrderConfirmationServiceTest {
         assertThat(captor.getValue().paymentStatus()).isEqualTo("Pagado");
         assertThat(captor.getValue().paymentSummary()).isEqualTo("Pago en línea");
         assertThat(captor.getValue().paidAt()).doesNotContain("Pendiente");
+        assertThat(captor.getValue().discount()).isNull();
+    }
+
+    @Test
+    void aDiscountedOrderEmailShowsTheCouponAndTheAmount() {
+        Order order = order(PaymentMethod.CONTRAENTREGA, DeliveryType.RECOJO);
+        Coupon coupon = new Coupon("CEVICHE10", DiscountType.PERCENTAGE, new BigDecimal("10.00"), null, null, null, null, null);
+        ReflectionTestUtils.setField(coupon, "id", 3L);
+        order.applyCoupon(coupon, new BigDecimal("6.00"));
+        claimed(order);
+
+        service.sendConfirmation(10L);
+
+        ArgumentCaptor<OrderConfirmationMail> captor = ArgumentCaptor.forClass(OrderConfirmationMail.class);
+        verify(mail).sendOrderConfirmationEmail(captor.capture());
+        assertThat(captor.getValue().discount()).isEqualTo("Descuento (CEVICHE10): - S/ 6.00");
+        assertThat(captor.getValue().total()).isEqualTo("S/ 62.50");
     }
 }

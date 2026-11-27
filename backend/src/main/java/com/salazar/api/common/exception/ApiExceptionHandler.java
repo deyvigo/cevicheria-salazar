@@ -177,6 +177,13 @@ public class ApiExceptionHandler {
                 .body(ApiError.of(HttpStatus.UNAUTHORIZED.value(), "No autenticado", ex.getMessage()));
     }
 
+    // The reason travels in "error" so the client can tell an expired code from a wrong one
+    @ExceptionHandler(CouponNotApplicableException.class)
+    public ResponseEntity<ApiError> handleCouponNotApplicable(CouponNotApplicableException ex) {
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(ApiError.of(HttpStatus.UNPROCESSABLE_ENTITY.value(), ex.getReason().name(), ex.getMessage()));
+    }
+
     @ExceptionHandler(TooManyAttemptsException.class)
     public ResponseEntity<ApiError> handleTooManyAttempts(TooManyAttemptsException ex) {
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)

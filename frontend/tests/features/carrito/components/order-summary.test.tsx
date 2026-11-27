@@ -59,4 +59,12 @@ describe('OrderSummary', () => {
 
     expect(screen.getByRole('button', { name: 'Seguir' })).toBeInTheDocument();
   });
+
+  it('con cupón muestra el código y el descuento en negativo', () => {
+    render(<OrderSummary summary={{ subtotal: 82.5, discount: 8.25, total: 74.25 }} couponCode="CEVICHE10" />);
+
+    const region = screen.getByRole('region', { name: 'Resumen del pedido' });
+    expect(within(region).getByText('Descuento (CEVICHE10)').nextElementSibling).toHaveTextContent('-S/ 8.25');
+    expect(within(region).getByText('Total').nextElementSibling).toHaveTextContent('S/ 74.25');
+  });
 });

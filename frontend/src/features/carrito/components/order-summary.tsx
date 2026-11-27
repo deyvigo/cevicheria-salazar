@@ -2,11 +2,11 @@ import type { ReactNode } from 'react';
 import { formatPrice } from '@/features/catalogo/format';
 import type { OrderSummary as Summary } from '@/features/carrito/order-summary';
 
-function Row({ label, value }: { label: string; value: number }) {
+function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-baseline justify-between gap-4">
       <dt className="text-base text-ink-muted">{label}</dt>
-      <dd className="text-base text-ink">{formatPrice(value)}</dd>
+      <dd className="text-base text-ink">{value}</dd>
     </div>
   );
 }
@@ -15,10 +15,12 @@ interface OrderSummaryProps {
   summary: Summary | null;
   // Shown only when given; 'loading' hides the amounts that depend on it
   delivery?: number | 'loading';
+  // Named next to the discount once a coupon is applied
+  couponCode?: string | null;
   children?: ReactNode;
 }
 
-export function OrderSummary({ summary, delivery, children }: OrderSummaryProps) {
+export function OrderSummary({ summary, delivery, couponCode, children }: OrderSummaryProps) {
   const isLoading = delivery === 'loading';
   return (
     <section
@@ -33,12 +35,19 @@ export function OrderSummary({ summary, delivery, children }: OrderSummaryProps)
         <div className="h-32 animate-pulse rounded-md bg-surface-celeste" />
       ) : (
         <dl className="flex flex-col gap-3">
-          <Row label="Subtotal" value={summary.subtotal} />
-          <Row label="Descuento" value={summary.discount} />
+          <Row label="Subtotal" value={formatPrice(summary.subtotal)} />
+          {summary.discount > 0 ? (
+            <Row
+              label={couponCode ? `Descuento (${couponCode})` : 'Descuento'}
+              value={`-${formatPrice(summary.discount)}`}
+            />
+          ) : (
+            <Row label="Descuento" value={formatPrice(0)} />
+          )}
           {delivery === undefined ? null : isLoading ? (
             <div className="h-6 animate-pulse rounded-md bg-surface-celeste" />
           ) : (
-            <Row label="Entrega" value={delivery} />
+            <Row label="Entrega" value={formatPrice(delivery)} />
           )}
           {isLoading ? (
             <div className="h-8 animate-pulse rounded-md bg-surface-celeste" />

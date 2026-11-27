@@ -6,7 +6,7 @@
 
 El diagrama es el modelo entidad-relación (ER) que se persiste en el contenedor **PostgreSQL** del [diagrama de despliegue](diagrama-de-despliegue.md) y que implementa la capa de **Repositorios (Spring Data JPA)** del [diagrama de arquitectura](diagrama-de-arquitectura.md). Corresponde a la historia técnica **HT-06** de la épica [E0. Fundamentos del proyecto](epicas.md#e0).
 
-Por ahora modela el dominio de **autenticación y registro** (épica [E1](epicas.md#e1)) y el **catálogo** (épica [E2](epicas.md#e2), HU-07) y las **direcciones de entrega** del perfil (épica [E5](epicas.md#e5), HU-24); los **pedidos y pagos** (épica [E4](epicas.md#e4), HU-19) se agregan en la migración `V10__orders.sql` y la etapa de entrega (HU-25) en `V12__order_delivery_status.sql`; la marca del correo de confirmación (HU-21) en `V13__order_confirmation_sent.sql`; la tabla de pedidos del panel (HU-32) solo agrega un índice, en `V14__admin_orders_indexes.sql`; el flujo completo de estados de entrega, el motivo y el reembolso pendiente (HU-26) en `V15__order_delivery_flow.sql`; el reporte de ventas del panel (HU-34) solo agrega un índice parcial sobre `paid_at` de los pedidos `PAGADO`, en `V18__sales_report_indexes.sql`. El carrito no se persiste en la base de datos: vive en el navegador.
+Por ahora modela el dominio de **autenticación y registro** (épica [E1](epicas.md#e1)) y el **catálogo** (épica [E2](epicas.md#e2), HU-07) y las **direcciones de entrega** del perfil (épica [E5](epicas.md#e5), HU-24); los **pedidos y pagos** (épica [E4](epicas.md#e4), HU-19) se agregan en la migración `V10__orders.sql` y la etapa de entrega (HU-25) en `V12__order_delivery_status.sql`; la marca del correo de confirmación (HU-21) en `V13__order_confirmation_sent.sql`; la tabla de pedidos del panel (HU-32) solo agrega un índice, en `V14__admin_orders_indexes.sql`; el flujo completo de estados de entrega, el motivo y el reembolso pendiente (HU-26) en `V15__order_delivery_flow.sql`; el reporte de ventas del panel (HU-34) solo agrega un índice parcial sobre `paid_at` de los pedidos `PAGADO`, en `V18__sales_report_indexes.sql`; los cupones de descuento (HU-42) en `V20__coupons.sql`. El carrito no se persiste en la base de datos: vive en el navegador.
 
 ### Tablas
 
@@ -83,12 +83,20 @@ Por ahora modela el dominio de **autenticación y registro** (épica [E1](epicas
   - `delivery_reason`: motivo de `RECHAZADO`, `CANCELADO` o `FALLIDO` (máx. 200 caracteres); `delivery_updated_at`: último cambio de estado de entrega.
   - `refund_status` (`PENDIENTE` o `REEMBOLSADO`) y `refunded_at`: un pedido pagado en línea que termina `RECHAZADO` o `CANCELADO` queda con reembolso pendiente hasta que el administrador lo marca hecho (el reembolso se hace a mano en Mercado Pago); el stock se repone al rechazar o cancelar.
   - `address_id` y la copia `address_label`, `address_text`, `address_reference`, `address_latitude`, `address_longitude`, `delivery_zone_name`: la dirección y la zona al momento de comprar; solo con Entrega (`CHECK`). La copia evita que editar o eliminar la dirección altere el pedido.
-  - `subtotal`, `discount`, `delivery_price`, `total` (`NUMERIC(10,2)`): importes calculados en el servidor, nunca recibidos del cliente.
+  - `subtotal`, `discount`, `delivery_price`, `total` (`NUMERIC(10,2)`): importes calculados en el servidor, nunca recibidos del cliente. `total = subtotal - discount + delivery_price`.
+  - `coupon_id` y la copia `coupon_code`: el cupón aplicado (HU-42), ambos nulos o ambos con valor (`CHECK`). La copia mantiene el código visible aunque el cupón cambie.
   - `collection_method` (`EFECTIVO` o `YAPE`) y `cash_amount`: solo con contraentrega (`CHECK`); el monto, opcional y solo con efectivo, es con cuánto pagará el cliente y nunca es menor al total. El vuelto no se guarda: se calcula como `cash_amount - total`.
   - `contact_phone`: teléfono de contacto elegido en el paso Entrega (9 dígitos que empiezan con 9); opcional, nulo en los pedidos anteriores a este campo.
   - `expires_at`: plazo para pagar (30 minutos); vacío en la contraentrega. `created_at` es la fecha de compra y `paid_at` la de pago (la aprobación de Mercado Pago; vacía en la contraentrega hasta que se entrega: entonces `status` pasa de `PENDIENTE_COBRO` a `PAGADO` y `paid_at` guarda el momento del cobro). `cancelled_at` y `cancel_reason` (`REEMPLAZADO`, `VENCIDO`, `ERROR_PASARELA`).
   - `confirmation_sent_at`: se marca de forma atómica cuando se reclama el envío del correo de confirmación (HU-21), de modo que un pedido nunca lo envía dos veces. Los pedidos anteriores a HU-21 quedan vacíos y no reciben correo.
   - `preference_id`, `init_point`: la preferencia de Mercado Pago y la URL de pago, para depurar.
+
+- **coupons**: códigos de descuento (HU-42, migración `V20__coupons.sql`).
+  - `code`: único y guardado ya en mayúsculas y sin espacios (`CHECK`); el cliente puede escribirlo de cualquier forma.
+  - `discount_type` (`PERCENTAGE` o `FIXED`) y `discount_value`: porcentaje (hasta 100) sobre el subtotal de los platos, o monto fijo en soles. El descuento nunca supera el subtotal ni toca el delivery.
+  - `min_subtotal`, `starts_at`, `ends_at`, `max_uses`, `max_uses_per_customer`: condiciones opcionales; `is_active` desactiva el cupón sin borrarlo.
+  - Los usos no se guardan en un contador: son los pedidos con ese `coupon_id` en estado `PENDIENTE_PAGO`, `PENDIENTE_COBRO` o `PAGADO` (índice parcial `idx_orders_coupon_usage`). Un pago en línea vencido o reemplazado pasa a `CANCELADO` y libera su uso; un pedido comprado que luego se rechaza o cancela conserva su estado de pago y su uso.
+  - En desarrollo se cargan cupones de ejemplo (`db/dev/R__sample_coupons.sql`); la gestión desde el panel llega en una historia posterior de E6.
 
 - **order_items**: platos de un pedido, con copia de `product_name`, `unit_price`, `quantity` y `line_total`, de modo que cambiar el catálogo no altera pedidos pasados. Se borran en cascada con el pedido; `product_id` referencia `products` sin cascada.
 
@@ -110,6 +118,7 @@ Por ahora modela el dominio de **autenticación y registro** (épica [E1](epicas
 - `products (1) — (N) order_items`: un plato aparece en muchos pedidos.
 - `addresses (1) — (N) orders`: una dirección puede usarse en varios pedidos (opcional: el Recojo no tiene dirección).
 - `orders (1) — (N) payments`: un pedido puede tener varios intentos de pago.
+- `coupons (1) — (N) orders`: un cupón se usa en varios pedidos (opcional: un pedido tiene a lo más un cupón).
 
 La búsqueda de platos por nombre (HU-09) usa la extensión `unaccent` de PostgreSQL (migración `V4__product_search.sql`) para no distinguir tildes; no agrega tablas ni columnas.
 

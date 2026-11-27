@@ -44,6 +44,7 @@ export interface AdminOrderDetail {
   items: AdminOrderItem[];
   subtotal: number;
   discount: number;
+  couponCode: string | null;
   deliveryPrice: number;
   cashAmount: number | null;
 }

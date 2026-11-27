@@ -64,4 +64,15 @@ describe('computeOrderSummary', () => {
 
     expect(summary).toBeNull();
   });
+
+  it('resta el descuento sin pasar del subtotal', () => {
+    const items = [{ productId: 1, quantity: 2 }];
+
+    expect(computeOrderSummary(items, byId(product(1, 41.25)), 8.25)).toEqual({
+      subtotal: 82.5,
+      discount: 8.25,
+      total: 74.25,
+    });
+    expect(computeOrderSummary(items, byId(product(1, 10)), 50)).toEqual({ subtotal: 20, discount: 20, total: 0 });
+  });
 });

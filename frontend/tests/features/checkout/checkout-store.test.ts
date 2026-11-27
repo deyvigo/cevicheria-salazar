@@ -86,4 +86,13 @@ describe('checkout store', () => {
     useCheckoutStore.getState().reset();
     expect(useCheckoutStore.getState().paymentMethod).toBeNull();
   });
+
+  it('guarda el cupón aplicado y reset lo quita', () => {
+    useCheckoutStore.getState().setCouponCode('CEVICHE10');
+    expect(useCheckoutStore.getState().couponCode).toBe('CEVICHE10');
+
+    useCheckoutStore.getState().reset();
+
+    expect(useCheckoutStore.getState().couponCode).toBeNull();
+  });
 });

@@ -39,6 +39,12 @@ export function OrderSummaryTable({ order }: { order: Order }) {
       </div>
       <dl className="flex flex-col gap-1 self-end text-base text-ink sm:min-w-64">
         <Row label="Subtotal" value={formatPrice(order.subtotal)} />
+        {order.discount > 0 ? (
+          <Row
+            label={order.couponCode ? `Descuento (${order.couponCode})` : 'Descuento'}
+            value={`-${formatPrice(order.discount)}`}
+          />
+        ) : null}
         <Row
           label="Delivery"
           value={order.deliveryType === 'RECOJO' ? 'Recojo en tienda, sin costo' : formatPrice(order.deliveryPrice)}

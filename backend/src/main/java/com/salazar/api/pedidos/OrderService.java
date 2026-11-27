@@ -143,6 +143,11 @@ public class OrderService {
 
     private CheckoutRequest toCheckoutRequest(Order order) {
         List<CheckoutRequest.Line> lines = new ArrayList<>();
+        // Mercado Pago rejects negative items, so a discounted order is charged as a single line for its total
+        if (order.getDiscount().signum() > 0) {
+            lines.add(new CheckoutRequest.Line("Pedido " + order.getCode(), 1, order.getTotal()));
+            return new CheckoutRequest(order.getId(), order.getCode(), lines, order.getExpiresAt());
+        }
         order.getItems()
                 .forEach(item -> lines.add(new CheckoutRequest.Line(item.getProductName(), item.getQuantity(), item.getUnitPrice())));
         if (order.getDeliveryPrice().signum() > 0) {

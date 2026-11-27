@@ -81,6 +81,10 @@ class MailServiceTest {
     }
 
     private OrderConfirmationMail confirmation(String name, String reference) {
+        return confirmation(name, reference, null);
+    }
+
+    private OrderConfirmationMail confirmation(String name, String reference, String discount) {
         return new OrderConfirmationMail(
                 "maria@correo.com",
                 "María",
@@ -94,6 +98,7 @@ class MailServiceTest {
                 "Pago en línea",
                 java.util.List.of(new OrderConfirmationMail.Line("Ceviche clásico", 2, "S/ 30.00", "S/ 60.00")),
                 "S/ 60.00",
+                discount,
                 "S/ 8.50",
                 "S/ 68.50",
                 "7 nov 2026, 14:30",
@@ -120,6 +125,16 @@ class MailServiceTest {
                 .contains("S/ 68.50")
                 .contains("7 nov 2026, 14:30")
                 .contains("7 nov 2026, 14:35");
+    }
+
+    @Test
+    void confirmationBodyShowsTheDiscountOnlyWhenThereIsOne() {
+        String without = service().buildOrderConfirmationBody(confirmation("María Quispe", "Puerta verde"));
+        String with = service().buildOrderConfirmationBody(
+                confirmation("María Quispe", "Puerta verde", "Descuento (CEVICHE10): - S/ 6.00"));
+
+        assertThat(without).doesNotContain("Descuento");
+        assertThat(with).contains("Descuento (CEVICHE10): - S/ 6.00");
     }
 
     @Test

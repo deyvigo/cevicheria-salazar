@@ -448,4 +448,104 @@ describe('PaymentStepPage', () => {
       expect(await screen.findByText('No pudimos confirmar el pedido. Intenta de nuevo.')).toBeInTheDocument();
     });
   });
+
+  describe('cupón de descuento', () => {
+    const quote = { code: 'CEVICHE10', discount: 6, subtotal: 60 };
+    const rejection = (reason: string, message: string) =>
+      new AxiosError('unprocessable', '422', undefined, undefined, {
+        status: 422,
+        data: { error: reason, message },
+      } as AxiosResponse);
+
+    async function applyCoupon(user: ReturnType<typeof userEvent.setup>, code = 'ceviche10') {
+      await user.type(await screen.findByLabelText('Código de descuento'), code);
+      await user.click(screen.getByRole('button', { name: 'Aplicar' }));
+    }
+
+    it('aplicar un código válido muestra el descuento y el total con descuento', async () => {
+      vi.mocked(checkoutApi.quoteCoupon).mockResolvedValue(quote);
+      const user = userEvent.setup();
+      renderPage();
+
+      await applyCoupon(user);
+
+      expect(await screen.findByText('Descuento (CEVICHE10)')).toBeInTheDocument();
+      expect(summaryValue('Descuento (CEVICHE10)')).toBe('-S/ 6.00');
+      await waitFor(() => expect(summaryValue('Total')).toBe('S/ 62.50'));
+      expect(checkoutApi.quoteCoupon).toHaveBeenCalledWith('ceviche10', [{ productId: 1, quantity: 2 }]);
+      expect(checkoutApi.quoteCoupon).toHaveBeenCalledTimes(1);
+      expect(useCheckoutStore.getState().couponCode).toBe('CEVICHE10');
+    });
+
+    it('un código rechazado muestra el motivo bajo el campo y no aplica descuento', async () => {
+      vi.mocked(checkoutApi.quoteCoupon).mockRejectedValue(rejection('EXPIRED', 'Este código ya venció.'));
+      const user = userEvent.setup();
+      renderPage();
+
+      await applyCoupon(user, 'VENCIDO');
+
+      expect(await screen.findByText('Este código ya venció.')).toBeInTheDocument();
+      expect(summaryValue('Descuento')).toBe('S/ 0.00');
+      expect(useCheckoutStore.getState().couponCode).toBeNull();
+    });
+
+    it('quitar el cupón vuelve el descuento a cero', async () => {
+      vi.mocked(checkoutApi.quoteCoupon).mockResolvedValue(quote);
+      const user = userEvent.setup();
+      renderPage();
+      await applyCoupon(user);
+
+      await user.click(await screen.findByRole('button', { name: 'Quitar' }));
+
+      expect(summaryValue('Descuento')).toBe('S/ 0.00');
+      await waitFor(() => expect(summaryValue('Total')).toBe('S/ 68.50'));
+      expect(screen.getByLabelText('Código de descuento')).toBeInTheDocument();
+    });
+
+    it('envía el código al crear el pedido y paga el total con descuento', async () => {
+      vi.mocked(checkoutApi.quoteCoupon).mockResolvedValue(quote);
+      vi.mocked(checkoutApi.createOrder).mockResolvedValue({ orderId: 7, checkoutUrl: 'https://pay.example.com' });
+      const user = userEvent.setup();
+      renderPage();
+      await user.click(await screen.findByRole('radio', { name: 'Pago en línea' }));
+      await applyCoupon(user);
+
+      await user.click(await screen.findByRole('button', { name: 'Pagar S/ 62.50' }));
+
+      expect(checkoutApi.createOrder).toHaveBeenCalledWith(expect.objectContaining({ couponCode: 'CEVICHE10' }));
+    });
+
+    it('si el carrito cambia y el cupón deja de aplicar, se quita y se avisa', async () => {
+      vi.mocked(checkoutApi.quoteCoupon)
+        .mockResolvedValueOnce(quote)
+        .mockRejectedValueOnce(rejection('MIN_SUBTOTAL', 'Este código es válido desde una compra de S/ 40.00.'));
+      const user = userEvent.setup();
+      renderPage();
+      await applyCoupon(user);
+      await screen.findByText('Descuento (CEVICHE10)');
+
+      useCartStore.setState({ items: [{ productId: 1, quantity: 1 }] });
+
+      expect(
+        await screen.findByText('Quitamos el cupón CEVICHE10: Este código es válido desde una compra de S/ 40.00.'),
+      ).toBeInTheDocument();
+      expect(useCheckoutStore.getState().couponCode).toBeNull();
+      expect(summaryValue('Descuento')).toBe('S/ 0.00');
+    });
+
+    it('si el cupón deja de valer al crear el pedido, se quita y se muestra el motivo', async () => {
+      vi.mocked(checkoutApi.quoteCoupon).mockResolvedValue(quote);
+      vi.mocked(checkoutApi.createOrder).mockRejectedValue(rejection('EXHAUSTED', 'Ya no puedes usar este código.'));
+      const user = userEvent.setup();
+      renderPage();
+      await user.click(await screen.findByRole('radio', { name: 'Pago en línea' }));
+      await applyCoupon(user);
+
+      await user.click(await screen.findByRole('button', { name: 'Pagar S/ 62.50' }));
+
+      expect(await screen.findByText('Ya no puedes usar este código.')).toBeInTheDocument();
+      expect(useCheckoutStore.getState().couponCode).toBeNull();
+      await waitFor(() => expect(summaryValue('Total')).toBe('S/ 68.50'));
+    });
+  });
 });

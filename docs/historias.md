@@ -77,6 +77,7 @@ El carrito no requiere cuenta. El inicio de sesión se exige recién al realizar
 | HU-21 | Como cliente, quiero recibir una confirmación con el número de pedido para tener constancia de mi compra.                            | Alta      |
 | HU-22 | Como cliente, quiero que se me informe si el pago fue rechazado para intentarlo de nuevo o cambiar de método.                        | Alta      |
 | HU-38 | Como visitante, quiero ver en el carrito los pasos de la compra (carrito, inicio de sesión si aún no entré, entrega, pago y listo) para saber en qué punto estoy y qué falta. | Media     |
+| HU-42 | Como cliente, quiero ingresar un código de descuento (cupón) al pagar y ver el descuento aplicado en el resumen y en mi pedido, para aprovechar las promociones del negocio. | Media     |
 
 <a id="e5"></a>
 
