@@ -10,6 +10,8 @@ const order: Order = {
   deliveryType: 'ENTREGA',
   paymentMethod: 'ONLINE',
   subtotal: 60,
+  discount: 0,
+  couponCode: null,
   deliveryPrice: 8.5,
   total: 68.5,
   items: [],

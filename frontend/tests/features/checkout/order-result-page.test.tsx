@@ -31,6 +31,8 @@ const paid: checkoutApi.Order = {
   deliveryType: 'ENTREGA',
   paymentMethod: 'ONLINE',
   subtotal: 60,
+  discount: 0,
+  couponCode: null,
   deliveryPrice: 8.5,
   total: 68.5,
   items: [{ productId: 1, name: 'Ceviche clásico', unitPrice: 30, quantity: 2, lineTotal: 60 }],

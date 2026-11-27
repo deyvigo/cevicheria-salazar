@@ -84,7 +84,11 @@ export function OrderDetailDialog({ orderId, open, busyId, onClose, onAction, on
 
           <dl className="flex flex-col gap-2">
             <Row label="Subtotal">{formatPrice(data.subtotal)}</Row>
-            {data.discount > 0 ? <Row label="Descuento">-{formatPrice(data.discount)}</Row> : null}
+            {data.discount > 0 ? (
+              <Row label={data.couponCode ? `Descuento (${data.couponCode})` : 'Descuento'}>
+                -{formatPrice(data.discount)}
+              </Row>
+            ) : null}
             <Row label="Envío">{formatPrice(data.deliveryPrice)}</Row>
             <Row label="Total">
               <strong>{formatPrice(order.total)}</strong>

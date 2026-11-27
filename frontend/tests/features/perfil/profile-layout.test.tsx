@@ -157,6 +157,8 @@ describe('Perfil', () => {
       deliveryType: 'RECOJO',
       paymentMethod: 'ONLINE',
       subtotal: 30,
+      discount: 0,
+      couponCode: null,
       deliveryPrice: 0,
       total: 30,
       items: [{ productId: 1, name: 'Ceviche clásico', unitPrice: 30, quantity: 1, lineTotal: 30 }],

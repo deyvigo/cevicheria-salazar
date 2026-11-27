@@ -392,6 +392,7 @@ describe('AdminOrdersPage', () => {
         items: [],
         subtotal: 30,
         discount: 0,
+        couponCode: null,
         deliveryPrice: 0,
         cashAmount: null,
       });
@@ -430,6 +431,7 @@ describe('AdminOrdersPage', () => {
       items: [{ name: 'Ceviche clásico', quantity: 2, unitPrice: 30, lineTotal: 60 }],
       subtotal: 60,
       discount: 0,
+      couponCode: null,
       deliveryPrice: 8.5,
       cashAmount: 100,
     };
@@ -516,6 +518,7 @@ describe('AdminOrdersPage', () => {
         items: [],
         subtotal: 0,
         discount: 0,
+        couponCode: null,
         deliveryPrice: 0,
         cashAmount: null,
       });
@@ -541,6 +544,7 @@ describe('AdminOrdersPage', () => {
         items: [],
         subtotal: 0,
         discount: 0,
+        couponCode: null,
         deliveryPrice: 0,
         cashAmount: null,
       });

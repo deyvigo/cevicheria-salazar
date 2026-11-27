@@ -24,6 +24,20 @@ export interface CreateOrderPayload {
   // Only with CONTRAENTREGA
   collection?: { method: OrderCollectionMethod; cashAmount: number | null };
   contactPhone: string;
+  couponCode?: string;
+}
+
+export type OrderItemPayload = CreateOrderPayload['items'][number];
+
+export interface CouponQuote {
+  code: string;
+  discount: number;
+  subtotal: number;
+}
+
+export async function quoteCoupon(code: string, items: OrderItemPayload[]): Promise<CouponQuote> {
+  const { data } = await api.post<CouponQuote>('/coupons/quote', { code, items });
+  return data;
 }
 
 export interface CreatedOrder {
@@ -39,6 +53,9 @@ export interface Order {
   deliveryType: OrderDeliveryType;
   paymentMethod: 'ONLINE' | 'CONTRAENTREGA';
   subtotal: number;
+  discount: number;
+  // Null when the order was placed without a coupon
+  couponCode: string | null;
   deliveryPrice: number;
   total: number;
   items: Array<{ productId: number; name: string; unitPrice: number; quantity: number; lineTotal: number }>;

@@ -16,6 +16,8 @@ interface CheckoutState {
   cashAmount: string;
   // Null until the customer edits it; the profile phone is used meanwhile
   contactPhone: string | null;
+  // The applied coupon, already normalized by the server; its discount is quoted again whenever the cart changes
+  couponCode: string | null;
   enter: (startedAsVisitor?: boolean) => void;
   setDeliveryType: (type: DeliveryType) => void;
   selectAddress: (id: number | null) => void;
@@ -23,6 +25,7 @@ interface CheckoutState {
   setCollectionMethod: (method: CollectionMethod | null) => void;
   setCashAmount: (amount: string) => void;
   setContactPhone: (phone: string) => void;
+  setCouponCode: (code: string | null) => void;
   reset: () => void;
 }
 
@@ -35,6 +38,7 @@ const INITIAL = {
   collectionMethod: null as CollectionMethod | null,
   cashAmount: '',
   contactPhone: null as string | null,
+  couponCode: null as string | null,
 };
 
 // Deliberately not persisted: a reload or a direct visit must start over from the cart
@@ -48,5 +52,6 @@ export const useCheckoutStore = create<CheckoutState>((set) => ({
   setCollectionMethod: (collectionMethod) => set({ collectionMethod }),
   setCashAmount: (cashAmount) => set({ cashAmount }),
   setContactPhone: (contactPhone) => set({ contactPhone }),
+  setCouponCode: (couponCode) => set({ couponCode }),
   reset: () => set(INITIAL),
 }));

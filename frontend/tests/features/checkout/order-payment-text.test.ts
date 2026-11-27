@@ -9,6 +9,8 @@ const base: Order = {
   deliveryType: 'ENTREGA',
   paymentMethod: 'CONTRAENTREGA',
   subtotal: 60,
+  discount: 0,
+  couponCode: null,
   deliveryPrice: 8.5,
   total: 68.5,
   items: [],
