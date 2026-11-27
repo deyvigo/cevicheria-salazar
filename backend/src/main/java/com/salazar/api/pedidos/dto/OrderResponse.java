@@ -18,6 +18,8 @@ public record OrderResponse(
         DeliveryType deliveryType,
         PaymentMethod paymentMethod,
         BigDecimal subtotal,
+        BigDecimal discount,
+        String couponCode,
         BigDecimal deliveryPrice,
         BigDecimal total,
         List<Item> items,
@@ -53,6 +55,8 @@ public record OrderResponse(
                 order.getDeliveryType(),
                 order.getPaymentMethod(),
                 order.getSubtotal(),
+                order.getDiscount(),
+                order.getCouponCode(),
                 order.getDeliveryPrice(),
                 order.getTotal(),
                 order.getItems().stream()

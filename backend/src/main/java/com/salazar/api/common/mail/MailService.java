@@ -124,7 +124,7 @@ public class MailService {
                 <tr><th align="left">Plato</th><th>Cant.</th><th align="right">Precio</th><th align="right">Subtotal</th></tr>
                 %s</table>
                 <p>Subtotal: %s<br>
-                Delivery: %s<br>
+                %sDelivery: %s<br>
                 <strong>Total: %s</strong></p>
                 <p>Fecha de compra: %s<br>
                 Fecha de pago: %s</p>
@@ -141,6 +141,7 @@ public class MailService {
                         escape(mail.paymentSummary()),
                         rows,
                         escape(mail.subtotal()),
+                        mail.discount() == null ? "" : escape(mail.discount()) + "<br>\n",
                         escape(mail.delivery()),
                         escape(mail.total()),
                         escape(mail.purchasedAt()),

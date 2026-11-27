@@ -99,6 +99,12 @@ public class Order {
     @Column(nullable = false, updatable = false, precision = 10, scale = 2)
     private BigDecimal discount;
 
+    @Column(name = "coupon_id", updatable = false)
+    private Long couponId;
+
+    @Column(name = "coupon_code", updatable = false, length = 30)
+    private String couponCode;
+
     @Column(name = "delivery_price", nullable = false, updatable = false, precision = 10, scale = 2)
     private BigDecimal deliveryPrice;
 
@@ -173,6 +179,13 @@ public class Order {
     public void setCollection(CollectionMethod method, BigDecimal cashAmount) {
         this.collectionMethod = method;
         this.cashAmount = method == CollectionMethod.EFECTIVO ? cashAmount : null;
+    }
+
+    public void applyCoupon(Coupon coupon, BigDecimal discount) {
+        this.couponId = coupon.getId();
+        this.couponCode = coupon.getCode();
+        this.discount = discount;
+        this.total = subtotal.subtract(discount).add(deliveryPrice);
     }
 
     public void setContactPhone(String contactPhone) {

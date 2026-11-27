@@ -16,6 +16,7 @@ public record OrderConfirmationMail(
         String paymentSummary,
         List<Line> items,
         String subtotal,
+        String discount,
         String delivery,
         String total,
         String purchasedAt,

@@ -24,7 +24,8 @@ public record CreateOrderRequest(
         Long addressId,
         @NotNull(message = "El método de pago es obligatorio.") PaymentMethod paymentMethod,
         @Valid Collection collection,
-        @Pattern(regexp = PhoneRules.REGEXP, message = PhoneRules.MESSAGE) String contactPhone) {
+        @Pattern(regexp = PhoneRules.REGEXP, message = PhoneRules.MESSAGE) String contactPhone,
+        @Size(max = 30, message = "Este código no es válido.") String couponCode) {
     public record Collection(
             @NotNull(message = "Elige cómo pagarás.") CollectionMethod method,
             @DecimalMin(value = "0.01", message = "El monto debe ser mayor a cero.")

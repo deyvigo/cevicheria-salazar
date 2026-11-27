@@ -69,6 +69,9 @@ public class OrderConfirmationService {
                 paymentSummary(order, pickup),
                 lines,
                 price(order.getSubtotal()),
+                order.getDiscount().signum() > 0
+                        ? "Descuento (" + order.getCouponCode() + "): - " + price(order.getDiscount())
+                        : null,
                 pickup ? "Recojo en tienda, sin costo" : price(order.getDeliveryPrice()),
                 price(order.getTotal()),
                 DATE_TIME.format(order.getCreatedAt()),
