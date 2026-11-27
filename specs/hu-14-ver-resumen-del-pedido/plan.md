@@ -14,7 +14,7 @@ Todo en `frontend/src/features/carrito/`.
 
 Función pura, sin React, para poder probarla aislada:
 
-- `DELIVERY_FEE = 5` y `DISCOUNT = 0` como constantes con nombre; son el único lugar a tocar cuando existan tarifas por zona o descuentos reales.
+- `DELIVERY_FEE = 5` y `DISCOUNT = 0` como constantes con nombre; son el único lugar a tocar cuando existan tarifas por zona o descuentos reales. (Con HU-42, `DISCOUNT` se reemplaza por un parámetro `discount` de `computeOrderSummary` que el paso Pago llena con el descuento cotizado del cupón.)
 - `computeOrderSummary(items, productsById)` devuelve `{ subtotal, discount, delivery, total }` o `null` si falta algún plato por cargar.
   - Suma `price × quantity` solo de los platos con `available = true`; los agotados no suman (spec).
   - Trabaja en **céntimos enteros** (`Math.round(price * 100) * quantity`) y convierte a soles al final, para que `12.90 × 3` dé `38.70` y no `38.69999`.

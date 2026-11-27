@@ -1,0 +1,24 @@
+# Tareas: HU-42 — Aplicar un cupón de descuento al pagar
+
+Requiere `plan.md`. Cada tarea indica qué criterio(s) de `spec.md` cubre y cómo se verifica.
+
+- [x] Migración `V20__coupons.sql` (tabla `coupons`, `orders.coupon_id` y `coupon_code`, índice de usos), entidad `Coupon`, `DiscountType` y `CouponRepository` — cubre: modelo de cupón, registro del cupón en el pedido — verificación: `CouponIT` (cuenta de usos excluye `CANCELADO`; código guardado en mayúsculas) y `./mvnw test -Dtest='*IT'` (Flyway + Hibernate `validate`)
+- [x] Datos de desarrollo `db/dev/R__sample_coupons.sql` (`CEVICHE10`, `BIENVENIDA5`, `VENCIDO`) — cubre: cupones disponibles sin panel — verificación: `./scripts/dev.sh` y prueba en navegador
+- [x] `CouponService` (`normalize`, `evaluate`, cálculo y redondeo) — cubre: porcentaje y monto fijo, tope al subtotal, mayúsculas y espacios, vigencia, mínimo, límites total y por cliente — verificación: `CouponServiceTest` (unitario: 10 % de `82.50` da `8.25`, 15 % de `38.70` da `5.81`, fijo mayor al subtotal se limita, cada motivo de rechazo)
+- [x] `CouponNotApplicableException` (422 con motivo), `CouponAttemptService` (Redis) y `CouponController` (`POST /api/coupons/quote`) con `SecurityConfig` — cubre: aplicar, mensajes de rechazo, fuerza bruta — verificación: `CouponIT` (válido, cada motivo, 401 sin sesión, 403 administrador, 429 tras 10 fallos, platos agotados no suman)
+- [x] `Order.applyCoupon` y aplicación en `OrderLifecycleService.place` con bloqueo del cupón; `couponCode` en `CreateOrderRequest`; efectivo mínimo contra el total con descuento — cubre: crear el pedido con descuento, revalidación al pagar, uso al crear, contraentrega no libera el uso — verificación: `CouponIT` (en línea y contraentrega guardan `discount`, `coupon_id` y `coupon_code`; cupón vencido o bajo el mínimo al crear da 422 sin tocar stock; pedido vencido o reemplazado libera el uso; contraentrega rechazada en el panel no lo libera; dos pedidos simultáneos con cupón de un uso: solo uno pasa)
+- [x] `toCheckoutRequest` con una línea por el total cuando hay descuento — cubre: Mercado Pago cobra el total con descuento — verificación: `CouponIT` con `FakePaymentGateway` (una línea por el `total`)
+- [x] `OrderResponse` y `AdminOrderDetail` con `discount` y `couponCode`; fila en el correo de `OrderConfirmationService` — cubre: después de comprar — verificación: `CouponIT` (cliente y panel), `OrderConfirmationServiceTest`, `MailServiceTest`
+- [x] `checkout-store` (`couponCode`), `quoteCoupon`, `couponErrorMessage` y `use-coupon-quote.ts` — cubre: un cupón por pedido, recotizar al cambiar el carrito, quitar con aviso si deja de aplicar, recarga pierde el cupón — verificación: `tests/features/checkout/checkout-store.test.ts` y `payment-step-page.test.tsx` (el hook se prueba a través de la página)
+- [x] `computeOrderSummary` con descuento (sin `DISCOUNT`) y fila "Descuento (CÓDIGO)" `− S/ x` en `OrderSummary` — cubre: descuento y total en el resumen; `/cart` sigue en `S/ 0.00` — verificación: `tests/features/carrito/order-summary.test.ts`, `tests/features/carrito/components/order-summary.test.tsx`
+- [x] `coupon-form.tsx` (aplicar, carga, error bajo el campo, quitar) — cubre: ingresar el cupón, cupón rechazado, doble envío — verificación: `tests/features/checkout/components/coupon-form.test.tsx`
+- [x] Integración en `payment-step-page.tsx` (total, efectivo mínimo, `couponCode` en el pedido, botones deshabilitados mientras cotiza, 422 de cupón al crear) — cubre: crear el pedido con descuento, cupón que deja de valer entre aplicar y pagar — verificación: `tests/features/checkout/payment-step-page.test.tsx`
+- [x] Fila de descuento en `order-summary-table.tsx` y código en `order-detail-dialog.tsx` del panel — cubre: confirmación, detalle del pedido y panel — verificación: `tests/features/checkout/components/order-summary-table.test.tsx` (la tabla la usan la confirmación y el detalle)
+- [x] Docs: `diagrama-de-base-de-datos.md` (e imagen), `diagrama-de-casos-de-uso.md` (e imagen), `hu-14` plan, `checkout/README.md` y `carrito/README.md` — cubre: Impacto en docs — verificación: revisión (las imágenes de los diagramas quedan pendientes de regenerar)
+- [x] Verificación final: `./mvnw test`, `./mvnw test -Dtest='*IT'`, `pnpm test --run`, `pnpm build`, `pnpm lint` y prueba en navegador (aplicar `CEVICHE10` y `BIENVENIDA5`, código inválido y vencido, bajar del mínimo quitando platos, pagar en línea con Mercado Pago de prueba, contraentrega con efectivo, ver confirmación, correo, detalle y panel) — cubre: todos — verificación: comandos y revisión de cada criterio de la spec
+
+### Orden de commits (AGENTS.md)
+
+1. `docs(specs): add spec, plan and tasks for HU-42` (incluye `docs/historias.md` y `docs/epicas.md`).
+2. `feat(backend): add discount coupons to orders (HU-42)`.
+3. `feat(frontend): add discount coupon to the payment step (HU-42)`.
