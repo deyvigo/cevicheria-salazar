@@ -1,7 +1,7 @@
 # Spec: HU-43 — Gestionar los códigos de descuento desde el panel
 
 **Épica**: [E6. Panel de administración](../../docs/epicas.md#e6)
-**Estado**: En implementación
+**Estado**: Hecha
 
 ## Objetivo
 

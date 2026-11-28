@@ -24,5 +24,5 @@ Requiere `plan.md`. Cada tarea indica qué criterio(s) de `spec.md` cubre y cóm
 
 ## Verificación en navegador y cierre
 
-- [ ] Recorrer `/admin/cupones` con la semilla `dev`: ver `CEVICHE10`, `BIENVENIDA5` y `VENCIDO` (marcado Vencido); crear un cupón con cupos y usos por persona, aplicarlo en el checkout, desactivarlo y comprobar el rechazo; editar sus cupos por debajo de los usos; eliminar uno sin pedidos e intentar eliminar uno usado — cubre: criterios de ver, crear, editar, activar y eliminar.
-- [ ] Repasar cada criterio de `spec.md`, correr `./mvnw test`, `./mvnw test -Dtest='*IT'`, `pnpm lint`, `pnpm test --run` y `pnpm build`, y pasar la spec a **Hecha** — cubre: cierre.
+- [x] Recorrer `/admin/cupones` con la semilla `dev`: ver `CEVICHE10`, `BIENVENIDA5` y `VENCIDO` (marcado Vencido); crear un cupón con cupos y usos por persona, aplicarlo en el checkout, desactivarlo y comprobar el rechazo; editar sus cupos por debajo de los usos; eliminar uno sin pedidos e intentar eliminar uno usado — cubre: criterios de ver, crear, editar, activar y eliminar.
+- [x] Repasar cada criterio de `spec.md`, correr `./mvnw test`, `./mvnw test -Dtest='*IT'`, `pnpm lint`, `pnpm test --run` y `pnpm build`, y pasar la spec a **Hecha** — cubre: cierre.
