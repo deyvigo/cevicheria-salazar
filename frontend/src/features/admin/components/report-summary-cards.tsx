@@ -6,9 +6,9 @@ import { formatPrice } from '@/features/catalogo/format';
 function Stat({ label, value, note }: { label: string; value: string; note?: string }) {
   return (
     <Card className="flex flex-col gap-1">
-      <dt className="text-sm font-bold text-ink-muted">{label}</dt>
-      <dd className="font-display text-[28px] leading-9 font-semibold text-ink">{value}</dd>
-      {note ? <dd className="text-sm text-ink-muted">{note}</dd> : null}
+      <dt className="text-label text-ink-muted">{label}</dt>
+      <dd className="font-display text-price text-ink">{value}</dd>
+      {note ? <dd className="text-body-sm text-ink-muted">{note}</dd> : null}
     </Card>
   );
 }

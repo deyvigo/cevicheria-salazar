@@ -5,7 +5,7 @@ export const PAYMENT_PENDING_TEXT = 'Pendiente, se paga al recibir';
 
 export function collectionSummary(order: Order): string {
   const when = order.deliveryType === 'ENTREGA' ? 'al recibir' : 'al recoger';
-  if (order.collectionMethod === 'YAPE') return `Pagarás con Yape ${when} tu pedido.`;
+  if (order.collectionMethod === 'YAPE') return `Pagarás con billetera virtual (Yape o Plin) ${when} tu pedido.`;
   if (order.cashAmount !== null && order.change !== null) {
     return `Pagarás con ${formatPrice(order.cashAmount)} en efectivo (vuelto ${formatPrice(order.change)}).`;
   }

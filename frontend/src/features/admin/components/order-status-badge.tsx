@@ -20,7 +20,7 @@ const CLASSES: Record<DeliveryStatus, string> = {
 
 export function OrderStatusBadge({ status }: { status: DeliveryStatus }) {
   return (
-    <span className={`inline-block rounded-full px-3 py-1 text-sm font-bold whitespace-nowrap ${CLASSES[status]}`}>
+    <span className={`inline-block rounded-full px-3 py-1 text-caption whitespace-nowrap ${CLASSES[status]}`}>
       {DELIVERY_LABELS[status]}
     </span>
   );

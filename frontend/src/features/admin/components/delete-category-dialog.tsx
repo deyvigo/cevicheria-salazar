@@ -34,13 +34,13 @@ export function DeleteCategoryDialog({ category, onClose, onDeleted }: DeleteCat
     <Dialog open={category !== null} title="Eliminar categoría" onClose={close}>
       <div className="flex flex-col gap-5">
         {deleteCategory.isError ? (
-          <p role="alert" className="text-sm font-bold text-error-text">
+          <p role="alert" className="text-body-sm font-bold text-error-text">
             {inUse
               ? 'No se puede eliminar: tiene platos asociados.'
               : 'No pudimos eliminar la categoría, intenta de nuevo.'}
           </p>
         ) : null}
-        <p className="text-base text-ink">
+        <p className="text-body text-ink">
           ¿Quieres eliminar <strong>{category?.name}</strong>?
         </p>
         <div className="flex justify-end gap-3">

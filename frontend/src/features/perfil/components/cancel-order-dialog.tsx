@@ -29,11 +29,11 @@ export function CancelOrderDialog({ order, onClose }: CancelOrderDialogProps) {
     <Dialog open={order !== null} title="Cancelar pedido" onClose={close}>
       <div className="flex flex-col gap-5">
         {cancel.isError ? (
-          <p role="alert" className="text-sm font-bold text-error-text">
+          <p role="alert" className="text-body-sm font-bold text-error-text">
             No pudimos cancelar el pedido. Puede que el restaurante ya lo haya aceptado.
           </p>
         ) : null}
-        <p className="text-base text-ink">
+        <p className="text-body text-ink">
           ¿Quieres cancelar el pedido <strong>{order?.code}</strong>? Esta acción no se puede deshacer.
         </p>
         <div className="flex justify-end gap-3">

@@ -13,7 +13,7 @@ export function CartPopover() {
   if (items.length === 0) {
     return (
       <Card role="region" aria-label="Resumen del carrito" className="flex flex-col gap-3">
-        <p className="text-base text-ink-muted">Tu carrito está vacío.</p>
+        <p className="text-body text-ink-muted">Tu carrito está vacío.</p>
       </Card>
     );
   }
@@ -22,7 +22,7 @@ export function CartPopover() {
     <Card role="region" aria-label="Resumen del carrito" className="flex flex-col gap-4">
       {query.isError ? (
         <div role="alert" className="flex flex-col items-start gap-2">
-          <p className="text-sm text-ink-muted">No pudimos cargar tu carrito.</p>
+          <p className="text-body-sm text-ink-muted">No pudimos cargar tu carrito.</p>
           <Button variant="secondary" onClick={() => void query.refetch()}>
             Reintentar
           </Button>
@@ -41,11 +41,11 @@ export function CartPopover() {
         </ul>
       )}
       <div className="flex items-baseline justify-between gap-4 border-t border-border pt-3">
-        <span className="font-display text-[18px] leading-6 font-semibold text-ink">Total</span>
+        <span className="text-body-lg font-bold text-ink">Total</span>
         {summary === null ? (
           <span aria-hidden="true" className="h-6 w-20 animate-pulse rounded-md bg-surface-celeste" />
         ) : (
-          <span className="font-display text-[18px] leading-6 font-semibold text-ink">
+          <span className="font-display text-price text-ink">
             {formatPrice(summary.total)}
           </span>
         )}
@@ -56,7 +56,7 @@ export function CartPopover() {
         </Button>
         <Link
           to="/cart"
-          className="inline-flex min-h-10 flex-1 items-center justify-center rounded-md bg-action px-4 text-base font-bold text-on-action shadow-xs hover:bg-action-hover active:bg-action-pressed focus-visible:shadow-focus focus-visible:outline-none"
+          className="inline-flex min-h-10 flex-1 items-center justify-center rounded-md bg-action px-4 text-button text-on-action shadow-xs hover:bg-action-hover active:bg-action-pressed focus-visible:shadow-focus focus-visible:outline-none"
         >
           Ver carrito
         </Link>

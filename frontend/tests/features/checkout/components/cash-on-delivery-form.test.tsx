@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { CashOnDeliveryForm } from '@/features/checkout/components/cash-on-delivery-form';
@@ -25,8 +25,17 @@ describe('CashOnDeliveryForm', () => {
     setup();
 
     expect(screen.getByRole('radio', { name: 'Efectivo' })).not.toBeChecked();
-    expect(screen.getByRole('radio', { name: 'Yape' })).not.toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Billetera virtual' })).not.toBeChecked();
     expect(screen.queryByLabelText(/¿Con cuánto pagarás\?/)).not.toBeInTheDocument();
+  });
+
+  it('la billetera virtual muestra Yape y Plin', () => {
+    setup();
+
+    const wallet = screen.getByRole('radio', { name: 'Billetera virtual' });
+    expect(within(wallet).getByAltText('Yape')).toHaveAttribute('src', '/payments/yape.png');
+    expect(within(wallet).getByAltText('Plin')).toHaveAttribute('src', '/payments/plin.png');
+    expect(within(screen.getByRole('radio', { name: 'Efectivo' })).queryByAltText('Yape')).not.toBeInTheDocument();
   });
 
   it('con Efectivo aparece el campo opcional y con Yape no', () => {
@@ -56,7 +65,7 @@ describe('CashOnDeliveryForm', () => {
     const user = userEvent.setup();
     const { onMethodChange } = setup();
 
-    await user.click(screen.getByRole('radio', { name: 'Yape' }));
+    await user.click(screen.getByRole('radio', { name: 'Billetera virtual' }));
     screen.getByRole('radio', { name: 'Efectivo' }).focus();
     await user.keyboard('{Enter}');
 
@@ -68,6 +77,6 @@ describe('CashOnDeliveryForm', () => {
     setup({ deliveryType: 'pickup' });
 
     expect(screen.getByText('Detalle del pago al recoger')).toBeInTheDocument();
-    expect(screen.getByText('Pagas con Yape al recoger')).toBeInTheDocument();
+    expect(screen.getByText('Pagas con Yape o Plin al recoger')).toBeInTheDocument();
   });
 });

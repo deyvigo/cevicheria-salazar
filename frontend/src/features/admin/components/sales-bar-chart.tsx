@@ -50,7 +50,7 @@ export function SalesBarChart({ periods, granularity, from, to }: SalesBarChartP
           return (
             <g key={tick}>
               <line x1={PAD.left} x2={WIDTH - PAD.right} y1={y} y2={y} className="stroke-border" strokeWidth={1} />
-              <text x={PAD.left - 8} y={y + 4} textAnchor="end" className="fill-ink-muted text-[11px]">
+              <text x={PAD.left - 8} y={y + 4} textAnchor="end" className="fill-ink-muted text-caption">
                 {Math.round(max * tick)}
               </text>
             </g>
@@ -84,7 +84,7 @@ export function SalesBarChart({ periods, granularity, from, to }: SalesBarChartP
                   x={PAD.left + slot * index + slot / 2}
                   y={HEIGHT - 10}
                   textAnchor="middle"
-                  className="fill-ink-muted text-[11px]"
+                  className="fill-ink-muted text-caption"
                 >
                   {periodLabel(period.date, granularity)}
                 </text>
@@ -94,7 +94,7 @@ export function SalesBarChart({ periods, granularity, from, to }: SalesBarChartP
         })}
       </svg>
 
-      <div role="status" className="min-h-6 text-sm text-ink-muted">
+      <div role="status" className="min-h-6 text-body-sm text-ink-muted">
         {current ? (
           <>
             <span className="font-bold text-ink">{periodTitle(current.date, granularity)}</span>

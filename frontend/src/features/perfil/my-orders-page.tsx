@@ -26,13 +26,13 @@ export function MyOrdersPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="font-display text-ink text-[32px] leading-[40px] font-semibold">Mis pedidos</h1>
+      <h1 className="font-display text-ink text-title-lg">Mis pedidos</h1>
 
-      {isPending ? <p className="text-base text-ink-muted">Cargando tus pedidos...</p> : null}
+      {isPending ? <p className="text-body text-ink-muted">Cargando tus pedidos...</p> : null}
 
       {isError && !data ? (
         <div role="alert" className="flex flex-col items-start gap-3">
-          <p className="text-base font-bold text-error-text">No pudimos cargar tus pedidos.</p>
+          <p className="text-body font-bold text-error-text">No pudimos cargar tus pedidos.</p>
           <Button variant="outline" onClick={() => refetch()}>
             Reintentar
           </Button>
@@ -41,10 +41,10 @@ export function MyOrdersPage() {
 
       {data && data.items.length === 0 ? (
         <div className="flex flex-col items-start gap-3">
-          <p className="text-base text-ink-muted">Aún no tienes pedidos</p>
+          <p className="text-body text-ink-muted">Aún no tienes pedidos</p>
           <Link
             to="/menu"
-            className="text-base font-bold text-ink underline focus-visible:shadow-focus focus-visible:outline-none"
+            className="text-button text-ink underline focus-visible:shadow-focus focus-visible:outline-none"
           >
             Ver la carta
           </Link>

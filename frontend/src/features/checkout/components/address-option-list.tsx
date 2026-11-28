@@ -27,7 +27,7 @@ export function AddressOptionList({
   if (isError || !addresses) {
     return (
       <div role="alert" className="flex flex-col items-center gap-4 py-8">
-        <p className="text-base text-ink-muted">No pudimos cargar tus direcciones.</p>
+        <p className="text-body text-ink-muted">No pudimos cargar tus direcciones.</p>
         <Button variant="secondary" onClick={onRetry}>
           Reintentar
         </Button>
@@ -56,9 +56,9 @@ export function AddressOptionList({
               selected ? 'border-action ring-2 ring-action' : 'hover:border-ink/60'
             }`}
           >
-            <p className="font-display text-ink text-[18px] leading-6 font-semibold break-words">{address.label}</p>
-            <p className="text-base text-ink break-words">{address.address}</p>
-            {address.reference ? <p className="text-base text-ink-muted break-words">{address.reference}</p> : null}
+            <p className="font-display text-ink text-title-sm break-words">{address.label}</p>
+            <p className="text-body text-ink break-words">{address.address}</p>
+            {address.reference ? <p className="text-body text-ink-muted break-words">{address.reference}</p> : null}
           </Card>
         );
       })}

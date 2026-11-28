@@ -126,7 +126,7 @@ export function AdminProductsPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center gap-4">
-        <h1 className="font-display text-ink text-[32px] leading-[40px] font-semibold">Platos</h1>
+        <h1 className="font-display text-ink text-title-lg">Platos</h1>
         {hasProducts ? (
           <>
             <div className="flex min-w-64 flex-1 justify-end">
@@ -137,11 +137,11 @@ export function AdminProductsPage() {
         ) : null}
       </div>
 
-      {isPending ? <p className="text-base text-ink-muted">Cargando los platos...</p> : null}
+      {isPending ? <p className="text-body text-ink-muted">Cargando los platos...</p> : null}
 
       {isError ? (
         <div role="alert" className="flex flex-col items-start gap-3">
-          <p className="text-base font-bold text-error-text">No pudimos cargar los platos.</p>
+          <p className="text-body font-bold text-error-text">No pudimos cargar los platos.</p>
           <Button variant="outline" onClick={() => refetch()}>
             Reintentar
           </Button>
@@ -149,14 +149,14 @@ export function AdminProductsPage() {
       ) : null}
 
       {data && data.totalItems === 0 && query !== undefined ? (
-        <p role="status" className="text-base text-ink-muted">
+        <p role="status" className="text-body text-ink-muted">
           No se encontraron platos para «{query}»
         </p>
       ) : null}
 
       {data && data.totalItems === 0 && query === undefined ? (
         <div className="flex flex-col items-start gap-4">
-          <p className="text-base text-ink-muted">Aún no tienes platos</p>
+          <p className="text-body text-ink-muted">Aún no tienes platos</p>
           <Button onClick={() => openForm()}>Agregar plato</Button>
         </div>
       ) : null}

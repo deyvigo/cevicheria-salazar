@@ -22,7 +22,7 @@ export function DeliveryTypeSelector({ value, onChange }: DeliveryTypeSelectorPr
             role="radio"
             aria-checked={selected}
             onClick={() => onChange(option.id)}
-            className={`min-h-12 rounded-lg border px-4 text-base font-bold focus-visible:shadow-focus focus-visible:outline-none ${
+            className={`min-h-12 rounded-lg border px-4 text-button focus-visible:shadow-focus focus-visible:outline-none ${
               selected ? 'border-action bg-action text-on-action' : 'border-border bg-surface text-ink hover:border-ink/60'
             }`}
           >

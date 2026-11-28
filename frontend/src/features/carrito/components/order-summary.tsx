@@ -5,8 +5,8 @@ import type { OrderSummary as Summary } from '@/features/carrito/order-summary';
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-baseline justify-between gap-4">
-      <dt className="text-base text-ink-muted">{label}</dt>
-      <dd className="text-base text-ink">{value}</dd>
+      <dt className="text-body text-ink-muted">{label}</dt>
+      <dd className="text-body text-ink">{value}</dd>
     </div>
   );
 }
@@ -28,7 +28,7 @@ export function OrderSummary({ summary, delivery, couponCode, children }: OrderS
       aria-busy={summary === null || isLoading}
       className="flex flex-col gap-4 rounded-lg border border-border bg-surface p-4 shadow-sm"
     >
-      <h2 id="order-summary-title" className="font-display text-[18px] leading-6 font-semibold text-ink">
+      <h2 id="order-summary-title" className="font-display text-title-sm text-ink">
         Resumen del pedido
       </h2>
       {summary === null ? (
@@ -53,8 +53,8 @@ export function OrderSummary({ summary, delivery, couponCode, children }: OrderS
             <div className="h-8 animate-pulse rounded-md bg-surface-celeste" />
           ) : (
             <div className="flex items-baseline justify-between gap-4 border-t border-border pt-3">
-              <dt className="font-display text-[18px] leading-6 font-semibold text-ink">Total</dt>
-              <dd className="font-display text-[24px] leading-8 font-semibold text-ink">
+              <dt className="text-body-lg font-bold text-ink">Total</dt>
+              <dd className="font-display text-price text-ink">
                 {formatPrice(summary.total + (delivery ?? 0))}
               </dd>
             </div>

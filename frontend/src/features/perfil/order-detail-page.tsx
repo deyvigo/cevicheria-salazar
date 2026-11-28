@@ -15,7 +15,7 @@ import { customerMessage, isNegativeStatus } from '@/features/perfil/delivery-st
 
 const FINAL_STATUSES = ['ENTREGADO', 'RECHAZADO', 'CANCELADO', 'FALLIDO'];
 
-const linkClass = 'text-base font-bold text-ink underline focus-visible:shadow-focus focus-visible:outline-none';
+const linkClass = 'text-button text-ink underline focus-visible:shadow-focus focus-visible:outline-none';
 
 export function OrderDetailPage() {
   const { orderId } = useParams();
@@ -39,7 +39,7 @@ export function OrderDetailPage() {
   if (notFound) {
     return (
       <div role="status" className="flex flex-col items-start gap-3">
-        <h1 className="font-display text-ink text-[32px] leading-[40px] font-semibold">No encontramos este pedido</h1>
+        <h1 className="font-display text-ink text-title-lg">No encontramos este pedido</h1>
         {back}
       </div>
     );
@@ -50,7 +50,7 @@ export function OrderDetailPage() {
   if (order.isError || !data) {
     return (
       <div role="alert" className="flex flex-col items-start gap-3">
-        <p className="text-base font-bold text-error-text">No pudimos cargar tu pedido.</p>
+        <p className="text-body font-bold text-error-text">No pudimos cargar tu pedido.</p>
         <Button variant="outline" onClick={() => void order.refetch()}>
           Reintentar
         </Button>
@@ -66,10 +66,10 @@ export function OrderDetailPage() {
     <div className="flex flex-col gap-6">
       {back}
       <header className="flex flex-col gap-1">
-        <h1 className="font-display text-ink text-[32px] leading-[40px] font-semibold break-words">
+        <h1 className="font-display text-ink text-title-lg break-words">
           {orderTitle(data.items.map((item) => item.name))}
         </h1>
-        <p className="text-base text-ink-muted">
+        <p className="text-body text-ink-muted">
           {data.code} · {formatDateTime(data.purchasedAt)}
         </p>
       </header>
@@ -86,7 +86,7 @@ export function OrderDetailPage() {
         ) : (
           <div className="flex flex-col gap-4">
             <DeliveryProgress size="lg" status={data.deliveryStatus} type={data.deliveryType} />
-            <p className="text-center text-base text-ink-muted">{customerMessage(data.deliveryStatus, data.deliveryType)}</p>
+            <p className="text-center text-body text-ink-muted">{customerMessage(data.deliveryStatus, data.deliveryType)}</p>
           </div>
         )}
       </section>

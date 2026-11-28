@@ -41,7 +41,7 @@ export function OrderCodeDialog({ target, busy, error, onClose, onSubmit }: Orde
         onSubmit={handleSubmit((values) => target && onSubmit(target.order, target.action, values.code))}
         noValidate
       >
-        <p className="text-base text-ink">
+        <p className="text-body text-ink">
           {`Pide al cliente el código de entrega del pedido ${target?.order.code ?? ''} ${
             pickup ? 'al recoger' : 'al recibir'
           }. Esta acción no se puede deshacer.`}

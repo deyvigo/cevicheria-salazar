@@ -76,7 +76,7 @@ export function QuantityStepper({
           event.currentTarget.blur();
         }}
         onFocus={(event) => event.currentTarget.select()}
-        className={`h-10 min-w-0 rounded-md border border-border-strong px-2 text-center text-base text-ink focus:border-focus-ring focus:outline-none disabled:cursor-not-allowed disabled:bg-surface-disabled disabled:text-ink-disabled ${fullWidth ? 'flex-1' : 'w-16 flex-none'}`}
+        className={`h-10 min-w-0 rounded-md border border-border-strong px-2 text-center text-body text-ink focus:border-focus-ring focus:outline-none disabled:cursor-not-allowed disabled:bg-surface-disabled disabled:text-ink-disabled ${fullWidth ? 'flex-1' : 'w-16 flex-none'}`}
       />
       <Button
         type="button"

@@ -106,7 +106,7 @@ export function AddressDialog({ open, address, onClose, onSaved }: AddressDialog
 
   const mapFallback = (
     <div role="alert" className="flex h-64 flex-col items-center justify-center gap-3 rounded-lg border border-border bg-surface-celeste p-4 text-center">
-      <p className="text-sm font-bold text-error-text">No pudimos cargar el mapa. Revisa tu conexión e intenta de nuevo.</p>
+      <p className="text-body-sm font-bold text-error-text">No pudimos cargar el mapa. Revisa tu conexión e intenta de nuevo.</p>
       <Button
         type="button"
         variant="outline"
@@ -124,7 +124,7 @@ export function AddressDialog({ open, address, onClose, onSaved }: AddressDialog
     <Dialog open={open} title={address ? 'Editar dirección' : 'Agregar dirección'} onClose={onClose}>
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5" noValidate>
         {errors.root ? (
-          <p role="alert" className="text-sm font-bold text-error-text">
+          <p role="alert" className="text-body-sm font-bold text-error-text">
             {errors.root.message}
           </p>
         ) : null}
@@ -132,8 +132,8 @@ export function AddressDialog({ open, address, onClose, onSaved }: AddressDialog
         <Input fullWidth label="Dirección" autoComplete="street-address" error={errors.address?.message} {...register('address')} />
         <Input fullWidth label="Referencia (opcional)" error={errors.reference?.message} {...register('reference')} />
         <div className="flex flex-col gap-2">
-          <p className="text-sm font-bold text-ink">Ubicación en el mapa</p>
-          <p className="text-sm text-ink-muted">Arrastra el marcador o toca el mapa para fijar el punto de entrega.</p>
+          <p className="text-label text-ink">Ubicación en el mapa</p>
+          <p className="text-body-sm text-ink-muted">Arrastra el marcador o toca el mapa para fijar el punto de entrega.</p>
           {mapFailed ? (
             mapFallback
           ) : (
@@ -144,7 +144,7 @@ export function AddressDialog({ open, address, onClose, onSaved }: AddressDialog
             </MapErrorBoundary>
           )}
           {errors.latitude || errors.longitude ? (
-            <p role="alert" className="text-sm font-bold text-error-text">
+            <p role="alert" className="text-body-sm font-bold text-error-text">
               {errors.latitude?.message ?? errors.longitude?.message}
             </p>
           ) : null}

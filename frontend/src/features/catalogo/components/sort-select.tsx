@@ -9,7 +9,7 @@ export interface SortSelectProps {
 export function SortSelect({ value, onChange }: SortSelectProps) {
   return (
     <div className="flex items-center gap-2">
-      <label htmlFor="catalog-sort" className="text-sm font-bold text-ink">
+      <label htmlFor="catalog-sort" className="text-label text-ink">
         Ordenar por
       </label>
       <div className="relative">
@@ -17,7 +17,7 @@ export function SortSelect({ value, onChange }: SortSelectProps) {
           id="catalog-sort"
           value={value}
           onChange={(event) => onChange(event.target.value as CatalogSort)}
-          className="h-12 appearance-none rounded-md border border-border-strong bg-surface pr-11 pl-4 text-base text-ink focus:border-focus-ring focus:outline-none"
+          className="h-12 appearance-none rounded-md border border-border-strong bg-surface pr-11 pl-4 text-body text-ink focus:border-focus-ring focus:outline-none"
         >
           {SORT_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>

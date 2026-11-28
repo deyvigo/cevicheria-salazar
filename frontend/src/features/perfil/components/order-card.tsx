@@ -25,7 +25,7 @@ export function OrderCard({ order, page = 1 }: { order: OrderSummary; page?: num
   return (
     <Card className="relative grid items-center gap-4 sm:grid-cols-[1fr_auto_1fr]">
       <div className="min-w-0">
-        <h2 className="font-display text-ink line-clamp-2 text-lg leading-6 font-semibold break-words">
+        <h2 className="font-display text-ink line-clamp-2 text-title-sm break-words">
           <Link
             to={`/perfil/mis-pedidos/${order.id}`}
             state={{ page }}
@@ -35,7 +35,7 @@ export function OrderCard({ order, page = 1 }: { order: OrderSummary; page?: num
             <span className="sr-only"> (ver detalle del pedido {order.code})</span>
           </Link>
         </h2>
-        <p className="text-sm text-ink-muted">{order.code}</p>
+        <p className="text-body-sm text-ink-muted">{order.code}</p>
       </div>
       <div className="w-full max-w-44 justify-self-start sm:justify-self-center">
         {negative ? (
@@ -48,15 +48,15 @@ export function OrderCard({ order, page = 1 }: { order: OrderSummary; page?: num
         ) : (
           <>
             <DeliveryProgress status={order.deliveryStatus} type={order.deliveryType} />
-            <p className="mt-1.5 text-center text-sm text-ink-muted">
+            <p className="mt-1.5 text-center text-body-sm text-ink-muted">
               {customerMessage(order.deliveryStatus, order.deliveryType)}
             </p>
           </>
         )}
       </div>
       <div className="sm:text-right">
-        <p className="text-ink text-base font-bold">{formatPrice(order.total)}</p>
-        <p className="text-sm text-ink-muted">{dateFormat.format(new Date(order.purchasedAt))}</p>
+        <p className="font-display text-ink text-price">{formatPrice(order.total)}</p>
+        <p className="text-body-sm text-ink-muted">{dateFormat.format(new Date(order.purchasedAt))}</p>
         {order.deliveryStatus === 'PENDIENTE' ? (
           <Button variant="outline" className="relative z-10 mt-2" onClick={() => setCancelling(true)}>
             Cancelar pedido

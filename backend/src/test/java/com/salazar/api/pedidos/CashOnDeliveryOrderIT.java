@@ -260,7 +260,7 @@ class CashOnDeliveryOrderIT extends OrderITSupport {
         assertThat(mail.receiving()).isEqualTo("Recojo en tienda");
         assertThat(mail.delivery()).isEqualTo("Recojo en tienda, sin costo");
         assertThat(mail.deliveryCodeHint()).contains("al recoger");
-        assertThat(mail.paymentSummary()).contains("Yape");
+        assertThat(mail.paymentSummary()).contains("billetera virtual (Yape o Plin)");
     }
 
     @Test

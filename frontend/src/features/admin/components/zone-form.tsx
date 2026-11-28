@@ -101,9 +101,9 @@ export function ZoneForm({ zone, points, color, mapFailed, onPointsChange, onCol
 
   return (
     <form onSubmit={submit} className="flex flex-col gap-5 overflow-y-auto p-1 lg:h-full" noValidate aria-label={isNew ? 'Agregar zona' : 'Editar zona'}>
-      <h2 className="font-display text-ink text-[22px] leading-7 font-semibold">{isNew ? 'Agregar zona' : 'Editar zona'}</h2>
+      <h2 className="font-display text-ink text-title-md">{isNew ? 'Agregar zona' : 'Editar zona'}</h2>
       {errors.root ? (
-        <p role="alert" className="text-sm font-bold text-error-text">
+        <p role="alert" className="text-body-sm font-bold text-error-text">
           {errors.root.message}
         </p>
       ) : null}
@@ -112,11 +112,11 @@ export function ZoneForm({ zone, points, color, mapFailed, onPointsChange, onCol
       <ZoneColorPicker value={color} onChange={onColorChange} />
       <div className="flex items-center gap-3">
         <Switch label="Zona activa" checked={active} onChange={(next) => setValue('active', next, { shouldDirty: true })} />
-        <span className="text-sm font-bold text-ink">Zona activa</span>
+        <span className="text-label text-ink">Zona activa</span>
       </div>
       <div className="flex flex-col gap-2">
-        <p className="text-sm font-bold text-ink">Área en el mapa</p>
-        <p className="text-sm text-ink-muted">
+        <p className="text-label text-ink">Área en el mapa</p>
+        <p className="text-body-sm text-ink-muted">
           Toca el mapa para añadir puntos. Arrástralos para moverlos, toca uno para quitarlo o toca el punto entre dos para
           añadir otro. Las demás zonas no se pueden tocar mientras tanto.
         </p>
@@ -129,10 +129,10 @@ export function ZoneForm({ zone, points, color, mapFailed, onPointsChange, onCol
               Reiniciar
             </Button>
           </div>
-          <p className="text-sm text-ink-subtle">{points.length} puntos</p>
+          <p className="text-body-sm text-ink-subtle">{points.length} puntos</p>
         </div>
         {shapeError ? (
-          <p role="alert" className="text-sm font-bold text-error-text">
+          <p role="alert" className="text-body-sm font-bold text-error-text">
             {shapeError}
           </p>
         ) : null}

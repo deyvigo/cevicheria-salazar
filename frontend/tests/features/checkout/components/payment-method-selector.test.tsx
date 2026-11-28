@@ -8,7 +8,7 @@ describe('PaymentMethodSelector', () => {
     render(<PaymentMethodSelector value={null} deliveryType="delivery" onChange={() => {}} />);
 
     expect(screen.getByRole('radiogroup', { name: 'Método de pago' })).toBeInTheDocument();
-    expect(screen.getByRole('radio', { name: 'Pago en línea' })).not.toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Mercado Pago' })).not.toBeChecked();
     expect(screen.getByRole('radio', { name: 'Contraentrega' })).not.toBeChecked();
   });
 
@@ -16,7 +16,7 @@ describe('PaymentMethodSelector', () => {
     render(<PaymentMethodSelector value="cash_on_delivery" deliveryType="delivery" onChange={() => {}} />);
 
     expect(screen.getByRole('radio', { name: 'Contraentrega' })).toBeChecked();
-    expect(screen.getByRole('radio', { name: 'Pago en línea' })).not.toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Mercado Pago' })).not.toBeChecked();
   });
 
   it('avisa el método elegido con clic y con teclado', async () => {
@@ -24,7 +24,7 @@ describe('PaymentMethodSelector', () => {
     const user = userEvent.setup();
     render(<PaymentMethodSelector value={null} deliveryType="delivery" onChange={onChange} />);
 
-    await user.click(screen.getByRole('radio', { name: 'Pago en línea' }));
+    await user.click(screen.getByRole('radio', { name: 'Mercado Pago' }));
     screen.getByRole('radio', { name: 'Contraentrega' }).focus();
     await user.keyboard('{Enter}');
 

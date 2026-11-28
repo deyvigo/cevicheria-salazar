@@ -31,14 +31,14 @@ export function CheckoutStepper({ currentStep, isAuthenticated }: CheckoutSteppe
                 <span aria-hidden="true" className="absolute top-5 right-1/2 left-[-50%] -z-0 h-0.5 bg-border" />
               ) : null}
               <span
-                className={`relative z-10 flex size-10 items-center justify-center rounded-full font-display text-base font-semibold ${
+                className={`relative z-10 flex size-10 items-center justify-center rounded-full font-display text-title-sm ${
                   isCurrent ? 'bg-action text-on-action' : 'bg-surface-disabled text-ink'
                 }`}
               >
                 {index + 1}
               </span>
-              <span className="text-base font-bold text-ink">{step.title}</span>
-              <span className="text-sm text-ink-muted">{step.description}</span>
+              <span className="text-body font-bold text-ink">{step.title}</span>
+              <span className="text-body-sm text-ink-muted">{step.description}</span>
             </li>
           );
         })}

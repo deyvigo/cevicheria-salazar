@@ -128,7 +128,7 @@ describe('OrderResultPage', () => {
       });
       renderPage();
 
-      expect(await screen.findByText('Pagarás con Yape al recoger tu pedido.')).toBeInTheDocument();
+      expect(await screen.findByText('Pagarás con billetera virtual (Yape o Plin) al recoger tu pedido.')).toBeInTheDocument();
     });
 
     it('no vuelve a consultar el pedido', async () => {

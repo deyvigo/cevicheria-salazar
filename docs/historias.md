@@ -21,6 +21,7 @@ Historias técnicas (HT): trabajo necesario para el proyecto que no entrega valo
 | HT-09 | Configurar el entorno: repositorio, estrategia de ramas, proyecto base y base de datos de desarrollo.                               | Alta      |
 | HT-10 | Configurar el almacenamiento de imágenes compatible con S3 (Garage) y usar el SDK de AWS S3 en el backend, en desarrollo y producción. | Alta      |
 | HT-11 | Crear al arrancar una cuenta de administrador por defecto, configurada en `application.yml`, si todavía no existe.                 | Alta      |
+| HT-12 | Aplicar la escala tipográfica del design system en toda la web (tienda y panel) para que los textos tengan tamaños coherentes y ninguno quede fuera de la escala. | Media     |
 
 <a id="e1"></a>
 

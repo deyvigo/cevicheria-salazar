@@ -14,13 +14,13 @@ export function FilterSelect({
   children: ReactNode;
 }) {
   return (
-    <label className="flex flex-col gap-2 text-sm font-bold text-ink">
+    <label className="flex flex-col gap-2 text-label text-ink">
       {label}
       <div className="relative">
         <select
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          className="h-12 appearance-none rounded-md border border-border-strong bg-surface pr-11 pl-4 text-base font-normal text-ink focus:border-focus-ring focus:outline-none"
+          className="h-12 appearance-none rounded-md border border-border-strong bg-surface pr-11 pl-4 text-body font-normal text-ink focus:border-focus-ring focus:outline-none"
         >
           {children}
         </select>

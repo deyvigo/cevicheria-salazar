@@ -11,11 +11,11 @@ interface NegativeStatusNoticeProps {
 
 export function NegativeStatusNotice({ status, type, reason, refundStatus, size = 'sm' }: NegativeStatusNoticeProps) {
   const large = size === 'lg';
-  const detail = large ? 'text-base text-ink-muted' : 'text-sm text-ink-muted';
+  const detail = large ? 'text-body text-ink-muted' : 'text-body-sm text-ink-muted';
 
   return (
     <div className={`flex flex-col gap-1 text-center ${large ? '' : 'sm:max-w-44'}`}>
-      <p className={`${large ? 'font-display text-2xl leading-8 font-semibold' : 'text-sm font-bold'} text-error-text`}>
+      <p className={`${large ? 'font-display text-title-md' : 'text-body-sm font-bold'} text-error-text`}>
         {customerMessage(status, type)}
       </p>
       {reason ? <p className={detail}>{reason}</p> : null}

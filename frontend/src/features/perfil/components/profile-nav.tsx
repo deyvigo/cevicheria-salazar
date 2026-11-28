@@ -12,7 +12,7 @@ const SECTION_ICONS: Record<(typeof PROFILE_SECTIONS)[number]['path'], ReactNode
 };
 
 const ITEM_CLASSES =
-  'flex min-h-12 w-full items-center gap-3 rounded-md px-4 text-left text-base focus-visible:shadow-focus focus-visible:outline-none';
+  'flex min-h-12 w-full items-center gap-3 rounded-md px-4 text-left text-body focus-visible:shadow-focus focus-visible:outline-none';
 
 export function ProfileNav() {
   return (

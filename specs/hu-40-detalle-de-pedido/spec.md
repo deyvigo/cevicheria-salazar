@@ -43,7 +43,7 @@ El detalle es una pantalla del perfil con estas secciones, en este orden:
 1. **Encabezado**: enlace "Volver a mis pedidos", el **nombre del pedido** (el mismo título de la tarjeta, ver HU-25), el **código del pedido** (`SAL-001042`) y la **fecha de compra** con hora (hora de Lima, por ejemplo "7 nov 2026, 14:30").
 2. **Estado de entrega**: ver sección siguiente.
 3. **Cómo lo recibes**: **Entrega a domicilio** con la etiqueta, la dirección y la referencia (si la hay) guardadas en el pedido, o **Recojo en tienda**.
-4. **Cómo pagas**: **Pago en línea** con su estado ("Pagado"), o **Pago contraentrega** con el medio (Efectivo o Yape) y, si es efectivo, "Pagarás con S/ 100.00 (vuelto S/ 15.00)".
+4. **Cómo pagas**: **Pago en línea** con su estado ("Pagado"), o **Pago contraentrega** con el medio (Efectivo o Billetera virtual: Yape o Plin) y, si es efectivo, "Pagarás con S/ 100.00 (vuelto S/ 15.00)".
 5. **Detalle de los platos**: una fila por plato con **nombre**, **cantidad**, **precio unitario** y **subtotal de la línea**; luego **Subtotal**, **Delivery** (o "Recojo en tienda, sin costo") y **Total**, con formato `S/ 32.00`.
 6. **Fechas**: **fecha de compra** y **fecha de pago** con hora; con contraentrega, la fecha de pago aparece como "Pendiente, se paga al recibir" hasta que el pedido se cobre.
 7. **Código de entrega**: ver reglas abajo.
@@ -82,7 +82,7 @@ El detalle es una pantalla del perfil con estas secciones, en este orden:
 - El detalle no se actualiza solo: el estado se refresca al recargar o volver a entrar (el seguimiento en vivo sigue fuera de alcance, ver HU-26). Al volver a la pestaña "Mis pedidos" desde el detalle, la lista no muestra un estado más viejo que el del detalle que acaba de verse (se invalida la caché de la lista al cancelar).
 - Un pedido con muchos platos o con nombres largos no desborda la pantalla: los nombres se parten en varias líneas y la tabla de platos se adapta al ancho del celular.
 - Pedido de Recojo: no tiene dirección ni costo de delivery; la sección "Cómo lo recibes" dice "Recojo en tienda" y el delivery se muestra como "Recojo en tienda, sin costo".
-- Un pedido de contraentrega por Yape no tiene vuelto ni monto declarado; solo se muestra el medio.
+- Un pedido de contraentrega por billetera virtual no tiene vuelto ni monto declarado; solo se muestra el medio.
 - Pedidos existentes con estados antiguos de HU-25 (`EN_PREPARACION`, `EN_CAMINO`, `ENTREGADO`) se muestran con las reglas ya definidas en HU-26.
 - La sesión vence mientras uso la pantalla: se renueva sola (HU-04); si ya no se puede, soy llevado a iniciar sesión.
 - La pantalla no cambia el estado del pedido; el único cambio que el cliente puede hacer es cancelarlo mientras está `PENDIENTE`.

@@ -197,7 +197,7 @@ describe('AdminOrdersPage', () => {
 
     await user.selectOptions(screen.getByLabelText('Estado de entrega'), 'Todos');
     await user.selectOptions(screen.getByLabelText('Tipo'), 'Recojo');
-    await user.selectOptions(screen.getByLabelText('Pago'), 'Yape');
+    await user.selectOptions(screen.getByLabelText('Pago'), 'Billetera virtual');
     await user.selectOptions(screen.getByLabelText('Estado de pago'), 'Por cobrar');
     await user.selectOptions(screen.getByLabelText('Zona'), 'Barranco');
 

@@ -22,8 +22,8 @@ interface ProductTableProps {
   onDelete: (product: AdminProduct) => void;
 }
 
-const HEADER = 'px-4 py-3 text-left text-lg font-bold text-ink';
-const CELL = 'px-4 py-3 text-base text-ink align-middle';
+const HEADER = 'px-4 py-3 text-left text-label text-ink';
+const CELL = 'px-4 py-3 text-body text-ink align-middle';
 
 function SortHeader({
   field,

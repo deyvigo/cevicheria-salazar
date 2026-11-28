@@ -61,13 +61,13 @@ export function LoginPage() {
   return (
     <AuthShell imageSide="left" branded>
       <form onSubmit={handleSubmit(onSubmit)} className="flex w-full max-w-[340px] flex-col gap-5" noValidate>
-        <h1 className="font-display text-[26px] leading-8 font-semibold text-ink">Inicia sesión</h1>
+        <h1 className="font-display text-title-lg text-ink">Inicia sesión</h1>
 
         {passwordReset ? (
           <Notification variant="success" title="Tu contraseña fue actualizada. Inicia sesión." />
         ) : null}
 
-        {errors.root ? <p className="text-sm font-bold text-error-text">{errors.root.message}</p> : null}
+        {errors.root ? <p className="text-body-sm font-bold text-error-text">{errors.root.message}</p> : null}
 
         <GoogleLoginButton />
 
@@ -84,7 +84,7 @@ export function LoginPage() {
 
         <Link
           to="/olvide-contrasena"
-          className="-mt-2 self-end text-sm font-bold text-link underline-offset-2 hover:underline focus-visible:rounded-sm focus-visible:shadow-focus focus-visible:outline-none"
+          className="-mt-2 self-end text-label text-link underline-offset-2 hover:underline focus-visible:rounded-sm focus-visible:shadow-focus focus-visible:outline-none"
         >
           ¿Olvidaste tu contraseña?
         </Link>
@@ -93,7 +93,7 @@ export function LoginPage() {
           {isSubmitting ? 'Ingresando…' : 'Iniciar sesión'}
         </Button>
 
-        <p className="text-center text-sm text-ink-muted">
+        <p className="text-center text-body-sm text-ink-muted">
           ¿No tienes cuenta?{' '}
           <Link
             to="/registro"

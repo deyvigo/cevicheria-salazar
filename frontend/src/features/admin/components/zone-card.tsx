@@ -44,9 +44,9 @@ export function ZoneCard({ zone, hovered, selected, onHover, onSelect, onEdit, o
           style={{ backgroundColor: `var(${zoneColorVariable(zone.color)})` }}
         />
         <span className="flex min-w-0 flex-col">
-          <span className="truncate text-base font-bold text-ink">{zone.name}</span>
-          <span className="text-sm text-ink-muted">{formatPrice(zone.price)}</span>
-          {zone.active ? null : <span className="text-sm font-bold text-ink-subtle">Inactiva</span>}
+          <span className="truncate text-body font-bold text-ink">{zone.name}</span>
+          <span className="text-body-sm text-ink-muted">{formatPrice(zone.price)}</span>
+          {zone.active ? null : <span className="text-label text-ink-subtle">Inactiva</span>}
         </span>
       </button>
       <IconButton aria-label={`Editar ${zone.name}`} onClick={() => onEdit(zone)}>

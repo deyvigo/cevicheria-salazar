@@ -31,11 +31,11 @@ export function DeleteProductDialog({ product, onClose, onDeleted }: DeleteProdu
     <Dialog open={product !== null} title="Eliminar plato" onClose={close}>
       <div className="flex flex-col gap-5">
         {deleteProduct.isError ? (
-          <p role="alert" className="text-sm font-bold text-error-text">
+          <p role="alert" className="text-body-sm font-bold text-error-text">
             No pudimos eliminar el plato, intenta de nuevo.
           </p>
         ) : null}
-        <p className="text-base text-ink">
+        <p className="text-body text-ink">
           ¿Quieres eliminar <strong>{product?.name}</strong>? Dejará de verse en la tienda.
         </p>
         <div className="flex justify-end gap-3">

@@ -29,11 +29,11 @@ export function MyInformationPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="font-display text-ink text-[32px] leading-[40px] font-semibold">Mi información</h1>
+      <h1 className="font-display text-ink text-title-lg">Mi información</h1>
 
       <Card className="flex flex-col gap-4">
-        <h2 className="font-display text-ink text-lg leading-6 font-semibold">Datos personales</h2>
-        <dl className="grid grid-cols-[8rem_1fr] gap-x-4 gap-y-2 text-sm">
+        <h2 className="font-display text-ink text-title-sm">Datos personales</h2>
+        <dl className="grid grid-cols-[8rem_1fr] gap-x-4 gap-y-2 text-body">
           {details.map(([label, value]) => (
             <div key={label} className="contents">
               <dt className="font-bold text-ink-muted">{label}</dt>
@@ -47,8 +47,8 @@ export function MyInformationPage() {
       </Card>
 
       <Card className="flex flex-col gap-4">
-        <h2 className="font-display text-ink text-lg leading-6 font-semibold">Contraseña</h2>
-        <p className="text-sm text-ink-muted">
+        <h2 className="font-display text-ink text-title-sm">Contraseña</h2>
+        <p className="text-body-sm text-ink-muted">
           {user.hasPassword
             ? 'Cambia tu contraseña cuando quieras. Cerraremos tus sesiones en otros dispositivos.'
             : 'Tu cuenta entra con Google. Crea una contraseña para poder entrar también con tu correo.'}

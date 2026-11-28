@@ -37,7 +37,7 @@ export function Pagination({ page, totalPages, onPageChange }: PaginationProps) 
             aria-label={`Página ${item}`}
             aria-current={item === page ? 'page' : undefined}
             onClick={() => onPageChange(item)}
-            className={`inline-flex min-h-12 min-w-12 items-center justify-center rounded-md px-3 text-base font-bold focus-visible:shadow-focus focus-visible:outline-none ${
+            className={`inline-flex min-h-12 min-w-12 items-center justify-center rounded-md px-3 text-button focus-visible:shadow-focus focus-visible:outline-none ${
               item === page ? 'bg-action text-on-action' : 'text-ink hover:bg-surface-celeste'
             }`}
           >

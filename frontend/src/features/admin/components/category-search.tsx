@@ -25,7 +25,7 @@ export function CategorySearch({ initialValue, onSearch }: CategorySearchProps) 
         maxLength={MAX_LENGTH}
         placeholder="Buscar categorías"
         aria-label="Buscar categorías"
-        className="h-12 w-full rounded-md border border-border-strong pr-12 pl-4 text-base text-ink placeholder:text-ink-subtle focus:border-focus-ring focus:outline-none"
+        className="h-12 w-full rounded-md border border-border-strong pr-12 pl-4 text-body text-ink placeholder:text-ink-subtle focus:border-focus-ring focus:outline-none"
       />
       <button
         type="submit"

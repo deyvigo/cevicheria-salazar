@@ -25,7 +25,7 @@ interface OrderDetailDialogProps {
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex justify-between gap-4 text-base">
+    <div className="flex justify-between gap-4 text-body">
       <dt className="text-ink-muted">{label}</dt>
       <dd className="text-right text-ink">{children}</dd>
     </div>
@@ -38,10 +38,10 @@ export function OrderDetailDialog({ orderId, open, busyId, onClose, onAction, on
 
   return (
     <Dialog open={open && orderId !== null} title={order ? `Pedido ${order.code}` : 'Pedido'} onClose={onClose} wide>
-      {isPending ? <p className="text-base text-ink-muted">Cargando el pedido...</p> : null}
+      {isPending ? <p className="text-body text-ink-muted">Cargando el pedido...</p> : null}
       {isError ? (
         <div role="alert" className="flex flex-col items-start gap-3">
-          <p className="text-base font-bold text-error-text">No pudimos cargar el pedido.</p>
+          <p className="text-body font-bold text-error-text">No pudimos cargar el pedido.</p>
           <Button variant="outline" onClick={() => refetch()}>
             Reintentar
           </Button>
@@ -73,7 +73,7 @@ export function OrderDetailDialog({ orderId, open, busyId, onClose, onAction, on
 
           <ul className="flex flex-col divide-y divide-border rounded-lg border border-border">
             {data.items.map((item, index) => (
-              <li key={index} className="flex justify-between gap-4 px-4 py-3 text-base text-ink">
+              <li key={index} className="flex justify-between gap-4 px-4 py-3 text-body text-ink">
                 <span>
                   {item.quantity} × {item.name}
                 </span>

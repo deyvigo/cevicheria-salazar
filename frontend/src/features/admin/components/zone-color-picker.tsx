@@ -8,7 +8,7 @@ interface ZoneColorPickerProps {
 export function ZoneColorPicker({ value, onChange }: ZoneColorPickerProps) {
   return (
     <div className="flex flex-col gap-2">
-      <p id="zone-color-label" className="text-sm font-bold text-ink">
+      <p id="zone-color-label" className="text-label text-ink">
         Color
       </p>
       <div role="radiogroup" aria-labelledby="zone-color-label" className="flex flex-wrap gap-3">

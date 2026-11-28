@@ -4,6 +4,7 @@ Copia local de contenido del Design System "Cevichería" creado como Artifact de
 https://claude.ai/artifact/FaPHp34ZB3vXzfC1c4Cgdm
 
 - Sincronizado por última vez: 2026-10-02.
+- Cambio local posterior (HT-12): el estilo `price` bajó de 20px a 18px en `tokens.json` y `components/bundle.css`. Llevarlo al Artifact en la próxima sincronización para no perderlo.
 - Esta carpeta es la referencia que usará el frontend (colores, tipografía, espaciado, componentes base e iconos de notificación).
 - Si el design system se sigue editando en el Artifact, vuelve a pedir una sincronización para traer los cambios nuevos a esta carpeta.
 

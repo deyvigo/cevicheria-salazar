@@ -13,7 +13,7 @@ export function ProductGrid({ products, isLoading }: { products: Product[]; isLo
   }
 
   if (products.length === 0) {
-    return <p className="py-12 text-center text-base text-ink-muted">No se encontraron productos.</p>;
+    return <p className="py-12 text-center text-body text-ink-muted">No se encontraron productos.</p>;
   }
 
   return (

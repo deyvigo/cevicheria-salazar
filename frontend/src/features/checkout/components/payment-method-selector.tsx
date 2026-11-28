@@ -1,4 +1,7 @@
+import type { ReactNode } from 'react';
 import { Card } from '@/components/card';
+import { CashIcon } from '@/components/icons/cash-icon';
+import { MercadoPagoIcon } from '@/components/icons/mercado-pago-icon';
 import type { DeliveryType, PaymentMethod } from '@/features/checkout/checkout-store';
 
 interface PaymentMethodSelectorProps {
@@ -8,11 +11,25 @@ interface PaymentMethodSelectorProps {
 }
 
 export function PaymentMethodSelector({ value, deliveryType, onChange }: PaymentMethodSelectorProps) {
-  const options: ReadonlyArray<{ id: PaymentMethod; title: string; description: string }> = [
-    { id: 'online', title: 'Pago en línea', description: 'Paga con tarjeta u otros medios desde Mercado Pago' },
+  const options: ReadonlyArray<{ id: PaymentMethod; title: string; description: string; icon: ReactNode }> = [
+    {
+      id: 'online',
+      title: 'Mercado Pago',
+      description: 'Paga en línea con tarjeta u otros medios',
+      icon: (
+        <span className="flex size-12 items-center justify-center rounded-md bg-celeste-100 text-celeste-800">
+          <MercadoPagoIcon className="size-8" />
+        </span>
+      ),
+    },
     {
       id: 'cash_on_delivery',
       title: 'Contraentrega',
+      icon: (
+        <span className="flex size-12 items-center justify-center rounded-md bg-lima-100 text-lima-800">
+          <CashIcon className="size-7" />
+        </span>
+      ),
       description: deliveryType === 'delivery' ? 'Paga al recibir tu pedido' : 'Paga al recoger tu pedido en tienda',
     },
   ];
@@ -35,12 +52,15 @@ export function PaymentMethodSelector({ value, deliveryType, onChange }: Payment
                 onChange(option.id);
               }
             }}
-            className={`cursor-pointer focus-visible:shadow-focus focus-visible:outline-none ${
+            className={`flex cursor-pointer items-center gap-4 focus-visible:shadow-focus focus-visible:outline-none ${
               selected ? 'border-action ring-2 ring-action' : 'hover:border-ink/60'
             }`}
           >
-            <p className="font-display text-ink text-[18px] leading-6 font-semibold">{option.title}</p>
-            <p className="text-base text-ink-muted">{option.description}</p>
+            {option.icon}
+            <div className="flex min-w-0 flex-col">
+              <p className="font-display text-ink text-title-sm">{option.title}</p>
+              <p className="text-body text-ink-muted">{option.description}</p>
+            </div>
           </Card>
         );
       })}

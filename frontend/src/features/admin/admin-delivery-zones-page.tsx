@@ -63,7 +63,7 @@ export function AdminDeliveryZonesPage() {
 
   const mapFallback = (
     <div role="alert" className="flex h-full min-h-64 flex-col items-center justify-center gap-3 rounded-lg border border-border bg-surface-celeste p-4 text-center">
-      <p className="text-sm font-bold text-error-text">No pudimos cargar el mapa. Revisa tu conexión e intenta de nuevo.</p>
+      <p className="text-body-sm font-bold text-error-text">No pudimos cargar el mapa. Revisa tu conexión e intenta de nuevo.</p>
       <Button
         variant="outline"
         onClick={() => {
@@ -79,7 +79,7 @@ export function AdminDeliveryZonesPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="font-display text-ink text-[32px] leading-[40px] font-semibold">Zonas de delivery</h1>
+        <h1 className="font-display text-ink text-title-lg">Zonas de delivery</h1>
         {zones ? (
           <Button onClick={() => openForm()} disabled={draft !== null}>
             Agregar zona
@@ -87,11 +87,11 @@ export function AdminDeliveryZonesPage() {
         ) : null}
       </div>
 
-      {isPending ? <p className="text-base text-ink-muted">Cargando las zonas...</p> : null}
+      {isPending ? <p className="text-body text-ink-muted">Cargando las zonas...</p> : null}
 
       {isError ? (
         <div role="alert" className="flex flex-col items-start gap-3">
-          <p className="text-base font-bold text-error-text">No pudimos cargar las zonas.</p>
+          <p className="text-body font-bold text-error-text">No pudimos cargar las zonas.</p>
           <Button variant="outline" onClick={() => refetch()}>
             Reintentar
           </Button>
@@ -134,7 +134,7 @@ export function AdminDeliveryZonesPage() {
               onSaved={saved}
             />
           ) : zones.length === 0 ? (
-            <p className="text-base text-ink-muted">Aún no tienes zonas de delivery</p>
+            <p className="text-body text-ink-muted">Aún no tienes zonas de delivery</p>
           ) : (
             <ZoneList
               zones={zones}

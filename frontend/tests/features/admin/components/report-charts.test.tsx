@@ -57,7 +57,7 @@ describe('PaymentDonut', () => {
     const rows = screen.getAllByRole('row');
     expect(rows).toHaveLength(4);
     expect(rows[1]).toHaveTextContent('Online3S/ 60.0050.0%');
-    expect(rows[3]).toHaveTextContent('Yape0S/ 0.000.0%');
+    expect(rows[3]).toHaveTextContent('Billetera virtual0S/ 0.000.0%');
   });
 
   it('dibuja solo los segmentos con ventas y muestra su detalle con el cursor', async () => {

@@ -28,8 +28,8 @@ Sobre las opciones va el título **Métodos de pago**.
 
 Dos opciones excluyentes, una tarjeta seleccionable cada una:
 
-- **Pago en línea**: "Paga con tarjeta u otros medios desde Mercado Pago". Sin seleccionar por defecto.
-- **Contraentrega**: con Entrega, "Paga al recibir tu pedido"; con Recojo en tienda, "Paga al recoger tu pedido en tienda".
+- **Mercado Pago** (pago en línea): "Paga en línea con tarjeta u otros medios", con el logo de Mercado Pago. Sin seleccionar por defecto.
+- **Contraentrega**: con un ícono de billete; con Entrega, "Paga al recibir tu pedido"; con Recojo en tienda, "Paga al recoger tu pedido en tienda".
 
 Ninguna viene preseleccionada: el cliente debe elegir una.
 

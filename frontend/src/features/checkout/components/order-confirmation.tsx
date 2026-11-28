@@ -5,7 +5,7 @@ import { OrderInfoList } from '@/features/checkout/components/order-info-list';
 import { OrderSummaryTable } from '@/features/checkout/components/order-summary-table';
 
 const linkClass =
-  'text-base font-bold text-ink underline focus-visible:shadow-focus focus-visible:outline-none';
+  'text-button text-ink underline focus-visible:shadow-focus focus-visible:outline-none';
 
 export function OrderConfirmation({ order, email }: { order: Order; email: string | null }) {
   const title = order.status === 'PAGADO' ? 'Recibimos tu pago' : 'Recibimos tu pedido';
@@ -13,9 +13,9 @@ export function OrderConfirmation({ order, email }: { order: Order; email: strin
   return (
     <div className="flex flex-col gap-6">
       <div role="status" className="flex flex-col gap-1">
-        <h2 className="font-display text-[24px] leading-8 font-semibold text-ink">{title}</h2>
-        <p className="text-base text-ink-muted">Guarda estos códigos: los necesitarás para recibir tu pedido.</p>
-        {email ? <p className="text-base text-ink-muted">Enviamos la confirmación a {email}.</p> : null}
+        <h2 className="font-display text-title-md text-ink">{title}</h2>
+        <p className="text-body text-ink-muted">Guarda estos códigos: los necesitarás para recibir tu pedido.</p>
+        {email ? <p className="text-body text-ink-muted">Enviamos la confirmación a {email}.</p> : null}
       </div>
       <OrderCodes order={order} />
       <OrderInfoList order={order} />

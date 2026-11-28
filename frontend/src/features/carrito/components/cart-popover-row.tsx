@@ -37,12 +37,12 @@ export function CartPopoverRow({ product, quantity }: { product: Product; quanti
         className="h-12 w-12 flex-none rounded-md bg-surface-celeste object-cover"
       />
       <div className="flex min-w-0 flex-1 flex-col gap-1">
-        <span title={product.name} className="truncate text-sm font-bold text-ink">
+        <span title={product.name} className="truncate text-label text-ink">
           {product.name}
         </span>
-        <span className="text-xs text-ink-muted">{formatPrice(product.price)}</span>
+        <span className="text-body-sm text-ink-muted">{formatPrice(product.price)}</span>
         {!product.available ? (
-          <span className="truncate text-xs text-error-text">Agotado, no suma al total</span>
+          <span className="truncate text-body-sm text-error-text">Agotado, no suma al total</span>
         ) : null}
         <div className="flex items-center gap-2">
           <Button
@@ -57,7 +57,7 @@ export function CartPopoverRow({ product, quantity }: { product: Product; quanti
           <span
             role="status"
             aria-label={`Cantidad de ${product.name}`}
-            className="min-w-6 text-center text-sm text-ink"
+            className="min-w-6 text-center text-body-sm text-ink"
           >
             {quantity}
           </span>
