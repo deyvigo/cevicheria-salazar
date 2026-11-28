@@ -39,11 +39,11 @@ describe('order-payment-text', () => {
       'Pagarás en efectivo al recibir tu pedido.',
     );
     expect(collectionSummary({ ...base, collectionMethod: 'YAPE', cashAmount: null, change: null })).toBe(
-      'Pagarás con Yape al recibir tu pedido.',
+      'Pagarás con billetera virtual (Yape o Plin) al recibir tu pedido.',
     );
     expect(
       collectionSummary({ ...base, deliveryType: 'RECOJO', collectionMethod: 'YAPE', cashAmount: null, change: null }),
-    ).toBe('Pagarás con Yape al recoger tu pedido.');
+    ).toBe('Pagarás con billetera virtual (Yape o Plin) al recoger tu pedido.');
   });
 
   it('el pago en línea se describe sin detalle de cobro', () => {

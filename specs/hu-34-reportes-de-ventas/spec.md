@@ -41,7 +41,7 @@ Se replican los componentes `Card`, `Input` y `Button` del `design-system/`; los
 - **Dado** los atajos de rango, **cuando** elijo uno, **entonces** todo el reporte se recalcula para ese rango; con "Personalizado" elijo fecha inicial y final.
 - **Dado** que elijo una fecha final anterior a la inicial, **cuando** valido, **entonces** veo un error junto al campo y no se pide el reporte.
 - **Dado** que elijo un rango de más de 366 días, **cuando** valido, **entonces** veo un error y no se pide el reporte.
-- **Dado** que elijo un método de pago (Online, Efectivo o Yape) o un tipo de entrega (Entrega o Recojo), **cuando** se aplica, **entonces** tarjetas, gráficas y ranking consideran solo esos pedidos.
+- **Dado** que elijo un método de pago (Online, Efectivo o Billetera virtual) o un tipo de entrega (Entrega o Recojo), **cuando** se aplica, **entonces** tarjetas, gráficas y ranking consideran solo esos pedidos.
 - **Dado** que cambio cualquier filtro, **cuando** se aplica, **entonces** la pantalla muestra un estado de carga y, si falla, un mensaje con "Reintentar".
 
 ### Tarjetas de resumen
@@ -63,7 +63,7 @@ Se replican los componentes `Card`, `Input` y `Button` del `design-system/`; los
 
 ### Ventas por método de pago
 
-- **Dado** el rango elegido, **cuando** miro la sección, **entonces** veo una dona con un segmento por método (Online, Efectivo, Yape) y una tabla con pedidos, ingresos y porcentaje del total; la dona coincide con la tabla y muestra el ingreso total en el centro.
+- **Dado** el rango elegido, **cuando** miro la sección, **entonces** veo una dona con un segmento por método (Online, Efectivo, Billetera virtual) y una tabla con pedidos, ingresos y porcentaje del total; la dona coincide con la tabla y muestra el ingreso total en el centro.
 - **Dado** que paso el cursor (o toco) un segmento de la dona, **cuando** se muestra el detalle, **entonces** veo el método, el ingreso, los pedidos y el porcentaje.
 - **Dado** que un método no tiene ventas, **cuando** miro la tabla, **entonces** aparece con ceros.
 
@@ -83,7 +83,7 @@ Se replican los componentes `Card`, `Input` y `Button` del `design-system/`; los
 - **Fecha que agrupa**: la fecha en que entró el dinero, `paid_at` (aprobación de Mercado Pago o cobro de la contraentrega). Así una contraentrega pedida el lunes y entregada el martes cuenta el martes. "Por cobrar" no tiene `paid_at`; se filtra por `created_at`.
 - **Zona horaria**: los días se cortan en `America/Lima`, no en UTC; un pedido de las 21:00 en Lima cuenta ese día, no el siguiente. Las fechas del filtro se interpretan en Lima.
 - **Rango inclusivo**: la fecha final incluye todo ese día hasta las 23:59:59 hora de Lima.
-- **Método de pago de la fila**: `ONLINE` es Online; `CONTRAENTREGA` es Efectivo o Yape según `collection_method`. Es el mismo criterio de la columna Pago de HU-32.
+- **Método de pago de la fila**: `ONLINE` es Online; `CONTRAENTREGA` es Efectivo o Billetera virtual (`YAPE`) según `collection_method`. Es el mismo criterio de la columna Pago de HU-32.
 - **Precisión**: sumas y porcentajes se calculan en el servidor con `NUMERIC`, nunca con decimales binarios; los porcentajes de la tabla suman 100 (el redondeo se ajusta en la mayor fila).
 - **Rendimiento**: las consultas agregan en base de datos, sin traer pedidos al servidor de aplicación; si hace falta, índice sobre `paid_at` para pedidos `PAGADO`.
 - **Datos que cambian**: el reporte se calcula al pedirlo; no se actualiza en tiempo real. Un botón "Actualizar" vuelve a pedirlo.
@@ -104,7 +104,7 @@ Se replican los componentes `Card`, `Input` y `Button` del `design-system/`; los
 
 - **Delivery en ingresos**: los ingresos usan el `total` completo, tal como lo paga el cliente (el descuento ya está restado e incluye `delivery_price`).
 - **Fecha que agrupa**: `paid_at`, porque el reporte controla ingresos de caja; "Por cobrar" se filtra por `created_at`.
-- **Desglose por método**: tres filas (Online, Efectivo, Yape).
+- **Desglose por método**: tres filas (Online, Efectivo, Billetera virtual).
 - **Tarjetas Por cobrar y Reembolsos pendientes**: entran en la primera versión.
 - **Atajos de rango**: Hoy, 7 días, 30 días, Este mes y Personalizado; por defecto, 7 días.
 - **Ranking de platos**: solo pedidos que cuentan como venta (`PAGADO`); los `PENDIENTE_COBRO` no entran.

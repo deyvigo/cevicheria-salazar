@@ -86,7 +86,7 @@ describe('OrderDetailInfo', () => {
       />,
     );
 
-    expect(screen.getByText(/Pagarás con Yape al recibir/)).toBeInTheDocument();
+    expect(screen.getByText(/Pagarás con billetera virtual \(Yape o Plin\) al recibir/)).toBeInTheDocument();
     expect(screen.queryByText(/vuelto/)).not.toBeInTheDocument();
   });
 });

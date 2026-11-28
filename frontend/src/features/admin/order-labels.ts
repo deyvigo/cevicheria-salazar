@@ -24,7 +24,7 @@ export const TYPE_LABELS: Record<DeliveryType, string> = { ENTREGA: 'Entrega', R
 export const PAYMENT_LABELS: Record<PaymentFilter, string> = {
   ONLINE: 'Online',
   EFECTIVO: 'Efectivo',
-  YAPE: 'Yape',
+  YAPE: 'Billetera virtual',
 };
 
 export const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
