@@ -167,6 +167,7 @@ Duración de cada sprint: 3 semanas (lunes a viernes). Historias en [historias.m
 | HU-42 | Aplicar un cupón de descuento en el paso Pago del checkout                           | Usuario | Media     | 3      | ✓     |
 | HU-43 | Gestionar los códigos de descuento desde el panel (usos por persona, cupos, activo) | Usuario | Media     | 3      | ✓     |
 | HU-44 | Ver los pedidos que usaron un cupón (Pedidos filtrado por cupón desde Cupones)     | Usuario | Baja      | 3      | ✓     |
+| HU-45 | Imagen principal (hero) de la página de inicio, con carrusel de fotos              | Usuario | Media     | 3      | ✓     |
 
 ### Eventos Scrum
 
