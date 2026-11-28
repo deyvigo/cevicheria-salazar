@@ -1,7 +1,7 @@
 # Spec: HT-12 — Aplicar la escala tipográfica del design system en toda la web
 
 **Épica**: [E0. Fundamentos del proyecto](../../docs/epicas.md#e0)
-**Estado**: En implementación
+**Estado**: Hecha
 
 ## Objetivo
 
