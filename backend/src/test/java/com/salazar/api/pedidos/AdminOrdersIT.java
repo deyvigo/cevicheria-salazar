@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.web.servlet.MvcResult;
@@ -105,7 +106,7 @@ class AdminOrdersIT extends OrderITSupport {
 
     @Test
     void everyRouteRequiresAnAdministrator() throws Exception {
-        for (String path : List.of(URL, URL + "/zones", URL + "/1", URL + "/events")) {
+        for (String path : List.of(URL, URL + "/zones", URL + "/coupon-summary?coupon=X", URL + "/1", URL + "/events")) {
             mockMvc.perform(get(path)).andExpect(status().isUnauthorized());
             mockMvc.perform(get(path).cookie(buyer.access())).andExpect(status().isForbidden());
         }
@@ -176,6 +177,68 @@ class AdminOrdersIT extends OrderITSupport {
         assertThat(objectMapper.readTree(mockMvc.perform(get(URL + "/zones").cookie(admin.access())).andReturn().getResponse().getContentAsString()))
                 .extracting(JsonNode::asText)
                 .containsExactly("Barranco");
+    }
+
+    // Runs before the base cleanup, so the orders holding a coupon go first
+    @AfterEach
+    void cleanCoupons() {
+        jdbcTemplate.update("DELETE FROM payments");
+        jdbcTemplate.update("DELETE FROM order_items");
+        jdbcTemplate.update("DELETE FROM orders");
+        jdbcTemplate.update("DELETE FROM coupons");
+    }
+
+    private long coupon(String code) {
+        return jdbcTemplate.queryForObject(
+                "INSERT INTO coupons (code, discount_type, discount_value) VALUES (?, 'FIXED', 5) RETURNING id", Long.class, code);
+    }
+
+    private long withCoupon(long orderId, long couponId, String code) {
+        jdbcTemplate.update("UPDATE orders SET coupon_id = ?, coupon_code = ? WHERE id = ?", couponId, code, orderId);
+        return orderId;
+    }
+
+    @Test
+    void filtersByTheCouponTheOrderUsedAndOnlyListsPurchasedOrders() throws Exception {
+        long ceviche = coupon("CEVICHE10");
+        long other = coupon("OTRO");
+        long paid = withCoupon(insert(buyerId, Seed.paid("2026-11-01T10:00:00Z")), ceviche, "CEVICHE10");
+        long delivered =
+                withCoupon(insert(buyerId, Seed.paid("2026-11-02T10:00:00Z").delivery("ENTREGADO")), ceviche, "CEVICHE10");
+        long cash = withCoupon(
+                insert(buyerId, Seed.paid("2026-11-03T10:00:00Z").zone("Barranco").cash("YAPE", null)), ceviche, "CEVICHE10");
+        withCoupon(insert(buyerId, Seed.paid("2026-11-04T10:00:00Z").status("PENDIENTE_PAGO")), ceviche, "CEVICHE10");
+        withCoupon(insert(buyerId, Seed.paid("2026-11-05T10:00:00Z").status("CANCELADO")), ceviche, "CEVICHE10");
+        withCoupon(insert(buyerId, Seed.paid("2026-11-06T10:00:00Z")), other, "OTRO");
+        insert(buyerId, Seed.paid("2026-11-07T10:00:00Z"));
+
+        assertThat(ids(list("?deliveryStatus=ALL&coupon= ceviche10 "))).containsExactly(cash, delivered, paid);
+        assertThat(ids(list("?coupon=CEVICHE10"))).containsExactly(cash, paid);
+        assertThat(ids(list("?deliveryStatus=ALL&coupon=CEVICHE10&type=ENTREGA"))).containsExactly(cash);
+        assertThat(list("?deliveryStatus=ALL&coupon=NADIE").get("totalItems").asInt()).isZero();
+        assertThat(list("?deliveryStatus=ALL&coupon=").get("totalItems").asInt()).isEqualTo(5);
+    }
+
+    @Test
+    void summarizesTheOrdersWithTheCouponThatWereNeverPurchased() throws Exception {
+        long ceviche = coupon("CEVICHE10");
+        long other = coupon("OTRO");
+        withCoupon(insert(buyerId, Seed.paid("2026-11-01T10:00:00Z")), ceviche, "CEVICHE10");
+        withCoupon(insert(buyerId, Seed.paid("2026-11-02T10:00:00Z").status("PENDIENTE_PAGO")), ceviche, "CEVICHE10");
+        withCoupon(insert(buyerId, Seed.paid("2026-11-03T10:00:00Z").status("PENDIENTE_PAGO")), ceviche, "CEVICHE10");
+        withCoupon(insert(buyerId, Seed.paid("2026-11-04T10:00:00Z").status("CANCELADO")), ceviche, "CEVICHE10");
+        withCoupon(insert(buyerId, Seed.paid("2026-11-05T10:00:00Z").status("PENDIENTE_PAGO")), other, "OTRO");
+
+        mockMvc.perform(get(URL + "/coupon-summary?coupon=ceviche10").cookie(admin.access()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.pendingPayment").value(2))
+                .andExpect(jsonPath("$.cancelled").value(1));
+        mockMvc.perform(get(URL + "/coupon-summary?coupon=NADIE").cookie(admin.access()))
+                .andExpect(jsonPath("$.pendingPayment").value(0))
+                .andExpect(jsonPath("$.cancelled").value(0));
+        mockMvc.perform(get(URL + "/coupon-summary").cookie(admin.access()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.pendingPayment").value(0));
     }
 
     @Test

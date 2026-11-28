@@ -1,6 +1,7 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import {
   getAdminOrder,
+  getCouponOrdersSummary,
   listAdminOrders,
   listAdminOrderZones,
   type OrderListParams,
@@ -20,6 +21,15 @@ export function useAdminOrder(id: number | null) {
     queryKey: [...ADMIN_ORDER_DETAIL_KEY, id],
     queryFn: () => getAdminOrder(id!),
     enabled: id !== null,
+  });
+}
+
+// Under the list key so the same live refresh that reloads the table recalculates it
+export function useCouponOrdersSummary(coupon: string) {
+  return useQuery({
+    queryKey: [...ADMIN_ORDERS_LIST_KEY, 'coupon-summary', coupon],
+    queryFn: () => getCouponOrdersSummary(coupon),
+    enabled: coupon !== '',
   });
 }
 

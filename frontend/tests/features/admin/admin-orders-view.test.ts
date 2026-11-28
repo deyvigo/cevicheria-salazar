@@ -111,3 +111,21 @@ describe('toQuery', () => {
     expect(query.zone).toBeUndefined();
   });
 });
+
+describe('filtro por cupón', () => {
+  it('lee el cupón de la URL en mayúsculas y sin espacios, y lo vuelve a escribir', () => {
+    const view = parseView(new URLSearchParams('coupon=%20ceviche10%20&stage=ALL'));
+
+    expect(view.coupon).toBe('CEVICHE10');
+    expect(viewToParams(view).toString()).toBe('stage=ALL&coupon=CEVICHE10');
+  });
+
+  it('cuenta como filtro activo y se envía al servidor', () => {
+    const view = { ...DEFAULT_VIEW, coupon: 'CEVICHE10' };
+
+    expect(hasActiveFilters(view)).toBe(true);
+    expect(toQuery(view).coupon).toBe('CEVICHE10');
+    expect(toQuery(DEFAULT_VIEW).coupon).toBeUndefined();
+  });
+});
+

@@ -169,6 +169,46 @@ describe('AdminOrdersPage', () => {
     expect(await screen.findByText('No hay pedidos activos')).toBeInTheDocument();
   });
 
+  it('filtrado por cupón muestra la pastilla y avisa los pedidos con ese cupón que no se compraron', async () => {
+    const user = userEvent.setup();
+    vi.mocked(orderApi.listAdminOrders).mockResolvedValue(pageOf([preparing]));
+    vi.mocked(orderApi.getCouponOrdersSummary).mockResolvedValue({ pendingPayment: 2, cancelled: 1 });
+    renderPage('/admin/pedidos?coupon=CEVICHE10&stage=ALL');
+
+    expect(await screen.findByText('Cupón: CEVICHE10')).toBeInTheDocument();
+    expect(lastQuery()).toMatchObject({ coupon: 'CEVICHE10', deliveryStatus: 'ALL' });
+    expect(orderApi.getCouponOrdersSummary).toHaveBeenCalledWith('CEVICHE10');
+    expect(
+      await screen.findByText(
+        'Además, 2 pagos en línea pendientes y 1 pago en línea vencido usaron este cupón. No aparecen aquí porque no se compraron.',
+      ),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Quitar el filtro de cupón' }));
+
+    await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent(/^\/admin\/pedidos\?stage=ALL$/));
+    expect(screen.queryByText(/usaron este cupón/)).not.toBeInTheDocument();
+  });
+
+  it('sin pedidos no comprados con el cupón no hay aviso, y sin cupón no se pide el resumen', async () => {
+    vi.mocked(orderApi.listAdminOrders).mockResolvedValue(pageOf([preparing]));
+    vi.mocked(orderApi.getCouponOrdersSummary).mockResolvedValue({ pendingPayment: 0, cancelled: 0 });
+    renderPage('/admin/pedidos?coupon=CEVICHE10');
+
+    await screen.findByText('María Quispe');
+    await waitFor(() => expect(orderApi.getCouponOrdersSummary).toHaveBeenCalled());
+    expect(screen.queryByText(/usaron este cupón|usó este cupón/)).not.toBeInTheDocument();
+  });
+
+  it('sin filtro por cupón no hay pastilla ni resumen', async () => {
+    vi.mocked(orderApi.listAdminOrders).mockResolvedValue(pageOf([preparing]));
+    renderPage();
+
+    await screen.findByText('María Quispe');
+    expect(screen.queryByText(/^Cupón:/)).not.toBeInTheDocument();
+    expect(orderApi.getCouponOrdersSummary).not.toHaveBeenCalled();
+  });
+
   it('solo las columnas con sentido se ordenan; un segundo clic invierte la dirección', async () => {
     const user = userEvent.setup();
     vi.mocked(orderApi.listAdminOrders).mockResolvedValue(pageOf([preparing]));

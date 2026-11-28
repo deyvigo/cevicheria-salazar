@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/button';
+import { CloseIcon } from '@/components/icons/close-icon';
 import { SearchIcon } from '@/components/icons/search-icon';
 import { Input } from '@/components/input';
 import { FilterSelect } from '@/features/admin/components/filter-select';
@@ -162,6 +163,19 @@ export function OrderFilters({ view, zones, onChange, onClear }: OrderFiltersPro
               onChange={(event) => changeDate('to', event.target.value)}
             />
           </>
+        ) : null}
+        {view.coupon ? (
+          <span className="inline-flex min-h-12 items-center gap-2 rounded-full bg-surface-celeste py-1 pr-2 pl-4 text-label text-ink">
+            Cupón: {view.coupon}
+            <button
+              type="button"
+              onClick={() => onChange({ coupon: '' })}
+              aria-label="Quitar el filtro de cupón"
+              className="flex h-8 w-8 items-center justify-center rounded-full text-ink-muted hover:bg-surface hover:text-ink focus-visible:shadow-focus focus-visible:outline-none"
+            >
+              <CloseIcon />
+            </button>
+          </span>
         ) : null}
         {hasActiveFilters(view) ? (
           <Button variant="outline" onClick={onClear}>

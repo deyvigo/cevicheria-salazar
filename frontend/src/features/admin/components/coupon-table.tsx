@@ -1,10 +1,11 @@
 import { useId } from 'react';
+import { Link } from 'react-router-dom';
 import { IconButton } from '@/components/icon-button';
 import { PencilIcon } from '@/components/icons/pencil-icon';
 import { TrashIcon } from '@/components/icons/trash-icon';
 import { Switch } from '@/components/switch';
 import type { AdminCoupon } from '@/features/admin/admin-coupon-api';
-import { formatDiscount, formatPerCustomer, formatSeats, formatValidity } from '@/features/admin/coupon-format';
+import { formatDiscount, formatPerCustomer, formatSeatsTotal, formatValidity } from '@/features/admin/coupon-format';
 
 interface CouponTableProps {
   coupons: AdminCoupon[];
@@ -20,6 +21,26 @@ const CELL = 'px-4 py-3 text-body text-ink align-middle';
 
 function Badge({ children, className }: { children: string; className: string }) {
   return <span className={`rounded-full px-2 py-0.5 text-caption whitespace-nowrap ${className}`}>{children}</span>;
+}
+
+function Seats({ coupon }: { coupon: AdminCoupon }) {
+  const total = formatSeatsTotal(coupon);
+  if (!coupon.hasOrders) return <>{`${coupon.uses} / ${total}`}</>;
+
+  // Delivered orders count as uses, so the default "active" view would hide some of them
+  const params = new URLSearchParams({ coupon: coupon.code, stage: 'ALL' });
+  return (
+    <>
+      <Link
+        to={`/admin/pedidos?${params.toString()}`}
+        aria-label={`Ver pedidos con ${coupon.code}`}
+        className="rounded-md font-bold text-link underline underline-offset-2 focus-visible:shadow-focus focus-visible:outline-none"
+      >
+        {coupon.uses}
+      </Link>
+      {` / ${total}`}
+    </>
+  );
 }
 
 function DeleteAction({ coupon, onDelete }: { coupon: AdminCoupon; onDelete: () => void }) {
@@ -92,7 +113,9 @@ export function CouponTable({ coupons, isActive, isSaving, onToggle, onEdit, onD
               </th>
               <td className={CELL}>{formatDiscount(coupon)}</td>
               <td className={CELL}>{formatPerCustomer(coupon)}</td>
-              <td className={`${CELL} whitespace-nowrap`}>{formatSeats(coupon)}</td>
+              <td className={`${CELL} whitespace-nowrap`}>
+                <Seats coupon={coupon} />
+              </td>
               <td className={`${CELL} text-ink-muted`}>{formatValidity(coupon)}</td>
               <td className={CELL}>
                 <Switch

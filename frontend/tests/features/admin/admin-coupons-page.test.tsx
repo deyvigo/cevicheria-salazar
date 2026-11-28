@@ -1,5 +1,6 @@
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as couponApi from '@/features/admin/admin-coupon-api';
 import { AdminCouponsPage } from '@/features/admin/admin-coupons-page';
@@ -11,7 +12,9 @@ vi.mock('@/features/admin/admin-coupon-api');
 function renderPage() {
   render(
     <QueryWrapper>
-      <AdminCouponsPage />
+      <MemoryRouter>
+        <AdminCouponsPage />
+      </MemoryRouter>
     </QueryWrapper>,
   );
 }

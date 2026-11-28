@@ -1,7 +1,7 @@
 # Spec: HU-43 — Gestionar los códigos de descuento desde el panel
 
 **Épica**: [E6. Panel de administración](../../docs/epicas.md#e6)
-**Estado**: En implementación
+**Estado**: Hecha
 
 ## Objetivo
 
@@ -73,7 +73,7 @@ Administrador con sesión iniciada. Visitante y Cliente no tienen acceso.
 
 ## Fuera de alcance
 
-- Ver qué pedidos o clientes usaron cada cupón.
+- Ver qué pedidos o clientes usaron cada cupón: [HU-44](../hu-44-pedidos-por-cupon/spec.md).
 - Cupones por plato o categoría, de envío gratis, combinables o asignados a un cliente concreto (como en HU-42).
 - Layout para celular, igual que el resto del panel.
 

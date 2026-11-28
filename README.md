@@ -49,7 +49,7 @@ El script:
 1. Levanta Postgres (con PostGIS), Redis y Garage con `docker-compose.dev.yml`.
 2. Genera `backend/.env` la primera vez (`APP_JWT_SECRET` y credenciales de Garage) e inicializa Garage (bucket `platos` e imágenes de ejemplo).
 3. Crea la cuenta de administrador de desarrollo la primera vez y muestra sus credenciales **una sola vez** (quedan en `APP_DEFAULT_ADMIN_EMAIL` y `APP_DEFAULT_ADMIN_PASSWORD` en `backend/.env`).
-4. Arranca backend y frontend y abre `/` en el navegador.
+4. Arranca backend y frontend (`http://localhost:5173/`).
 
 `Ctrl+C` detiene backend y frontend; Postgres, Redis y Garage siguen corriendo. Para bajarlos:
 

@@ -18,6 +18,7 @@ import {
   type OrdersView,
 } from '@/features/admin/admin-orders-view';
 import { OrderDetailDialog } from '@/features/admin/components/order-detail-dialog';
+import { CouponOrdersNotice } from '@/features/admin/components/coupon-orders-notice';
 import { OrderFilters } from '@/features/admin/components/order-filters';
 import { OrderTable } from '@/features/admin/components/order-table';
 import { useAdminOrders, useAdminOrderZones } from '@/features/admin/use-admin-orders';
@@ -183,6 +184,8 @@ export function AdminOrdersPage() {
         onChange={change}
         onClear={() => navigate({ ...DEFAULT_VIEW, sort: view.sort, dir: view.dir })}
       />
+
+      {view.coupon ? <CouponOrdersNotice coupon={view.coupon} /> : null}
 
       {!connected ? (
         <div role="status" className="flex flex-wrap items-center gap-3">

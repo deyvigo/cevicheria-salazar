@@ -126,7 +126,6 @@ if [ "$LAN" = true ]; then
   echo "==> Iniciando el frontend en 0.0.0.0 (pnpm dev --host)..."
   VITE_API_URL="http://$LAN_IP:8080/api" pnpm dev --host 0.0.0.0
 else
-  ( sleep 3 && open "http://localhost:5173/" ) &
-  echo "==> Iniciando el frontend (pnpm dev)..."
+  echo "==> Iniciando el frontend en http://localhost:5173/ (pnpm dev)..."
   pnpm dev
 fi

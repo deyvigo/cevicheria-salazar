@@ -10,7 +10,6 @@ Duración de cada sprint: 3 semanas (lunes a viernes). Historias en [historias.m
 | Sprint 1 | 28/09/2026 | 16/10/2026 | Catálogo de productos y carrito de compras                  |
 | Sprint 2 | 19/10/2026 | 06/11/2026 | Perfil del cliente: direcciones de entrega                  |
 | Sprint 3 | 09/11/2026 | 27/11/2026 | Confirmación del pedido y gestión de pedidos del panel     |
-| Sprint 4 | 30/11/2026 | 18/12/2026 | Gestión de cupones del panel                                |
 
 ---
 
@@ -166,6 +165,8 @@ Duración de cada sprint: 3 semanas (lunes a viernes). Historias en [historias.m
 | HU-41 | Dejar reseñas (calificación y comentario) en los platos entregados y leerlas en el detalle del plato | Usuario | Media     | 2      | ✓     |
 | HU-34 | Ver el reporte de ventas en el panel (por día y por método de pago, con platos más vendidos y filtros) | Usuario | Baja      | 2      | ✓     |
 | HU-42 | Aplicar un cupón de descuento en el paso Pago del checkout                           | Usuario | Media     | 3      | ✓     |
+| HU-43 | Gestionar los códigos de descuento desde el panel (usos por persona, cupos, activo) | Usuario | Media     | 3      | ✓     |
+| HU-44 | Ver los pedidos que usaron un cupón (Pedidos filtrado por cupón desde Cupones)     | Usuario | Baja      | 3      | ✓     |
 
 ### Eventos Scrum
 
@@ -175,24 +176,3 @@ Duración de cada sprint: 3 semanas (lunes a viernes). Historias en [historias.m
 | Daily Scrum          | Diario, 15 minutos |
 | Sprint Review        | 27/11/2026         |
 | Sprint Retrospective | 27/11/2026         |
-
----
-
-## Sprint 4 (30/11/2026 – 18/12/2026)
-
-**Objetivo del sprint:** que el Administrador gestione los códigos de descuento desde el panel (crear, editar, activar o desactivar y eliminar, con usos por persona y cupos), sin tocar la base de datos. El resto del backlog del sprint se define en su Sprint Planning.
-
-### Elementos del backlog incluidos
-
-| ID    | Elemento                                                                             | Tipo    | Prioridad | Semana | Hecho |
-| ----- | ------------------------------------------------------------------------------------ | ------- | --------- | ------ | ----- |
-| HU-43 | Gestionar los códigos de descuento desde el panel (usos por persona, cupos, activo) | Usuario | Media     | 1      | ✓     |
-
-### Eventos Scrum
-
-| Evento               | Fecha              |
-| -------------------- | ------------------ |
-| Sprint Planning      | 30/11/2026         |
-| Daily Scrum          | Diario, 15 minutos |
-| Sprint Review        | 18/12/2026         |
-| Sprint Retrospective | 18/12/2026         |

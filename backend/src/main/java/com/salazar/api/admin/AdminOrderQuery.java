@@ -62,6 +62,14 @@ class AdminOrderQuery {
         return em.createQuery(query).getSingleResult();
     }
 
+    // Orders holding the coupon that the purchased-only list never shows
+    long countWithCoupon(String coupon, OrderStatus status) {
+        return em.createQuery("select count(o) from Order o where o.couponCode = :coupon and o.status = :status", Long.class)
+                .setParameter("coupon", coupon)
+                .setParameter("status", status)
+                .getSingleResult();
+    }
+
     List<String> zoneNames() {
         return em.createQuery(
                         "select distinct o.deliveryZoneName from Order o where o.deliveryZoneName is not null"
@@ -101,6 +109,7 @@ class AdminOrderQuery {
         if (filter.type() != null) list.add(cb.equal(order.get("deliveryType"), filter.type()));
         if (filter.paymentStatus() != null) list.add(cb.equal(order.get("status"), filter.paymentStatus()));
         if (filter.zone() != null) list.add(cb.equal(order.get("deliveryZoneName"), filter.zone()));
+        if (filter.coupon() != null) list.add(cb.equal(order.get("couponCode"), filter.coupon()));
         if (filter.payment() != null) {
             list.add(switch (filter.payment()) {
                 case ONLINE -> cb.equal(order.get("paymentMethod"), PaymentMethod.ONLINE);
