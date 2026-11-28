@@ -79,6 +79,31 @@ public class Coupon {
         this.active = true;
     }
 
+    public void update(
+            String code,
+            DiscountType discountType,
+            BigDecimal discountValue,
+            BigDecimal minSubtotal,
+            Instant startsAt,
+            Instant endsAt,
+            Integer maxUses,
+            Integer maxUsesPerCustomer,
+            boolean active) {
+        this.code = code;
+        this.discountType = discountType;
+        this.discountValue = discountValue;
+        this.minSubtotal = minSubtotal;
+        this.startsAt = startsAt;
+        this.endsAt = endsAt;
+        this.maxUses = maxUses;
+        this.maxUsesPerCustomer = maxUsesPerCustomer;
+        this.active = active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
     @PrePersist
     void onCreate() {
         Instant now = Instant.now();

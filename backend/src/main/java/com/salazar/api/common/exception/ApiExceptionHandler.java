@@ -86,6 +86,18 @@ public class ApiExceptionHandler {
                 .body(ApiError.of(HttpStatus.NOT_FOUND.value(), "No encontrado", ex.getMessage()));
     }
 
+    @ExceptionHandler(CouponNotFoundException.class)
+    public ResponseEntity<ApiError> handleCouponNotFound(CouponNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiError.of(HttpStatus.NOT_FOUND.value(), "No encontrado", ex.getMessage()));
+    }
+
+    @ExceptionHandler(CouponInUseException.class)
+    public ResponseEntity<ApiError> handleCouponInUse(CouponInUseException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ApiError.of(HttpStatus.CONFLICT.value(), "Conflicto", ex.getMessage()));
+    }
+
     @ExceptionHandler(DeliveryZoneNotFoundException.class)
     public ResponseEntity<ApiError> handleDeliveryZoneNotFound(DeliveryZoneNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
