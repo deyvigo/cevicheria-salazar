@@ -54,8 +54,11 @@ export function Header() {
   return (
     <header className="grid grid-cols-[1fr_minmax(0,32rem)_1fr] items-center gap-6 border-b border-border bg-surface px-6 py-3">
       <div className="flex items-center gap-4 justify-self-start">
-        <Link to="/" className="font-display text-ink text-title-md">
-          Salazar SAC
+        <Link
+          to="/"
+          className="flex-none rounded-md focus-visible:shadow-focus focus-visible:outline-none"
+        >
+          <img src="/logo-header.png" alt="Salazar SAC" className="-my-1 size-14 object-contain" />
         </Link>
         <Link
           to="/menu"
