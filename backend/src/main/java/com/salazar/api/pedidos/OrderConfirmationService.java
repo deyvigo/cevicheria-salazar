@@ -94,7 +94,7 @@ public class OrderConfirmationService {
         }
         String when = pickup ? "al recoger" : "al recibir";
         if (order.getCollectionMethod() == CollectionMethod.YAPE) {
-            return "Contraentrega: pagarás con Yape " + when + " tu pedido";
+            return "Contraentrega: pagarás con billetera virtual (Yape o Plin) " + when + " tu pedido";
         }
         if (order.getCashAmount() != null) {
             return "Contraentrega: pagarás con " + price(order.getCashAmount()) + " en efectivo (vuelto "
