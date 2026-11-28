@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -102,7 +102,7 @@ describe('MyOrdersPage', () => {
     renderPage('/perfil/mis-pedidos?page=9');
 
     expect(await screen.findByText('Plato 9')).toBeInTheDocument();
-    expect(screen.getByTestId('search')).toHaveTextContent('?page=2');
+    await waitFor(() => expect(screen.getByTestId('search')).toHaveTextContent('?page=2'));
   });
 
   it('una página inválida en la URL se trata como la primera', async () => {

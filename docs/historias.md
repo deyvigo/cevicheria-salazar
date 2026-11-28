@@ -49,6 +49,7 @@ Historias técnicas (HT): trabajo necesario para el proyecto que no entrega valo
 | HU-11 | Como cliente, quiero ver las promociones o platos destacados para aprovechar ofertas.                                                      | Baja      |
 | HU-41 | Como cliente, quiero dejar una reseña (calificación y comentario) en los platos que ya compré, y leer las reseñas de otros clientes al final del detalle del plato, para compartir mi opinión y decidir mejor qué pedir. | Media     |
 | HU-45 | Como visitante, quiero ver al entrar a la tienda una imagen principal con la propuesta del restaurante y un acceso directo a la carta, para saber dónde estoy y empezar a pedir. | Media     |
+| HU-46 | Como visitante, quiero ver en la página de inicio los platos más vendidos en una grilla destacada, y agregarlos al carrito desde ahí, para decidir rápido qué pedir. | Media     |
 
 <a id="e3"></a>
 

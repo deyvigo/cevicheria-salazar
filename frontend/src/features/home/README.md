@@ -1,4 +1,7 @@
-Página de inicio (`/`). Por ahora solo el hero (HU-45): fotos de ceviche en carrusel con el título y el enlace a la carta fijos encima.
+Página de inicio (`/`):
+
+- **Hero** (HU-45): fotos de ceviche en carrusel con el título y el enlace a la carta fijos encima.
+- **Los favoritos de la casa** (HU-46): bento de 5 platos de `GET /api/products/featured`. Primero los más vendidos de los últimos 30 días (solo pedidos pagados, como Reportes) (con la etiqueta "Más vendido"); las casillas que faltan se completan con los mejor calificados y luego los más recientes. Solo entran platos que se pueden pedir, y la sección no se muestra si hay menos de 3.
 
 ## Fotos del hero
 

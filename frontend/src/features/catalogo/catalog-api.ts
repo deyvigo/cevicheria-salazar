@@ -57,6 +57,16 @@ export async function getProducts(params: {
   return data;
 }
 
+export interface FeaturedProduct extends Product {
+  // Featured for its sales; the other slots are filled with the best rated and the newest dishes
+  bestSeller: boolean;
+}
+
+export async function getFeaturedProducts(): Promise<FeaturedProduct[]> {
+  const { data } = await api.get<FeaturedProduct[]>('/products/featured');
+  return data;
+}
+
 export async function getProduct(id: number): Promise<ProductDetail> {
   const { data } = await api.get<ProductDetail>(`/products/${id}`);
   return data;

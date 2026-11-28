@@ -2,16 +2,22 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import * as catalogApi from '@/features/catalogo/catalog-api';
 import { HomePage } from '@/features/home/home-page';
+import { QueryWrapper } from '@tests/utils/query-wrapper';
+
+vi.mock('@/features/catalogo/catalog-api');
 
 function renderHome() {
   const { container } = render(
-    <MemoryRouter initialEntries={['/']}>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/menu" element={<p>Carta</p>} />
-      </Routes>
-    </MemoryRouter>,
+    <QueryWrapper>
+      <MemoryRouter initialEntries={['/']}>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/menu" element={<p>Carta</p>} />
+        </Routes>
+      </MemoryRouter>
+    </QueryWrapper>,
   );
   return container;
 }
@@ -22,6 +28,7 @@ function activePhoto(container: HTMLElement) {
 
 describe('HomePage', () => {
   beforeEach(() => {
+    vi.mocked(catalogApi.getFeaturedProducts).mockResolvedValue([]);
     vi.stubGlobal('matchMedia', () => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() }));
   });
 

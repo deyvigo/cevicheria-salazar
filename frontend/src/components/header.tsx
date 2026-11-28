@@ -6,6 +6,7 @@ import { SearchBox } from '@/components/search-box';
 import { useAuth } from '@/context/auth-context';
 import { CartLink } from '@/features/carrito/components/cart-link';
 import { useLogout } from '@/features/auth/use-auth-mutations';
+import { NOTICE_POSITION } from '@/components/notice-position';
 
 export function Header() {
   const { user, isLoading } = useAuth();
@@ -140,7 +141,7 @@ export function Header() {
       </div>
 
       {logoutError ? (
-        <div className="fixed right-6 bottom-6">
+        <div className={NOTICE_POSITION}>
           <Notification
             variant="error"
             title="No pudimos cerrar tu sesión"

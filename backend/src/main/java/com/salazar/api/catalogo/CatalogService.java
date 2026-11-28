@@ -1,12 +1,21 @@
 package com.salazar.api.catalogo;
 
 import com.salazar.api.catalogo.dto.CategoryResponse;
+import com.salazar.api.catalogo.dto.FeaturedProductResponse;
 import com.salazar.api.catalogo.dto.PageResponse;
 import com.salazar.api.catalogo.dto.ProductDetailResponse;
 import com.salazar.api.catalogo.dto.ProductResponse;
 import com.salazar.api.common.exception.ProductNotFoundException;
 import com.salazar.api.common.exception.TooManyIdsException;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.data.domain.Page;
@@ -20,6 +29,9 @@ import org.springframework.transaction.annotation.Transactional;
 @EnableConfigurationProperties(CatalogProperties.class)
 public class CatalogService {
     static final int MAX_IDS_PER_LOOKUP = 100;
+    static final int FEATURED_SLOTS = 5;
+    static final int FEATURED_MIN = 3;
+    static final Duration BEST_SELLER_WINDOW = Duration.ofDays(30);
 
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
@@ -83,6 +95,30 @@ public class CatalogService {
         return productRepository.findAllByIdInAndActiveTrueAndDeletedAtIsNullOrderByIdAsc(distinct).stream()
                 .map(this::toResponse)
                 .toList();
+    }
+
+    // Best sellers first; empty slots go to the best rated, then the newest, so the grid is always complete
+    @Transactional(readOnly = true)
+    public List<FeaturedProductResponse> featured() {
+        if (productRepository.countOrderable() < FEATURED_MIN) return List.of();
+
+        List<Long> bestSellerIds =
+                productRepository.findBestSellerIds(Instant.now().minus(BEST_SELLER_WINDOW), FEATURED_SLOTS);
+        Map<Long, Product> bestSellers = productRepository.findAllById(bestSellerIds).stream()
+                .collect(Collectors.toMap(Product::getId, Function.identity()));
+
+        List<FeaturedProductResponse> result = new ArrayList<>();
+        Set<Long> taken = new HashSet<>();
+        for (Long id : bestSellerIds) {
+            result.add(FeaturedProductResponse.of(toResponse(bestSellers.get(id)), true));
+            taken.add(id);
+        }
+        // Twice the slots is enough: at most FEATURED_SLOTS of them can already be taken
+        for (Product product : productRepository.findOrderableByRating(PageRequest.of(0, FEATURED_SLOTS * 2))) {
+            if (result.size() == FEATURED_SLOTS) break;
+            if (taken.add(product.getId())) result.add(FeaturedProductResponse.of(toResponse(product), false));
+        }
+        return result;
     }
 
     private Specification<Product> filter(String categorySlug, String query) {

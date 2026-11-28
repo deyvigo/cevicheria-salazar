@@ -18,6 +18,7 @@ import { useCreateOrder, createOrderErrorMessage } from '@/features/checkout/use
 import { couponErrorMessage, isCouponRejection, useCouponQuote } from '@/features/checkout/use-coupon-quote';
 import { useDeliveryCost } from '@/features/checkout/use-delivery-cost';
 import { formatPrice } from '@/features/catalogo/format';
+import { NOTICE_POSITION } from '@/components/notice-position';
 
 export function PaymentStepPage() {
   const { user } = useAuth();
@@ -191,7 +192,7 @@ export function PaymentStepPage() {
         </aside>
       </div>
       {couponNotice && !errorMessage ? (
-        <div className="fixed right-6 bottom-6 z-50">
+        <div className={NOTICE_POSITION}>
           <Notification
             variant="error"
             title="Cupón quitado"
@@ -201,7 +202,7 @@ export function PaymentStepPage() {
         </div>
       ) : null}
       {errorMessage ? (
-        <div className="fixed right-6 bottom-6 z-50">
+        <div className={NOTICE_POSITION}>
           <Notification
             variant="error"
             title={isCash ? 'No pudimos confirmar el pedido' : 'No pudimos iniciar el pago'}

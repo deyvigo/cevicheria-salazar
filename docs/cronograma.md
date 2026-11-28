@@ -168,6 +168,7 @@ Duración de cada sprint: 3 semanas (lunes a viernes). Historias en [historias.m
 | HU-43 | Gestionar los códigos de descuento desde el panel (usos por persona, cupos, activo) | Usuario | Media     | 3      | ✓     |
 | HU-44 | Ver los pedidos que usaron un cupón (Pedidos filtrado por cupón desde Cupones)     | Usuario | Baja      | 3      | ✓     |
 | HU-45 | Imagen principal (hero) de la página de inicio, con carrusel de fotos              | Usuario | Media     | 3      | ✓     |
+| HU-46 | Platos más vendidos en la página de inicio (bento con relleno)                    | Usuario | Media     | 3      | ✓     |
 
 ### Eventos Scrum
 

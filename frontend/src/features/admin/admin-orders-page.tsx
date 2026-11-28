@@ -26,6 +26,7 @@ import { OrderCodeDialog } from '@/features/admin/components/order-code-dialog';
 import { OrderReasonDialog } from '@/features/admin/components/order-reason-dialog';
 import type { OrderAction } from '@/features/admin/order-actions';
 import { useChangeOrderStatus, useRefundOrder } from '@/features/admin/use-change-order-status';
+import { NOTICE_POSITION } from '@/components/notice-position';
 
 const REFRESH_DELAY_MS = 300;
 
@@ -282,7 +283,7 @@ export function AdminOrdersPage() {
       />
 
       {notice ? (
-        <div className="fixed right-6 bottom-6 z-50">
+        <div className={NOTICE_POSITION}>
           <Notification variant={notice.variant} title={notice.title} onClose={() => setNotice(null)} />
         </div>
       ) : null}

@@ -1,6 +1,7 @@
 package com.salazar.api.catalogo;
 
 import com.salazar.api.catalogo.dto.CategoryResponse;
+import com.salazar.api.catalogo.dto.FeaturedProductResponse;
 import com.salazar.api.catalogo.dto.PageResponse;
 import com.salazar.api.catalogo.dto.ProductDetailResponse;
 import com.salazar.api.catalogo.dto.ProductResponse;
@@ -35,6 +36,11 @@ public class CatalogController {
     @GetMapping(value = "/products", params = "ids")
     public List<ProductResponse> productsByIds(@RequestParam List<Long> ids) {
         return catalogService.getProductsByIds(ids);
+    }
+
+    @GetMapping("/products/featured")
+    public List<FeaturedProductResponse> featured() {
+        return catalogService.featured();
     }
 
     @GetMapping("/products/{id}")

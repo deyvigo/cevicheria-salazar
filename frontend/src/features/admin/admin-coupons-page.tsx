@@ -7,6 +7,7 @@ import { CouponTable } from '@/features/admin/components/coupon-table';
 import { DeleteCouponDialog } from '@/features/admin/components/delete-coupon-dialog';
 import { useSetCouponActive } from '@/features/admin/use-admin-coupon-mutations';
 import { useAdminCoupons } from '@/features/admin/use-admin-coupons';
+import { NOTICE_POSITION } from '@/components/notice-position';
 
 export function AdminCouponsPage() {
   const { data, isPending, isError, refetch } = useAdminCoupons();
@@ -91,12 +92,12 @@ export function AdminCouponsPage() {
       <DeleteCouponDialog coupon={deleting} onClose={() => setDeleting(null)} onDeleted={removed} />
 
       {errorNotice ? (
-        <div className="fixed right-6 bottom-6 z-50">
+        <div className={NOTICE_POSITION}>
           <Notification variant="error" title={errorNotice} onClose={() => setErrorNotice(null)} />
         </div>
       ) : null}
       {notice ? (
-        <div className="fixed right-6 bottom-6 z-50">
+        <div className={NOTICE_POSITION}>
           <Notification variant="success" title={notice} onClose={() => setNotice(null)} />
         </div>
       ) : null}

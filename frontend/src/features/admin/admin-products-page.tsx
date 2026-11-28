@@ -16,6 +16,7 @@ import { SORT_FIELDS, ProductTable, type ToggleField } from '@/features/admin/co
 import { DeleteProductDialog } from '@/features/admin/components/delete-product-dialog';
 import { useUpdateProduct } from '@/features/admin/use-admin-product-mutations';
 import { useAdminProducts } from '@/features/admin/use-admin-products';
+import { NOTICE_POSITION } from '@/components/notice-position';
 
 function pageFrom(params: URLSearchParams): number {
   const page = Number(params.get('page'));
@@ -172,13 +173,13 @@ export function AdminProductsPage() {
       <DeleteProductDialog product={deleting} onClose={() => setDeleting(null)} onDeleted={removed} />
 
       {errorNotice ? (
-        <div className="fixed right-6 bottom-6 z-50">
+        <div className={NOTICE_POSITION}>
           <Notification variant="error" title={errorNotice} onClose={() => setErrorNotice(null)} />
         </div>
       ) : null}
 
       {notice ? (
-        <div className="fixed right-6 bottom-6 z-50">
+        <div className={NOTICE_POSITION}>
           <Notification variant="success" title={notice} onClose={() => setNotice(null)} />
         </div>
       ) : null}

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Notification } from '@/components/notification';
 import { useCartStore } from '@/features/carrito/cart-store';
+import { NOTICE_POSITION } from '@/components/notice-position';
 
 export function CartNotice() {
   const lastAdded = useCartStore((state) => state.lastAdded);
@@ -12,7 +13,7 @@ export function CartNotice() {
 
   if (!event || dismissedAt === event.at) return null;
   return (
-    <div className="fixed right-6 bottom-6">
+    <div className={NOTICE_POSITION}>
       <Notification
         variant="success"
         title={
