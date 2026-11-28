@@ -12,7 +12,7 @@ Que un Cliente con sesión iniciada ingrese un código de descuento (cupón) dur
 - La columna `orders.discount` existe desde HU-19 y hoy siempre vale `0`. El resumen del pedido (HU-14) ya muestra la fila **Descuento** en `S/ 0.00` (constante `DISCOUNT` en `order-summary.ts`).
 - El panel de pedidos (HU-32/HU-33), el historial y el detalle del cliente (HU-25, HU-40) y el reporte de ventas (HU-34) ya muestran o suman `discount`: no necesitan cambios de lógica, solo empezarán a ver valores distintos de cero.
 - El backend recalcula todos los importes al crear el pedido (HU-17, HU-19, HU-20); el descuento también se calcula en el servidor y nunca se recibe del cliente.
-- **No existen** cupones en el backend: esta historia crea su modelo de datos. Crear, editar y desactivar cupones desde el panel es una **historia posterior del panel de administración** (E6), fuera de esta.
+- **No existen** cupones en el backend: esta historia crea su modelo de datos. Crear, editar y desactivar cupones desde el panel es [HU-43](../hu-43-gestion-cupones/spec.md) (E6), fuera de esta.
 
 ## Actor(es)
 
@@ -73,7 +73,7 @@ El descuento se aplica solo al **subtotal de los platos**, nunca al delivery, y 
 
 ## Fuera de alcance
 
-- Crear, editar, desactivar y ver el uso de los cupones desde el panel (historia posterior de E6).
+- Crear, editar, desactivar y ver el uso de los cupones desde el panel: [HU-43](../hu-43-gestion-cupones/spec.md).
 - Promociones automáticas sin código y platos destacados (HU-11).
 - Cupones por plato o categoría, de envío gratis, combinables, o asignados a un cliente concreto.
 - Aplicar el cupón en la pantalla del carrito (`/cart`) o en el mini carrito (HU-39).
