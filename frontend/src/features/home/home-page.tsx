@@ -1,3 +1,9 @@
+import { HomeHero } from '@/features/home/components/home-hero';
+
 export function HomePage() {
-  return <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-6" />;
+  return (
+    <main className="flex w-full flex-1 flex-col">
+      <HomeHero />
+    </main>
+  );
 }
