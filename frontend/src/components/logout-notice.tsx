@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Notification } from '@/components/notification';
+import { NOTICE_POSITION } from '@/components/notice-position';
 
 export function LogoutNotice() {
   const location = useLocation();
@@ -20,7 +21,7 @@ export function LogoutNotice() {
 
   if (!visible) return null;
   return (
-    <div className="fixed right-6 bottom-6">
+    <div className={NOTICE_POSITION}>
       <Notification variant="success" title="Cerraste sesión" onClose={() => setVisible(false)} />
     </div>
   );

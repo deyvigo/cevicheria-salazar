@@ -5,6 +5,7 @@ import { Notification } from '@/components/notification';
 import { useAuth } from '@/context/auth-context';
 import { ChangePasswordDialog } from '@/features/perfil/components/change-password-dialog';
 import { EditProfileDialog } from '@/features/perfil/components/edit-profile-dialog';
+import { NOTICE_POSITION } from '@/components/notice-position';
 
 type OpenDialog = 'profile' | 'password' | null;
 
@@ -74,7 +75,7 @@ export function MyInformationPage() {
       />
 
       {notice ? (
-        <div className="fixed right-6 bottom-6 z-50">
+        <div className={NOTICE_POSITION}>
           <Notification variant="success" title={notice} onClose={() => setNotice(null)} />
         </div>
       ) : null}

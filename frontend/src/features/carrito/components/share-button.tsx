@@ -3,6 +3,7 @@ import { Button } from '@/components/button';
 import { Input } from '@/components/input';
 import { Notification } from '@/components/notification';
 import { buildShareUrl, type CartItem } from '@/features/carrito/share-code';
+import { NOTICE_POSITION } from '@/components/notice-position';
 
 type Outcome = { kind: 'copied' } | { kind: 'manual'; url: string } | { kind: 'too-long' } | null;
 
@@ -38,7 +39,7 @@ export function ShareButton({ items }: { items: CartItem[] }) {
         <Input ref={inputRef} id="share-link" label="Copia el enlace de tu carrito" readOnly value={outcome.url} />
       ) : null}
       {outcome?.kind === 'copied' || outcome?.kind === 'too-long' ? (
-        <div className="fixed right-6 bottom-6">
+        <div className={NOTICE_POSITION}>
           <Notification
             variant={outcome.kind === 'copied' ? 'success' : 'error'}
             title={

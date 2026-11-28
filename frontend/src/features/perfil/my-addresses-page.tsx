@@ -7,6 +7,7 @@ import { AddressDialog } from '@/features/perfil/components/address-dialog';
 import { DeleteAddressDialog } from '@/features/perfil/components/delete-address-dialog';
 import { useInvalidateAddresses } from '@/features/perfil/use-address-mutations';
 import { useAddresses } from '@/features/perfil/use-addresses';
+import { NOTICE_POSITION } from '@/components/notice-position';
 
 const MAX_ADDRESSES = 10;
 const FADE_OUT_MS = 250;
@@ -105,7 +106,7 @@ export function MyAddressesPage() {
       />
 
       {notice ? (
-        <div className="fixed right-6 bottom-6 z-50">
+        <div className={NOTICE_POSITION}>
           <Notification variant="success" title={notice} onClose={() => setNotice(null)} />
         </div>
       ) : null}

@@ -15,6 +15,7 @@ import { GoogleLoginButton } from './components/google-login-button';
 import { passwordSchema } from './password-schema';
 import { rememberReturnPath, returnPathFromState } from './return-path';
 import { useRegister } from './use-auth-mutations';
+import { NOTICE_POSITION } from '@/components/notice-position';
 
 const registerSchema = z
   .object({
@@ -115,7 +116,7 @@ export function RegisterPage() {
       </form>
 
       {registered ? (
-        <div className="fixed right-6 bottom-6">
+        <div className={NOTICE_POSITION}>
           <Notification variant="success" title="Tu cuenta fue creada" message="Ya puedes empezar a pedir." />
         </div>
       ) : null}

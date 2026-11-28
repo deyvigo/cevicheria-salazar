@@ -5,6 +5,7 @@ import { ADMIN_ACCOUNT_SECTION, ADMIN_SECTIONS } from '@/features/admin/admin-se
 import { useNewOrders } from '@/features/admin/admin-orders-live';
 import { useAdminSession } from '@/features/admin/admin-session';
 import { PERSON_ICON_PATHS } from '@/features/perfil/components/person-icon';
+import { NOTICE_POSITION } from '@/components/notice-position';
 
 const ITEM_CLASSES =
   'flex min-h-12 w-full items-center gap-3 rounded-md text-left text-body focus-visible:shadow-focus focus-visible:outline-none';
@@ -157,7 +158,7 @@ export function AdminNav() {
         </button>
       </aside>
       {signOutError ? (
-        <div className="fixed right-6 bottom-6">
+        <div className={NOTICE_POSITION}>
           <Notification
             variant="error"
             title="No pudimos cerrar tu sesión"

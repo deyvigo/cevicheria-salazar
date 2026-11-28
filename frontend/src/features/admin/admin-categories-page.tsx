@@ -9,6 +9,7 @@ import { CategoryDialog } from '@/features/admin/components/category-dialog';
 import { CategoryTable } from '@/features/admin/components/category-table';
 import { DeleteCategoryDialog } from '@/features/admin/components/delete-category-dialog';
 import { useAdminCategories } from '@/features/admin/use-admin-categories';
+import { NOTICE_POSITION } from '@/components/notice-position';
 
 function pageFrom(params: URLSearchParams): number {
   const page = Number(params.get('page'));
@@ -111,7 +112,7 @@ export function AdminCategoriesPage() {
       <DeleteCategoryDialog category={deleting} onClose={() => setDeleting(null)} onDeleted={removed} />
 
       {notice ? (
-        <div className="fixed right-6 bottom-6 z-50">
+        <div className={NOTICE_POSITION}>
           <Notification variant="success" title={notice} onClose={() => setNotice(null)} />
         </div>
       ) : null}

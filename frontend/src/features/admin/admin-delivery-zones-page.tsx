@@ -10,6 +10,7 @@ import { useAdminDeliveryZones } from '@/features/admin/use-admin-delivery-zones
 import { DEFAULT_ZONE_COLOR, type ZoneColorId } from '@/features/admin/zone-colors';
 import type { ZonePoint } from '@/features/admin/zone-geometry';
 import { MapErrorBoundary } from '@/features/perfil/components/map-error-boundary';
+import { NOTICE_POSITION } from '@/components/notice-position';
 
 const ZoneMap = lazy(() => import('@/features/admin/components/zone-map').then((module) => ({ default: module.ZoneMap })));
 
@@ -153,7 +154,7 @@ export function AdminDeliveryZonesPage() {
       <DeleteZoneDialog zone={deleting} onClose={() => setDeleting(null)} onDeleted={removed} />
 
       {notice ? (
-        <div className="fixed right-6 bottom-6 z-50">
+        <div className={NOTICE_POSITION}>
           <Notification variant="success" title={notice} onClose={() => setNotice(null)} />
         </div>
       ) : null}

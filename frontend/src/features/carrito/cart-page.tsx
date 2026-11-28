@@ -12,6 +12,7 @@ import { useCartDetails } from '@/features/carrito/use-cart-details';
 import { takeScroll } from '@/features/catalogo/scroll-memory';
 import { useCheckoutStore } from '@/features/checkout/checkout-store';
 import { CheckoutStepper } from '@/features/checkout/components/checkout-stepper';
+import { NOTICE_POSITION } from '@/components/notice-position';
 
 type SharedNotice = 'loaded' | 'invalid' | null;
 
@@ -75,7 +76,7 @@ export function CartPage() {
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-8">
       {sharedNotice ? (
-        <div className="fixed right-6 bottom-6">
+        <div className={NOTICE_POSITION}>
           <Notification
             variant={sharedNotice === 'loaded' ? 'success' : 'error'}
             title={
