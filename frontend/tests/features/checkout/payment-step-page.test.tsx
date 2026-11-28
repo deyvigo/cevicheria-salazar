@@ -89,7 +89,7 @@ describe('PaymentStepPage', () => {
     await waitFor(() => expect(within(nav).getAllByRole('listitem')).toHaveLength(4));
     expect(within(nav).getAllByRole('listitem')[2]).toHaveAttribute('aria-current', 'step');
     expect(within(nav).getAllByRole('listitem')[2]).toHaveTextContent('Pago');
-    expect(screen.getByRole('radio', { name: 'Pago en línea' })).not.toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Mercado Pago' })).not.toBeChecked();
     expect(screen.getByRole('radio', { name: 'Contraentrega' })).not.toBeChecked();
   });
 
@@ -106,12 +106,12 @@ describe('PaymentStepPage', () => {
     const user = userEvent.setup();
     renderPage();
 
-    await user.click(await screen.findByRole('radio', { name: 'Pago en línea' }));
+    await user.click(await screen.findByRole('radio', { name: 'Mercado Pago' }));
     expect(useCheckoutStore.getState().paymentMethod).toBe('online');
     await user.click(screen.getByRole('radio', { name: 'Contraentrega' }));
 
     expect(useCheckoutStore.getState().paymentMethod).toBe('cash_on_delivery');
-    expect(screen.getByRole('radio', { name: 'Pago en línea' })).not.toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Mercado Pago' })).not.toBeChecked();
   });
 
   it('con Entrega muestra la tarifa vigente, el total la incluye y no muestra la dirección', async () => {
@@ -155,7 +155,7 @@ describe('PaymentStepPage', () => {
     const created = { orderId: 42, checkoutUrl: 'https://pay.example.com/checkout?pref=42' };
 
     async function chooseOnline(user: ReturnType<typeof userEvent.setup>) {
-      await user.click(await screen.findByRole('radio', { name: 'Pago en línea' }));
+      await user.click(await screen.findByRole('radio', { name: 'Mercado Pago' }));
     }
 
     it('con Pago en línea el botón dice "Pagar" con el total y queda habilitado', async () => {
@@ -299,7 +299,7 @@ describe('PaymentStepPage', () => {
       await user.click(screen.getByRole('radio', { name: 'Efectivo' }));
       await user.type(screen.getByLabelText(/¿Con cuánto pagarás\?/), '100');
 
-      await user.click(screen.getByRole('radio', { name: 'Pago en línea' }));
+      await user.click(screen.getByRole('radio', { name: 'Mercado Pago' }));
       expect(screen.queryByText('Detalle del pago contraentrega')).not.toBeInTheDocument();
       await user.click(screen.getByRole('radio', { name: 'Contraentrega' }));
 
@@ -507,7 +507,7 @@ describe('PaymentStepPage', () => {
       vi.mocked(checkoutApi.createOrder).mockResolvedValue({ orderId: 7, checkoutUrl: 'https://pay.example.com' });
       const user = userEvent.setup();
       renderPage();
-      await user.click(await screen.findByRole('radio', { name: 'Pago en línea' }));
+      await user.click(await screen.findByRole('radio', { name: 'Mercado Pago' }));
       await applyCoupon(user);
 
       await user.click(await screen.findByRole('button', { name: 'Pagar S/ 62.50' }));
@@ -538,7 +538,7 @@ describe('PaymentStepPage', () => {
       vi.mocked(checkoutApi.createOrder).mockRejectedValue(rejection('EXHAUSTED', 'Ya no puedes usar este código.'));
       const user = userEvent.setup();
       renderPage();
-      await user.click(await screen.findByRole('radio', { name: 'Pago en línea' }));
+      await user.click(await screen.findByRole('radio', { name: 'Mercado Pago' }));
       await applyCoupon(user);
 
       await user.click(await screen.findByRole('button', { name: 'Pagar S/ 62.50' }));
