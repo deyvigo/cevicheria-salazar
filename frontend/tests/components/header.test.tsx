@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -72,6 +72,7 @@ describe('Header', () => {
     const logo = screen.getByRole('link', { name: 'Salazar SAC' });
     const menu = screen.getByRole('link', { name: 'Carta' });
     expect(logo).toHaveAttribute('href', '/');
+    expect(within(logo).getByRole('img', { name: 'Salazar SAC' })).toHaveAttribute('src', '/logo-header.png');
     expect(menu).toHaveAttribute('href', '/menu');
     expect(logo.compareDocumentPosition(menu) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
