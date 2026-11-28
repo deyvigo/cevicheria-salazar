@@ -18,8 +18,8 @@ export function formatPerCustomer(coupon: Pick<AdminCoupon, 'maxUsesPerCustomer'
   return coupon.maxUsesPerCustomer === null ? UNLIMITED : String(coupon.maxUsesPerCustomer);
 }
 
-export function formatSeats(coupon: Pick<AdminCoupon, 'uses' | 'maxUses'>): string {
-  return `${coupon.uses} / ${coupon.maxUses ?? UNLIMITED}`;
+export function formatSeatsTotal(coupon: Pick<AdminCoupon, 'maxUses'>): string {
+  return coupon.maxUses === null ? UNLIMITED : String(coupon.maxUses);
 }
 
 export function formatValidity(coupon: Pick<AdminCoupon, 'startsOn' | 'endsOn'>): string {

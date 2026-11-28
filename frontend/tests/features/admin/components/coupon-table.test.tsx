@@ -1,5 +1,6 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import type { AdminCoupon } from '@/features/admin/admin-coupon-api';
 import { CouponTable } from '@/features/admin/components/coupon-table';
@@ -14,12 +15,20 @@ function renderTable(coupons: AdminCoupon[], handlers: Partial<Parameters<typeof
     onDelete: vi.fn(),
     ...handlers,
   };
-  render(<CouponTable coupons={coupons} {...props} />);
+  render(
+    <MemoryRouter>
+      <CouponTable coupons={coupons} {...props} />
+    </MemoryRouter>,
+  );
   return props;
 }
 
 function row(code: string) {
   return screen.getByRole('rowheader', { name: new RegExp(code) }).closest('tr') as HTMLElement;
+}
+
+function seats(code: string) {
+  return within(row(code)).getAllByRole('cell')[2];
 }
 
 describe('CouponTable', () => {
@@ -42,13 +51,13 @@ describe('CouponTable', () => {
     const percentage = within(row('CEVICHE10'));
     expect(percentage.getByText('10 %')).toBeInTheDocument();
     expect(percentage.getByText('1')).toBeInTheDocument();
-    expect(percentage.getByText('12 / 50')).toBeInTheDocument();
+    expect(seats('CEVICHE10')).toHaveTextContent(/^12 \/ 50$/);
     expect(percentage.getByText('Siempre')).toBeInTheDocument();
 
     const fixed = within(row('BIENVENIDA5'));
     expect(fixed.getByText('S/ 5.00')).toBeInTheDocument();
     expect(fixed.getByText('Sin límite')).toBeInTheDocument();
-    expect(fixed.getByText('0 / Sin límite')).toBeInTheDocument();
+    expect(seats('BIENVENIDA5')).toHaveTextContent(/^0 \/ Sin límite$/);
     expect(fixed.getByText(/^1 dic\.? 2026 – 31 dic\.? 2026$/)).toBeInTheDocument();
   });
 
@@ -101,5 +110,20 @@ describe('CouponTable', () => {
 
     expect(onDelete).toHaveBeenCalledWith(expect.objectContaining({ code: 'NUEVO' }));
     expect(onEdit).toHaveBeenCalledWith(expect.objectContaining({ code: 'USADO' }));
+  });
+
+  it('los usos llevan a Pedidos filtrado por el cupón y con todos los estados de entrega', () => {
+    renderTable([
+      couponOf({ id: 1, code: 'CEVICHE10', uses: 12, hasOrders: true }),
+      couponOf({ id: 2, code: 'VENCIDOS', uses: 0, hasOrders: true }),
+      couponOf({ id: 3, code: 'NUEVO', uses: 0, hasOrders: false }),
+    ]);
+
+    expect(screen.getByRole('link', { name: 'Ver pedidos con CEVICHE10' })).toHaveAttribute(
+      'href',
+      '/admin/pedidos?coupon=CEVICHE10&stage=ALL',
+    );
+    expect(screen.getByRole('link', { name: 'Ver pedidos con VENCIDOS' })).toHaveTextContent('0');
+    expect(within(row('NUEVO')).queryByRole('link')).not.toBeInTheDocument();
   });
 });

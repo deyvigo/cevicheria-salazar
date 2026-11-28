@@ -37,6 +37,7 @@ export interface OrdersView {
   payment: PaymentFilter | '';
   paymentStatus: PaymentStatus | '';
   zone: string;
+  coupon: string;
   range: RangePreset;
   from: string;
   to: string;
@@ -52,6 +53,7 @@ export const DEFAULT_VIEW: OrdersView = {
   payment: '',
   paymentStatus: '',
   zone: '',
+  coupon: '',
   range: 'all',
   from: '',
   to: '',
@@ -77,6 +79,7 @@ export function parseView(params: URLSearchParams): OrdersView {
     payment: oneOf(params.get('payment'), ['', 'ONLINE', 'EFECTIVO', 'YAPE'] as const, ''),
     paymentStatus: oneOf(params.get('paymentStatus'), ['', 'PAGADO', 'PENDIENTE_COBRO'] as const, ''),
     zone: params.get('zone') ?? '',
+    coupon: params.get('coupon')?.trim().toUpperCase() ?? '',
     range,
     from: date('from'),
     to: date('to'),
@@ -105,6 +108,7 @@ export function hasActiveFilters(view: OrdersView): boolean {
     view.payment !== '' ||
     view.paymentStatus !== '' ||
     view.zone !== '' ||
+    view.coupon !== '' ||
     view.range !== 'all'
   );
 }
@@ -135,6 +139,7 @@ export function toQuery(view: OrdersView, now = new Date()): OrderListParams {
     payment: view.payment || undefined,
     paymentStatus: view.paymentStatus || undefined,
     zone: view.zone || undefined,
+    coupon: view.coupon || undefined,
     ...dateRange(view, now),
   };
 }

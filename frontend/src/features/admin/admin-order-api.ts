@@ -60,12 +60,23 @@ export interface OrderListParams {
   paymentStatus?: PaymentStatus;
   refund?: RefundStatus;
   zone?: string;
+  coupon?: string;
   from?: string;
   to?: string;
 }
 
 export async function listAdminOrders(params: OrderListParams): Promise<Page<AdminOrderRow>> {
   const { data } = await api.get<Page<AdminOrderRow>>('/admin/orders', { params });
+  return data;
+}
+
+export interface CouponOrdersSummary {
+  pendingPayment: number;
+  cancelled: number;
+}
+
+export async function getCouponOrdersSummary(coupon: string): Promise<CouponOrdersSummary> {
+  const { data } = await api.get<CouponOrdersSummary>('/admin/orders/coupon-summary', { params: { coupon } });
   return data;
 }
 
