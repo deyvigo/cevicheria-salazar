@@ -133,7 +133,7 @@ describe('AdminProductsPage', () => {
 
     await screen.findByRole('table');
 
-    expect(screen.getByTestId('location')).toHaveTextContent('/admin/platos?page=2');
+    await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent('/admin/platos?page=2'));
   });
 
   it('buscar escribe ?q= y quita la página; sin resultados lo dice', async () => {
