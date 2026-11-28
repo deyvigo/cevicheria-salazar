@@ -56,6 +56,10 @@ describe('AdminNav', () => {
     expect(screen.getByRole('link', { name: 'Categorías' })).toHaveAttribute('href', '/admin/categorias');
     expect(screen.getByRole('link', { name: 'Pedidos' })).toHaveAttribute('href', '/admin/pedidos');
     expect(screen.getByRole('link', { name: 'Reportes' })).toHaveAttribute('href', '/admin/reportes');
+    const coupons = screen.getByRole('link', { name: 'Cupones' });
+    expect(coupons).toHaveAttribute('href', '/admin/cupones');
+    expect(screen.getByRole('link', { name: 'Pedidos' }).compareDocumentPosition(coupons) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(coupons.compareDocumentPosition(screen.getByRole('link', { name: 'Reportes' })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByRole('link', { name: 'Mi información' })).toHaveAttribute('href', '/admin/mi-informacion');
     const links = screen.getAllByRole('link');
     expect(links[links.length - 1]).toHaveAccessibleName('Mi información');
