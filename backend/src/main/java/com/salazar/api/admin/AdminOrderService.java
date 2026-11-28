@@ -1,5 +1,6 @@
 package com.salazar.api.admin;
 
+import com.salazar.api.admin.dto.AdminCouponOrdersSummary;
 import com.salazar.api.admin.dto.AdminOrderDetail;
 import com.salazar.api.admin.dto.AdminOrderRow;
 import com.salazar.api.auth.User;
@@ -11,6 +12,7 @@ import com.salazar.api.pedidos.DeliveryStatus;
 import com.salazar.api.pedidos.Order;
 import com.salazar.api.pedidos.OrderChangedEvent;
 import com.salazar.api.pedidos.OrderLifecycleService;
+import com.salazar.api.pedidos.OrderStatus;
 import com.salazar.api.pedidos.OrderRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -69,6 +71,13 @@ public class AdminOrderService {
     private AdminOrderRow row(Order order) {
         User customer = userRepository.findById(order.getUserId()).orElseThrow(OrderNotFoundException::new);
         return AdminOrderRow.from(order, name(customer));
+    }
+
+    @Transactional(readOnly = true)
+    public AdminCouponOrdersSummary couponSummary(String coupon) {
+        if (coupon == null) return new AdminCouponOrdersSummary(0, 0);
+        return new AdminCouponOrdersSummary(
+                query.countWithCoupon(coupon, OrderStatus.PENDIENTE_PAGO), query.countWithCoupon(coupon, OrderStatus.CANCELADO));
     }
 
     @Transactional(readOnly = true)

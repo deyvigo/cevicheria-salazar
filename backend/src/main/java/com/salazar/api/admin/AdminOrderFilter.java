@@ -13,6 +13,7 @@ public record AdminOrderFilter(
         OrderStatus paymentStatus,
         RefundStatus refund,
         String zone,
+        String coupon,
         String query,
         LocalDate from,
         LocalDate to) {
