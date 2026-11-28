@@ -25,8 +25,8 @@ Al elegir **Contraentrega** en el paso Pago se despliega, debajo de las opciones
 ### Campos
 
 - **Cómo pagarás** (obligatorio): selector de una opción entre:
-  - **Efectivo**
-  - **Yape** (billetera digital)
+  - **Efectivo**, con un ícono de billete.
+  - **Billetera virtual**, con un ícono de billetera y, a la derecha, las billeteras aceptadas: el logo de **Yape** (`public/payments/yape.png`, ícono de la app tomado de Wikimedia Commons) y el de **Plin** (`public/payments/plin.png`, ícono de la app publicado en plin.pe). Se guarda con el mismo valor `YAPE` de siempre: el pedido registra "billetera", no cuál de las dos.
   Sin selección por defecto.
 - **¿Con cuánto pagarás?** (opcional): monto en soles, solo visible con **Efectivo**. Si se llena, debe ser mayor o igual al total del pedido; se muestra el **vuelto** calculado (`Vuelto: S/ 15.00`). Si se deja vacío, se entiende que paga con el monto exacto o que el repartidor verá el vuelto en el momento.
 
@@ -113,7 +113,7 @@ Con **Contraentrega** elegida, el botón principal pasa a **Confirmar pedido** y
 
 ## Decisiones de clarificación
 
-- **Medios de cobro**: solo **Efectivo** y **Yape** (billetera). No se ofrece POS ni otras billeteras.
+- **Medios de cobro**: solo **Efectivo** y **Billetera virtual** (Yape o Plin, guardada como `YAPE`). No se ofrece POS.
 - **Estado del pedido contraentrega**: nuevo estado `PENDIENTE_COBRO` ("confirmado, se paga al recibir"), distinto de `PAGADO` y sin vencimiento; pasa a `PAGADO` cuando el administrador marca la entrega (E6).
 - **Monto menor al total**: error; no se puede confirmar.
 - **Monto máximo**: `S/ 10,000.00`, solo como defensa contra valores absurdos, no como regla de negocio.

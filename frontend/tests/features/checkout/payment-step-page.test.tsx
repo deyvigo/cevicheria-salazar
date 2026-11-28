@@ -288,7 +288,7 @@ describe('PaymentStepPage', () => {
 
       expect(screen.getByText('Detalle del pago contraentrega')).toBeInTheDocument();
       expect(screen.getByRole('radio', { name: 'Efectivo' })).not.toBeChecked();
-      expect(screen.getByRole('radio', { name: 'Yape' })).not.toBeChecked();
+      expect(screen.getByRole('radio', { name: 'Billetera virtual' })).not.toBeChecked();
       expect(await screen.findByRole('button', { name: 'Confirmar pedido S/ 68.50' })).toBeDisabled();
     });
 
@@ -311,7 +311,7 @@ describe('PaymentStepPage', () => {
       const user = userEvent.setup();
       renderPage();
       await chooseCash(user);
-      await user.click(screen.getByRole('radio', { name: 'Yape' }));
+      await user.click(screen.getByRole('radio', { name: 'Billetera virtual' }));
 
       expect(screen.queryByLabelText(/¿Con cuánto pagarás\?/)).not.toBeInTheDocument();
       expect(await screen.findByRole('button', { name: 'Confirmar pedido S/ 68.50' })).toBeEnabled();
@@ -375,7 +375,7 @@ describe('PaymentStepPage', () => {
       await chooseCash(user);
       await user.click(screen.getByRole('radio', { name: 'Efectivo' }));
       await user.type(screen.getByLabelText(/¿Con cuánto pagarás\?/), '100');
-      await user.click(screen.getByRole('radio', { name: 'Yape' }));
+      await user.click(screen.getByRole('radio', { name: 'Billetera virtual' }));
 
       await user.click(await screen.findByRole('button', { name: 'Confirmar pedido S/ 60.00' }));
 
@@ -405,7 +405,7 @@ describe('PaymentStepPage', () => {
       const user = userEvent.setup();
       renderPage();
       await chooseCash(user);
-      await user.click(screen.getByRole('radio', { name: 'Yape' }));
+      await user.click(screen.getByRole('radio', { name: 'Billetera virtual' }));
       const button = await screen.findByRole('button', { name: 'Confirmar pedido S/ 68.50' });
 
       await user.click(button);
@@ -426,7 +426,7 @@ describe('PaymentStepPage', () => {
       const user = userEvent.setup();
       renderPage();
       await chooseCash(user);
-      await user.click(screen.getByRole('radio', { name: 'Yape' }));
+      await user.click(screen.getByRole('radio', { name: 'Billetera virtual' }));
 
       await user.click(await screen.findByRole('button', { name: 'Confirmar pedido S/ 68.50' }));
 
@@ -441,7 +441,7 @@ describe('PaymentStepPage', () => {
       const user = userEvent.setup();
       renderPage();
       await chooseCash(user);
-      await user.click(screen.getByRole('radio', { name: 'Yape' }));
+      await user.click(screen.getByRole('radio', { name: 'Billetera virtual' }));
 
       await user.click(await screen.findByRole('button', { name: 'Confirmar pedido S/ 68.50' }));
 
