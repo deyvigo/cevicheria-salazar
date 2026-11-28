@@ -13,7 +13,7 @@ import { useOrder } from '@/features/checkout/use-order';
 export const ORDER_WAIT_LIMIT_MS = 2 * 60 * 1000;
 
 const linkClass =
-  'text-base font-bold text-ink underline focus-visible:shadow-focus focus-visible:outline-none';
+  'text-button text-ink underline focus-visible:shadow-focus focus-visible:outline-none';
 
 export function OrderResultPage() {
   const { user } = useAuth();
@@ -39,7 +39,7 @@ export function OrderResultPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-8">
-      <h1 className="font-display text-[32px] leading-10 font-semibold text-ink">Tu pedido</h1>
+      <h1 className="font-display text-title-lg text-ink">Tu pedido</h1>
       <CheckoutStepper currentStep="done" isAuthenticated />
       <Body id={id} order={order} waitedTooLong={waitedTooLong} email={user?.email ?? null} />
     </main>
@@ -73,7 +73,7 @@ function Body({
   if (order.isError) {
     return (
       <div role="alert" className="flex flex-col items-start gap-4">
-        <p className="text-base text-ink-muted">No pudimos cargar tu pedido.</p>
+        <p className="text-body text-ink-muted">No pudimos cargar tu pedido.</p>
         <Button variant="secondary" onClick={() => void order.refetch()}>
           Reintentar
         </Button>
@@ -123,8 +123,8 @@ function Message({
 }) {
   return (
     <div role="status" aria-busy={busy} className="flex flex-col items-start gap-3">
-      <h2 className="font-display text-[24px] leading-8 font-semibold text-ink">{title}</h2>
-      {text ? <p className="text-base text-ink-muted">{text}</p> : null}
+      <h2 className="font-display text-title-md text-ink">{title}</h2>
+      {text ? <p className="text-body text-ink-muted">{text}</p> : null}
       {children}
     </div>
   );

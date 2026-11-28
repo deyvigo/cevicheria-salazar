@@ -4,7 +4,7 @@ interface PasswordRequirementsProps {
 
 export function PasswordRequirements({ differentFromCurrent = false }: PasswordRequirementsProps) {
   return (
-    <div className="text-sm text-ink-muted">
+    <div className="text-body-sm text-ink-muted">
       <p>La contraseña debe cumplir:</p>
       <ul className="mt-1 list-disc pl-5">
         <li>Tener al menos 8 caracteres y como máximo 72.</li>

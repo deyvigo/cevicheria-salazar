@@ -52,7 +52,7 @@ export function MyAddressesPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="font-display text-ink text-[32px] leading-[40px] font-semibold">Mis direcciones</h1>
+        <h1 className="font-display text-ink text-title-lg">Mis direcciones</h1>
         {addresses && addresses.length > 0 ? (
           <Button onClick={() => openForm()} disabled={full}>
             Agregar dirección
@@ -61,16 +61,16 @@ export function MyAddressesPage() {
       </div>
 
       {full ? (
-        <p role="status" className="text-base text-ink-muted">
+        <p role="status" className="text-body text-ink-muted">
           Alcanzaste el máximo de {MAX_ADDRESSES} direcciones. Elimina una para agregar otra.
         </p>
       ) : null}
 
-      {isPending ? <p className="text-base text-ink-muted">Cargando tus direcciones...</p> : null}
+      {isPending ? <p className="text-body text-ink-muted">Cargando tus direcciones...</p> : null}
 
       {isError ? (
         <div role="alert" className="flex flex-col items-start gap-3">
-          <p className="text-base font-bold text-error-text">No pudimos cargar tus direcciones.</p>
+          <p className="text-body font-bold text-error-text">No pudimos cargar tus direcciones.</p>
           <Button variant="outline" onClick={() => refetch()}>
             Reintentar
           </Button>
@@ -79,7 +79,7 @@ export function MyAddressesPage() {
 
       {addresses && addresses.length === 0 ? (
         <div className="flex flex-col items-start gap-4">
-          <p className="text-base text-ink-muted">Aún no tienes direcciones guardadas</p>
+          <p className="text-body text-ink-muted">Aún no tienes direcciones guardadas</p>
           <Button onClick={() => openForm()}>Agregar dirección</Button>
         </div>
       ) : null}

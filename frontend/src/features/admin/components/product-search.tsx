@@ -25,7 +25,7 @@ export function ProductSearch({ initialValue, onSearch }: ProductSearchProps) {
         maxLength={MAX_LENGTH}
         placeholder="Buscar platos"
         aria-label="Buscar platos"
-        className="h-12 w-full rounded-md border border-border-strong pr-12 pl-4 text-base text-ink placeholder:text-ink-subtle focus:border-focus-ring focus:outline-none"
+        className="h-12 w-full rounded-md border border-border-strong pr-12 pl-4 text-body text-ink placeholder:text-ink-subtle focus:border-focus-ring focus:outline-none"
       />
       <button
         type="submit"

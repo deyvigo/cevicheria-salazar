@@ -27,7 +27,7 @@ export function CartNotice() {
           lastAdded ? (
             <Link
               to="/cart"
-              className="text-sm font-bold text-ink underline focus-visible:shadow-focus focus-visible:outline-none"
+              className="text-label text-ink underline focus-visible:shadow-focus focus-visible:outline-none"
             >
               Ver carrito
             </Link>

@@ -23,8 +23,8 @@ interface OrderTableProps {
   onAction: (order: AdminOrderRow, action: OrderAction) => void;
 }
 
-const HEADER = 'px-4 py-3 text-left text-base font-bold text-ink whitespace-nowrap';
-const CELL = 'px-4 py-3 text-base text-ink align-middle';
+const HEADER = 'px-4 py-3 text-left text-label text-ink whitespace-nowrap';
+const CELL = 'px-4 py-3 text-body text-ink align-middle';
 
 function SortHeader({
   field,
@@ -93,7 +93,7 @@ export function OrderTable({ orders, sort, dir, busyId, newOrderIds, onSort, onO
                   className={`${CELL} text-left ${isNew ? 'border-l-8 border-l-naranja-500' : 'border-l-8 border-l-transparent'}`}
                 >
                   {isNew ? (
-                    <span className="mb-1 block w-fit rounded-full bg-naranja-500 px-2 py-0.5 text-xs font-bold text-ink">
+                    <span className="mb-1 block w-fit rounded-full bg-naranja-500 px-2 py-0.5 text-caption text-ink">
                       Nuevo
                     </span>
                   ) : null}
@@ -113,7 +113,7 @@ export function OrderTable({ orders, sort, dir, busyId, newOrderIds, onSort, onO
                 <td className={CELL}>
                   {PAYMENT_LABELS[paymentOf(order)]}
                   {order.cashChange !== null ? (
-                    <span className="block text-sm text-ink-muted">Vuelto {formatPrice(order.cashChange)}</span>
+                    <span className="block text-body-sm text-ink-muted">Vuelto {formatPrice(order.cashChange)}</span>
                   ) : null}
                 </td>
                 <td className={CELL}>{PAYMENT_STATUS_LABELS[order.paymentStatus]}</td>
@@ -121,7 +121,7 @@ export function OrderTable({ orders, sort, dir, busyId, newOrderIds, onSort, onO
                 <td className={CELL}>
                   <OrderStatusBadge status={order.deliveryStatus} />
                   {order.refundStatus === 'PENDIENTE' ? (
-                    <span className="mt-1 block text-sm font-bold text-error-text">Reembolso pendiente</span>
+                    <span className="mt-1 block text-body-sm font-bold text-error-text">Reembolso pendiente</span>
                   ) : null}
                 </td>
                 <td className={CELL}>

@@ -60,13 +60,13 @@ export function DeliveryStepPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-8">
-      <h1 className="font-display text-[32px] leading-10 font-semibold text-ink">Entrega</h1>
+      <h1 className="font-display text-title-lg text-ink">Entrega</h1>
       <CheckoutStepper currentStep="delivery" isAuthenticated={user !== null && !startedAsVisitor} />
       <div className="grid items-start gap-6 md:grid-cols-[1fr_20rem]">
         <div className="flex flex-col gap-4">
           <DeliveryTypeSelector value={deliveryType} onChange={setDeliveryType} />
           {isDelivery ? (
-            <h2 className="font-display text-[24px] leading-8 font-semibold text-ink">Mis direcciones</h2>
+            <h2 className="font-display text-title-md text-ink">Mis direcciones</h2>
           ) : null}
           {isDelivery ? (
             <AddressOptionList
@@ -81,14 +81,14 @@ export function DeliveryStepPage() {
           ) : null}
           {hasSelection && cost.isError ? (
             <div role="alert" className="flex flex-col items-start gap-3">
-              <p className="text-base text-ink-muted">No pudimos calcular el costo de delivery.</p>
+              <p className="text-body text-ink-muted">No pudimos calcular el costo de delivery.</p>
               <Button variant="secondary" onClick={() => void cost.refetch()}>
                 Reintentar
               </Button>
             </div>
           ) : null}
           {notCovered ? <CoverageNotice /> : null}
-          <h2 className="font-display text-[24px] leading-8 font-semibold text-ink">Contacto</h2>
+          <h2 className="font-display text-title-md text-ink">Contacto</h2>
           <Input
             label="Número de contacto"
             name="contactPhone"
@@ -110,7 +110,7 @@ export function DeliveryStepPage() {
               </Button>
               <Link
                 to="/cart"
-                className="text-center text-base font-bold text-ink underline focus-visible:shadow-focus focus-visible:outline-none"
+                className="text-center text-button text-ink underline focus-visible:shadow-focus focus-visible:outline-none"
               >
                 Volver al carrito
               </Link>

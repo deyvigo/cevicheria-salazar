@@ -43,17 +43,17 @@ export function ForgotPasswordPage() {
   return (
     <AuthShell imageSide="left" branded>
       <div className="flex w-full max-w-[340px] flex-col gap-5">
-        <h1 className="font-display text-[26px] leading-8 font-semibold text-ink">Recupera tu contraseña</h1>
+        <h1 className="font-display text-title-lg text-ink">Recupera tu contraseña</h1>
 
         {confirmation ? (
           <Notification variant="success" title="Revisa tu correo" message={confirmation} />
         ) : (
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5" noValidate>
-            <p className="text-sm text-ink-muted">
+            <p className="text-body-sm text-ink-muted">
               Ingresa el correo de tu cuenta y te enviaremos un enlace para crear una nueva contraseña.
             </p>
 
-            {errors.root ? <p className="text-sm font-bold text-error-text">{errors.root.message}</p> : null}
+            {errors.root ? <p className="text-body-sm font-bold text-error-text">{errors.root.message}</p> : null}
 
             <Input
               label="Correo"
@@ -69,7 +69,7 @@ export function ForgotPasswordPage() {
           </form>
         )}
 
-        <p className="text-center text-sm text-ink-muted">
+        <p className="text-center text-body-sm text-ink-muted">
           <Link to="/iniciar-sesion" className={LINK_CLASSES}>
             Volver a iniciar sesión
           </Link>

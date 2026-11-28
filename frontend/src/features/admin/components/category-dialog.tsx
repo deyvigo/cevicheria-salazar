@@ -93,7 +93,7 @@ export function CategoryDialog({ open, category, onClose, onSaved }: CategoryDia
     <Dialog open={open} title={category ? 'Editar categoría' : 'Agregar categoría'} onClose={onClose}>
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5" noValidate>
         {errors.root ? (
-          <p role="alert" className="text-sm font-bold text-error-text">
+          <p role="alert" className="text-body-sm font-bold text-error-text">
             {errors.root.message}
           </p>
         ) : null}

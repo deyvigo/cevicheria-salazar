@@ -42,7 +42,7 @@ export function ProductPurchase({
   return (
     <div className="flex flex-col gap-2">
       {inCart && atLimit ? (
-        <p aria-live="polite" className="text-sm text-ink-muted">
+        <p aria-live="polite" className="text-body-sm text-ink-muted">
           Ya tienes todo el stock disponible en tu carrito
         </p>
       ) : null}

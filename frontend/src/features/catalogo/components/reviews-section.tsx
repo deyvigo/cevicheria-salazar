@@ -45,11 +45,11 @@ export function ReviewsSection({ productId, rating, reviewCount }: ReviewsSectio
     <section aria-labelledby="reviews-heading" className="mt-12 flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-          <h2 id="reviews-heading" className="font-display text-2xl font-semibold text-ink">
+          <h2 id="reviews-heading" className="font-display text-title-md text-ink">
             Reseñas
           </h2>
           {rating !== null ? (
-            <span className="flex items-center gap-1 text-base text-ink-muted">
+            <span className="flex items-center gap-1 text-body text-ink-muted">
               <StarIcon className="h-5 w-5" />
               <span>
                 {rating.toFixed(1)}
@@ -67,7 +67,7 @@ export function ReviewsSection({ productId, rating, reviewCount }: ReviewsSectio
           <Link
             to="/iniciar-sesion"
             state={{ from: location.pathname }}
-            className="text-base font-bold text-ink underline focus-visible:shadow-focus focus-visible:outline-none"
+            className="text-button text-ink underline focus-visible:shadow-focus focus-visible:outline-none"
           >
             Inicia sesión para dejar tu reseña
           </Link>
@@ -78,7 +78,7 @@ export function ReviewsSection({ productId, rating, reviewCount }: ReviewsSectio
 
       {review ? (
         <Card className="flex flex-col gap-3">
-          <h3 className="text-base font-bold text-ink">Tu reseña</h3>
+          <h3 className="text-body font-bold text-ink">Tu reseña</h3>
           <ul>
             <ReviewItem review={review} />
           </ul>
@@ -102,11 +102,11 @@ export function ReviewsSection({ productId, rating, reviewCount }: ReviewsSectio
       <Dialog open={confirming} title="Eliminar reseña" onClose={() => setConfirming(false)}>
         <div className="flex flex-col gap-5">
           {remove.isError ? (
-            <p role="alert" className="text-sm font-bold text-error-text">
+            <p role="alert" className="text-body-sm font-bold text-error-text">
               No pudimos eliminar tu reseña, intenta de nuevo.
             </p>
           ) : null}
-          <p className="text-base text-ink">¿Quieres eliminar tu reseña? Esta acción no se puede deshacer.</p>
+          <p className="text-body text-ink">¿Quieres eliminar tu reseña? Esta acción no se puede deshacer.</p>
           <div className="flex justify-end gap-3">
             <Button type="button" variant="outline" onClick={() => setConfirming(false)}>
               Volver

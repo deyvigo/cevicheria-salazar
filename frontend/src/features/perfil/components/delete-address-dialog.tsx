@@ -31,11 +31,11 @@ export function DeleteAddressDialog({ address, onClose, onDeleted }: DeleteAddre
     <Dialog open={address !== null} title="Eliminar dirección" onClose={close}>
       <div className="flex flex-col gap-5">
         {deleteAddress.isError ? (
-          <p role="alert" className="text-sm font-bold text-error-text">
+          <p role="alert" className="text-body-sm font-bold text-error-text">
             No pudimos eliminar la dirección, intenta de nuevo.
           </p>
         ) : null}
-        <p className="text-base text-ink">
+        <p className="text-body text-ink">
           ¿Quieres eliminar <strong>{address?.label}</strong> ({address?.address})?
         </p>
         <div className="flex justify-end gap-3">

@@ -15,7 +15,7 @@ import { useCreateProduct, useUpdateProduct } from '@/features/admin/use-admin-p
 import { useCategories } from '@/features/catalogo/use-catalog-queries';
 import type { ApiErrorResponse } from '@/lib/api';
 
-const FIELD = 'w-full rounded-md border px-4 text-base text-ink focus:outline-none';
+const FIELD = 'w-full rounded-md border px-4 text-body text-ink focus:outline-none';
 
 const productSchema = z.object({
   name: z.string().trim().min(1, 'El nombre es obligatorio.').max(150, 'Usa 150 caracteres como máximo.'),
@@ -136,13 +136,13 @@ export function ProductDialog({ open, product, onClose, onSaved }: ProductDialog
     <Dialog open={open} wide title={product ? 'Editar plato' : 'Agregar plato'} onClose={onClose}>
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5" noValidate>
         {errors.root ? (
-          <p role="alert" className="text-sm font-bold text-error-text">
+          <p role="alert" className="text-body-sm font-bold text-error-text">
             {errors.root.message}
           </p>
         ) : null}
         <Input fullWidth label="Nombre" error={errors.name?.message} {...register('name')} />
         <div className="flex flex-col gap-2">
-          <label htmlFor="description" className="text-sm font-bold text-ink">
+          <label htmlFor="description" className="text-label text-ink">
             Descripción
           </label>
           <textarea
@@ -152,10 +152,10 @@ export function ProductDialog({ open, product, onClose, onSaved }: ProductDialog
             className={`${FIELD} py-3 ${errors.description ? 'border-coral-800' : 'border-border-strong focus:border-focus-ring'}`}
             {...register('description')}
           />
-          {errors.description ? <p className="text-sm font-bold text-error-text">{errors.description.message}</p> : null}
+          {errors.description ? <p className="text-body-sm font-bold text-error-text">{errors.description.message}</p> : null}
         </div>
         <div className="flex flex-col gap-2">
-          <label htmlFor="categoryId" className="text-sm font-bold text-ink">
+          <label htmlFor="categoryId" className="text-label text-ink">
             Categoría
           </label>
           <div className="relative">
@@ -174,9 +174,9 @@ export function ProductDialog({ open, product, onClose, onSaved }: ProductDialog
             </select>
             <ChevronDownIcon className="pointer-events-none absolute top-1/2 right-4 h-5 w-5 -translate-y-1/2 text-ink-muted" />
           </div>
-          {errors.categoryId ? <p className="text-sm font-bold text-error-text">{errors.categoryId.message}</p> : null}
+          {errors.categoryId ? <p className="text-body-sm font-bold text-error-text">{errors.categoryId.message}</p> : null}
           {noCategories ? (
-            <p className="text-sm text-ink-muted">
+            <p className="text-body-sm text-ink-muted">
               Aún no hay categorías. <Link to="/admin/categorias" className="font-bold underline">Crea una primero</Link>.
             </p>
           ) : null}
@@ -189,7 +189,7 @@ export function ProductDialog({ open, product, onClose, onSaved }: ProductDialog
         <div className="grid grid-cols-2 gap-5">
           {(['active', 'available'] as const).map((field) => (
             <div key={field} className="flex items-center justify-between gap-3 rounded-md border border-border p-3">
-              <span className="text-base font-bold text-ink">{field === 'active' ? 'Activo' : 'Disponible'}</span>
+              <span className="text-body font-bold text-ink">{field === 'active' ? 'Activo' : 'Disponible'}</span>
               <Controller
                 control={control}
                 name={field}

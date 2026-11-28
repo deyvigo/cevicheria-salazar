@@ -39,7 +39,7 @@ export function CashOnDeliveryForm({
 
   return (
     <section aria-labelledby="cod-title" className="flex flex-col gap-4">
-      <h3 id="cod-title" className="font-display text-[20px] leading-7 font-semibold text-ink">
+      <h3 id="cod-title" className="font-display text-title-sm text-ink">
         {pickup ? 'Detalle del pago al recoger' : 'Detalle del pago contraentrega'}
       </h3>
       <div role="radiogroup" aria-label="Cómo pagarás" className="flex flex-col gap-3">
@@ -63,8 +63,8 @@ export function CashOnDeliveryForm({
                 selected ? 'border-action ring-2 ring-action' : 'hover:border-ink/60'
               }`}
             >
-              <p className="font-display text-ink text-[18px] leading-6 font-semibold">{option.title}</p>
-              <p className="text-base text-ink-muted">{option.description}</p>
+              <p className="font-display text-ink text-title-sm">{option.title}</p>
+              <p className="text-body text-ink-muted">{option.description}</p>
             </Card>
           );
         })}
@@ -83,7 +83,7 @@ export function CashOnDeliveryForm({
             error={touched || cashAmount !== '' ? (error ?? undefined) : undefined}
             hint="Si lo dejas vacío, pagas con el monto exacto o el repartidor verá el vuelto."
           />
-          {change !== null ? <p className="text-base font-bold text-ink">Vuelto: {formatPrice(change)}</p> : null}
+          {change !== null ? <p className="text-body font-bold text-ink">Vuelto: {formatPrice(change)}</p> : null}
         </div>
       ) : null}
     </section>

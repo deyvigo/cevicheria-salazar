@@ -31,11 +31,11 @@ export function DeleteZoneDialog({ zone, onClose, onDeleted }: DeleteZoneDialogP
     <Dialog open={zone !== null} title="Eliminar zona" onClose={close}>
       <div className="flex flex-col gap-5">
         {deleteZone.isError ? (
-          <p role="alert" className="text-sm font-bold text-error-text">
+          <p role="alert" className="text-body-sm font-bold text-error-text">
             No pudimos eliminar la zona, intenta de nuevo.
           </p>
         ) : null}
-        <p className="text-base text-ink">
+        <p className="text-body text-ink">
           ¿Quieres eliminar <strong>{zone?.name}</strong>?
         </p>
         <div className="flex justify-end gap-3">

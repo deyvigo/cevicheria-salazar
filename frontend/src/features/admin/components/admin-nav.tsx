@@ -7,7 +7,7 @@ import { useAdminSession } from '@/features/admin/admin-session';
 import { PERSON_ICON_PATHS } from '@/features/perfil/components/person-icon';
 
 const ITEM_CLASSES =
-  'flex min-h-12 w-full items-center gap-3 rounded-md text-left text-base focus-visible:shadow-focus focus-visible:outline-none';
+  'flex min-h-12 w-full items-center gap-3 rounded-md text-left text-body focus-visible:shadow-focus focus-visible:outline-none';
 
 function Icon({ children }: { children: ReactNode }) {
   return (
@@ -59,7 +59,7 @@ function CountBadge({ count }: { count: number }) {
   return (
     <span
       aria-hidden="true"
-      className="absolute -top-2 -right-2.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-aji-800 px-1 text-xs leading-none font-bold text-surface"
+      className="absolute -top-2 -right-2.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-aji-800 px-1 text-caption leading-none text-surface"
     >
       {count > 9 ? '9+' : count}
     </span>
@@ -93,7 +93,7 @@ export function AdminNav() {
       >
         <div className={`flex min-h-12 items-center ${collapsed ? 'justify-center' : 'justify-between pl-4'}`}>
           {collapsed ? null : (
-            <span className="font-display text-ink text-[24px] leading-[30px] font-semibold">Administrador</span>
+            <span className="font-display text-ink text-title-md">Administrador</span>
           )}
           <button
             type="button"

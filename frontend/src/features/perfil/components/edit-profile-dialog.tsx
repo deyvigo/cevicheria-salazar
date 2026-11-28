@@ -67,7 +67,7 @@ export function EditProfileDialog({ open, user, onClose, onSaved }: EditProfileD
     <Dialog open={open} title="Editar datos" onClose={onClose}>
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5" noValidate>
         {errors.root ? (
-          <p role="alert" className="text-sm font-bold text-error-text">
+          <p role="alert" className="text-body-sm font-bold text-error-text">
             {errors.root.message}
           </p>
         ) : null}

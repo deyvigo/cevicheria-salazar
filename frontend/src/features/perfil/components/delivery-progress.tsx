@@ -14,7 +14,7 @@ export function DeliveryProgress({ status, type, size = 'sm' }: DeliveryProgress
   if (size === 'lg') {
     return (
       <div className="flex flex-col gap-4">
-        <p className="font-display text-ink text-center text-2xl leading-8 font-semibold">{steps[current].label}</p>
+        <p className="font-display text-ink text-center text-title-md">{steps[current].label}</p>
         <ol
           aria-label="Progreso del pedido"
           className="grid"
@@ -44,7 +44,7 @@ export function DeliveryProgress({ status, type, size = 'sm' }: DeliveryProgress
                 />
               </div>
               <span
-                className={`px-1 text-center text-sm leading-5 break-words ${
+                className={`px-1 text-center text-body-sm break-words ${
                   index <= current ? 'font-bold text-ink' : 'text-ink-muted'
                 }`}
               >
@@ -59,7 +59,7 @@ export function DeliveryProgress({ status, type, size = 'sm' }: DeliveryProgress
 
   return (
     <div className="flex flex-col gap-1.5">
-      <p className="text-center text-sm font-bold text-ink">{steps[current].label}</p>
+      <p className="text-center text-label text-ink">{steps[current].label}</p>
       <div aria-hidden="true" className="flex items-center">
         {steps.map((step, index) => (
           <div key={step.status} className={`flex items-center ${index > 0 ? 'flex-1' : ''}`}>

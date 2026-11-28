@@ -21,7 +21,7 @@ export function ReviewFilters({ value, onChange }: ReviewFiltersProps) {
           type="button"
           aria-pressed={value === option.value}
           onClick={() => onChange(option.value)}
-          className={`min-h-10 rounded-md border px-4 text-base focus-visible:shadow-focus focus-visible:outline-none ${
+          className={`min-h-10 rounded-md border px-4 text-body focus-visible:shadow-focus focus-visible:outline-none ${
             value === option.value
               ? 'border-celeste-800 bg-celeste-100 font-bold text-ink'
               : 'border-border-strong bg-transparent text-ink hover:bg-surface-celeste'

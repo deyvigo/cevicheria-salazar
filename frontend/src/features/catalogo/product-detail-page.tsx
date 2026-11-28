@@ -36,12 +36,12 @@ export function ProductDetailPage() {
   if (notFound) {
     return (
       <main className="mx-auto flex w-full max-w-6xl flex-col items-center gap-4 px-6 py-12">
-        <p role="alert" className="text-base text-ink-muted">
+        <p role="alert" className="text-body text-ink-muted">
           No encontramos este plato.
         </p>
         <Link
           to="/menu"
-          className="text-base font-bold text-ink underline focus-visible:shadow-focus focus-visible:outline-none"
+          className="text-button text-ink underline focus-visible:shadow-focus focus-visible:outline-none"
         >
           Volver al catálogo
         </Link>
@@ -52,7 +52,7 @@ export function ProductDetailPage() {
   if (query.isError) {
     return (
       <main className="mx-auto w-full max-w-6xl px-6 py-12">
-        <p role="alert" className="text-center text-base text-ink-muted">
+        <p role="alert" className="text-center text-body text-ink-muted">
           No pudimos cargar el plato. Intenta de nuevo.
         </p>
       </main>
@@ -70,7 +70,7 @@ export function ProductDetailPage() {
           event.preventDefault();
           navigate(-1);
         }}
-        className="mb-4 inline-flex min-h-12 items-center gap-1 rounded-md text-base font-bold text-ink focus-visible:shadow-focus focus-visible:outline-none"
+        className="mb-4 inline-flex min-h-12 items-center gap-1 rounded-md text-button text-ink focus-visible:shadow-focus focus-visible:outline-none"
       >
         <ChevronLeftIcon strokeWidth={2.5} />
         <span className="underline">Volver</span>
@@ -86,30 +86,30 @@ export function ProductDetailPage() {
           <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between gap-3">
               {/* Always reserve the line: the list placeholder has no category, and it arriving late would push the title down */}
-              <p className="h-6 text-base leading-6 text-ink-muted">{product.category?.name}</p>
+              <p className="h-6 text-body text-ink-muted">{product.category?.name}</p>
               <AvailabilityBadge available={product.available} />
             </div>
             <h1
               ref={focusHeading}
               tabIndex={-1}
               style={sharedName('name', transitioning)}
-              className="w-fit font-display text-[32px] leading-10 font-semibold text-ink focus:outline-none"
+              className="w-fit font-display text-title-lg text-ink focus:outline-none"
             >
               {product.name}
             </h1>
             {product.rating !== null ? (
-              <span className="flex items-center gap-2 text-base text-ink-muted">
+              <span className="flex items-center gap-2 text-body text-ink-muted">
                 <FractionalStars rating={product.rating} className="h-5 w-5" />
                 <span aria-label={`Calificación ${product.rating.toFixed(1)} de 5`}>{product.rating.toFixed(1)}</span>
               </span>
             ) : null}
             <p
               style={sharedName('price', transitioning)}
-              className="w-fit font-display text-[28px] leading-8 font-semibold text-ink"
+              className="w-fit font-display text-price text-ink"
             >
               {formatPrice(product.price)}
             </p>
-            <p className="text-base whitespace-pre-line text-ink">{product.description}</p>
+            <p className="text-body whitespace-pre-line text-ink">{product.description}</p>
             {/* Pinned to the bottom of the column, level with the thumbnails */}
             <div className="mt-auto">
               <ProductPurchase

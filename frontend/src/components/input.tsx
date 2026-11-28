@@ -19,7 +19,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
 
   return (
     <div className={`flex w-full flex-col gap-2 text-left ${fullWidth ? '' : 'max-w-[340px]'}`}>
-      <label htmlFor={inputId} className="text-sm font-bold text-ink">
+      <label htmlFor={inputId} className="text-label text-ink">
         {label}
       </label>
       <div className="relative flex items-center">
@@ -28,7 +28,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           ref={ref}
           type={isPassword ? (visible ? 'text' : 'password') : type}
           aria-invalid={error ? true : undefined}
-          className={`h-12 w-full rounded-md border px-4 text-base text-ink placeholder:text-ink-subtle focus:outline-none disabled:cursor-not-allowed disabled:bg-surface-disabled disabled:text-ink-disabled ${
+          className={`h-12 w-full rounded-md border px-4 text-body text-ink placeholder:text-ink-subtle focus:outline-none disabled:cursor-not-allowed disabled:bg-surface-disabled disabled:text-ink-disabled ${
             isPassword ? 'pr-11' : ''
           } ${error ? 'border-coral-800' : 'border-border-strong focus:border-focus-ring'} ${className ?? ''}`}
           {...props}
@@ -45,9 +45,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         ) : null}
       </div>
       {error ? (
-        <p className="text-sm font-bold text-error-text">{error}</p>
+        <p className="text-body-sm font-bold text-error-text">{error}</p>
       ) : hint ? (
-        <p className="text-sm text-ink-muted">{hint}</p>
+        <p className="text-body-sm text-ink-muted">{hint}</p>
       ) : null}
     </div>
   );

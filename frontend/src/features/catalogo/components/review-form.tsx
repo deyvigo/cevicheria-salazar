@@ -56,7 +56,7 @@ export function ReviewForm({ productId, initial, onDone }: ReviewFormProps) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
       {errors.root ? (
-        <p role="alert" className="text-sm font-bold text-error-text">
+        <p role="alert" className="text-body-sm font-bold text-error-text">
           {errors.root.message}
         </p>
       ) : null}
@@ -68,22 +68,22 @@ export function ReviewForm({ productId, initial, onDone }: ReviewFormProps) {
         )}
       />
       <div className="flex flex-col gap-2">
-        <label htmlFor="review-comment" className="text-sm font-bold text-ink">
+        <label htmlFor="review-comment" className="text-label text-ink">
           Comentario (opcional)
         </label>
         <textarea
           id="review-comment"
           rows={4}
           aria-invalid={errors.comment ? true : undefined}
-          className={`w-full resize-y rounded-md border px-4 py-3 text-base text-ink placeholder:text-ink-subtle focus:outline-none ${
+          className={`w-full resize-y rounded-md border px-4 py-3 text-body text-ink placeholder:text-ink-subtle focus:outline-none ${
             errors.comment ? 'border-coral-800' : 'border-border-strong focus:border-focus-ring'
           }`}
           placeholder="Cuéntanos qué te pareció el plato"
           {...register('comment')}
         />
         <div className="flex justify-between gap-3">
-          <p className="text-sm font-bold text-error-text">{errors.comment?.message}</p>
-          <p className="text-sm text-ink-muted">
+          <p className="text-body-sm font-bold text-error-text">{errors.comment?.message}</p>
+          <p className="text-body-sm text-ink-muted">
             {length}/{REVIEW_MAX_LENGTH}
           </p>
         </div>

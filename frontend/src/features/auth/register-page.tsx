@@ -73,7 +73,7 @@ export function RegisterPage() {
   return (
     <AuthShell imageSide="right" branded>
       <form onSubmit={handleSubmit(onSubmit)} className="flex w-full max-w-[340px] flex-col gap-5" noValidate>
-        <h1 className="font-display text-[26px] leading-8 font-semibold text-ink">Crea tu cuenta</h1>
+        <h1 className="font-display text-title-lg text-ink">Crea tu cuenta</h1>
 
         <GoogleLoginButton />
 
@@ -102,7 +102,7 @@ export function RegisterPage() {
           {isSubmitting ? 'Creando cuenta…' : 'Crear cuenta'}
         </Button>
 
-        <p className="text-center text-sm text-ink-muted">
+        <p className="text-center text-body-sm text-ink-muted">
           ¿Ya tienes cuenta?{' '}
           <Link
             to="/iniciar-sesion"

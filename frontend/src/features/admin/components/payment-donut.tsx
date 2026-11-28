@@ -59,25 +59,25 @@ export function PaymentDonut({ shares }: { shares: PaymentShare[] }) {
           >
             {current ? (
               <>
-                <span className="text-sm font-bold text-ink">{PAYMENT_LABELS[current.method]}</span>
-                <span className="font-display text-lg font-semibold text-ink">{formatPrice(current.revenue)}</span>
-                <span className="text-xs text-ink-muted">
+                <span className="text-label text-ink">{PAYMENT_LABELS[current.method]}</span>
+                <span className="font-display text-price text-ink">{formatPrice(current.revenue)}</span>
+                <span className="text-body-sm text-ink-muted">
                   {`${ordersLabel(current.orders)} · ${formatPercentage(current.percentage)}`}
                 </span>
               </>
             ) : (
               <>
-                <span className="text-sm text-ink-muted">Total</span>
-                <span className="font-display text-xl font-semibold text-ink">{formatPrice(total)}</span>
+                <span className="text-body-sm text-ink-muted">Total</span>
+                <span className="font-display text-price text-ink">{formatPrice(total)}</span>
               </>
             )}
           </div>
         </div>
       </div>
 
-      <table className="w-full text-left text-base">
+      <table className="w-full text-left text-body">
         <thead>
-          <tr className="border-b border-border text-sm text-ink-muted">
+          <tr className="border-b border-border text-body-sm text-ink-muted">
             <th scope="col" className="py-2 pr-4 font-bold">Método</th>
             <th scope="col" className="py-2 pr-4 text-right font-bold">Pedidos</th>
             <th scope="col" className="py-2 pr-4 text-right font-bold">Ingresos</th>

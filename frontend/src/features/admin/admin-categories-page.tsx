@@ -65,7 +65,7 @@ export function AdminCategoriesPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center gap-4">
-        <h1 className="font-display text-ink text-[32px] leading-[40px] font-semibold">Categorías</h1>
+        <h1 className="font-display text-ink text-title-lg">Categorías</h1>
         {hasCategories ? (
           <>
             <div className="flex min-w-64 flex-1 justify-end">
@@ -76,11 +76,11 @@ export function AdminCategoriesPage() {
         ) : null}
       </div>
 
-      {isPending ? <p className="text-base text-ink-muted">Cargando las categorías...</p> : null}
+      {isPending ? <p className="text-body text-ink-muted">Cargando las categorías...</p> : null}
 
       {isError ? (
         <div role="alert" className="flex flex-col items-start gap-3">
-          <p className="text-base font-bold text-error-text">No pudimos cargar las categorías.</p>
+          <p className="text-body font-bold text-error-text">No pudimos cargar las categorías.</p>
           <Button variant="outline" onClick={() => refetch()}>
             Reintentar
           </Button>
@@ -88,14 +88,14 @@ export function AdminCategoriesPage() {
       ) : null}
 
       {data && data.totalItems === 0 && query !== undefined ? (
-        <p role="status" className="text-base text-ink-muted">
+        <p role="status" className="text-body text-ink-muted">
           No se encontraron categorías para «{query}»
         </p>
       ) : null}
 
       {data && data.totalItems === 0 && query === undefined ? (
         <div className="flex flex-col items-start gap-4">
-          <p className="text-base text-ink-muted">Aún no tienes categorías</p>
+          <p className="text-body text-ink-muted">Aún no tienes categorías</p>
           <Button onClick={() => openForm()}>Agregar categoría</Button>
         </div>
       ) : null}

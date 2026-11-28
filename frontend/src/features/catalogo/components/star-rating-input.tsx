@@ -15,7 +15,7 @@ export function StarRatingInput({ value, onChange, error }: StarRatingInputProps
 
   return (
     <div className="flex flex-col gap-2">
-      <span id="review-rating-label" className="text-sm font-bold text-ink">
+      <span id="review-rating-label" className="text-label text-ink">
         Tu calificación
       </span>
       <div
@@ -40,7 +40,7 @@ export function StarRatingInput({ value, onChange, error }: StarRatingInputProps
           </button>
         ))}
       </div>
-      {error ? <p className="text-sm font-bold text-error-text">{error}</p> : null}
+      {error ? <p className="text-body-sm font-bold text-error-text">{error}</p> : null}
     </div>
   );
 }

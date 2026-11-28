@@ -45,16 +45,21 @@ export function CouponForm({ items, appliedCode, appliedError, disabled, onAppli
   if (appliedCode !== null) {
     return (
       <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-base text-ink">
-            Cupón <strong>{appliedCode}</strong> aplicado
+        <div className="flex items-baseline justify-between gap-3">
+          <p className="min-w-0 truncate text-body-sm text-ink-muted">
+            Cupón <strong className="text-ink">{appliedCode}</strong> aplicado
           </p>
-          <Button variant="outline" disabled={disabled} onClick={onRemove}>
+          <button
+            type="button"
+            disabled={disabled}
+            onClick={onRemove}
+            className="shrink-0 rounded-sm text-label text-link underline underline-offset-2 focus-visible:shadow-focus focus-visible:outline-none disabled:cursor-not-allowed disabled:text-ink-disabled disabled:no-underline"
+          >
             Quitar
-          </Button>
+          </button>
         </div>
         {appliedError ? (
-          <p role="alert" className="text-sm font-bold text-error-text">
+          <p role="alert" className="text-body-sm font-bold text-error-text">
             {appliedError}
           </p>
         ) : null}

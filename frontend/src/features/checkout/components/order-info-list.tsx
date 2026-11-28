@@ -36,8 +36,8 @@ export function OrderInfoList({ order }: { order: Order }) {
 export function InfoItem({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="flex flex-col gap-0.5">
-      <dt className="text-sm text-ink-muted">{label}</dt>
-      <dd className="text-base text-ink">{children}</dd>
+      <dt className="text-body-sm text-ink-muted">{label}</dt>
+      <dd className="text-body text-ink">{children}</dd>
     </div>
   );
 }

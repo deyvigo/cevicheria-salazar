@@ -126,11 +126,11 @@ export function PaymentStepPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-8">
-      <h1 className="font-display text-[32px] leading-10 font-semibold text-ink">Pago</h1>
+      <h1 className="font-display text-title-lg text-ink">Pago</h1>
       <CheckoutStepper currentStep="payment" isAuthenticated={user !== null && !startedAsVisitor} />
       <div className="grid items-start gap-6 md:grid-cols-[1fr_20rem]">
         <div className="flex flex-col gap-4">
-          <h2 className="font-display text-[24px] leading-8 font-semibold text-ink">Métodos de pago</h2>
+          <h2 className="font-display text-title-md text-ink">Métodos de pago</h2>
           <PaymentMethodSelector value={paymentMethod} deliveryType={deliveryType} onChange={setPaymentMethod} />
           {isCash ? (
             <CashOnDeliveryForm
@@ -144,7 +144,7 @@ export function PaymentStepPage() {
           ) : null}
           {isDelivery && cost.isError ? (
             <div role="alert" className="flex flex-col items-start gap-3">
-              <p className="text-base text-ink-muted">No pudimos calcular el costo de delivery.</p>
+              <p className="text-body text-ink-muted">No pudimos calcular el costo de delivery.</p>
               <Button variant="secondary" onClick={() => void cost.refetch()}>
                 Reintentar
               </Button>
@@ -182,7 +182,7 @@ export function PaymentStepPage() {
               )}
               <Link
                 to="/checkout/direcciones"
-                className="text-center text-base font-bold text-ink underline focus-visible:shadow-focus focus-visible:outline-none"
+                className="text-center text-button text-ink underline focus-visible:shadow-focus focus-visible:outline-none"
               >
                 Volver
               </Link>

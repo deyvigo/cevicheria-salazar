@@ -56,7 +56,7 @@ export function CodeInput({ label, length, value, onChange, error }: CodeInputPr
 
   return (
     <div role="group" aria-labelledby={labelId} className="flex flex-col items-center gap-2">
-      <span id={labelId} className="text-sm font-bold text-ink">
+      <span id={labelId} className="text-label text-ink">
         {label}
       </span>
       <div className="flex justify-center gap-3">
@@ -75,13 +75,13 @@ export function CodeInput({ label, length, value, onChange, error }: CodeInputPr
             autoComplete="off"
             aria-label={`Dígito ${index + 1} de ${length}`}
             aria-invalid={error ? true : undefined}
-            className={`h-14 w-14 rounded-md border text-center text-2xl font-bold text-ink focus:outline-none ${
+            className={`h-14 w-14 rounded-md border text-center text-title-md font-bold text-ink focus:outline-none ${
               error ? 'border-coral-800' : 'border-border-strong focus:border-focus-ring'
             }`}
           />
         ))}
       </div>
-      {error ? <p className="text-sm font-bold text-error-text">{error}</p> : null}
+      {error ? <p className="text-body-sm font-bold text-error-text">{error}</p> : null}
     </div>
   );
 }

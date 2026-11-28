@@ -25,7 +25,7 @@ export function ReviewList({ productId, filter = 'all' }: { productId: number; f
   if (query.isError && !query.data) {
     return (
       <div role="alert" className="flex flex-col items-start gap-3">
-        <p className="text-base text-ink-muted">No pudimos cargar las reseñas.</p>
+        <p className="text-body text-ink-muted">No pudimos cargar las reseñas.</p>
         <Button type="button" variant="outline" onClick={() => void query.refetch()}>
           Reintentar
         </Button>
@@ -35,7 +35,7 @@ export function ReviewList({ productId, filter = 'all' }: { productId: number; f
   const { items } = query.data;
   if (items.length === 0) {
     return (
-      <p className="text-base text-ink-muted">
+      <p className="text-body text-ink-muted">
         {filter === 'all' ? 'Aún no hay reseñas.' : 'No hay reseñas de este tipo.'}
       </p>
     );
@@ -50,7 +50,7 @@ export function ReviewList({ productId, filter = 'all' }: { productId: number; f
       </ul>
       {isFetchNextPageError ? (
         <div role="alert" className="flex flex-col items-start gap-3 py-4">
-          <p className="text-base text-ink-muted">No pudimos cargar más reseñas.</p>
+          <p className="text-body text-ink-muted">No pudimos cargar más reseñas.</p>
           <Button type="button" variant="outline" onClick={() => void fetchNextPage()}>
             Reintentar
           </Button>
@@ -58,7 +58,7 @@ export function ReviewList({ productId, filter = 'all' }: { productId: number; f
       ) : null}
       {hasNextPage ? (
         <div ref={sentinel} aria-busy={isFetchingNextPage} className="flex h-12 items-center justify-center">
-          {isFetchingNextPage ? <p className="text-sm text-ink-muted">Cargando reseñas…</p> : null}
+          {isFetchingNextPage ? <p className="text-body-sm text-ink-muted">Cargando reseñas…</p> : null}
         </div>
       ) : null}
     </div>

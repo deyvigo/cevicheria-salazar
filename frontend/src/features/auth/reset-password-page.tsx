@@ -81,11 +81,11 @@ export function ResetPasswordPage() {
   return (
     <AuthShell imageSide="left" branded>
       <div className="flex w-full max-w-[340px] flex-col gap-5">
-        <h1 className="font-display text-[26px] leading-8 font-semibold text-ink">Crea una nueva contraseña</h1>
+        <h1 className="font-display text-title-lg text-ink">Crea una nueva contraseña</h1>
 
         {linkIsInvalid ? (
           <>
-            <p role="alert" className="text-sm font-bold text-error-text">
+            <p role="alert" className="text-body-sm font-bold text-error-text">
               {INVALID_LINK_MESSAGE}
             </p>
             <Link to="/olvide-contrasena" className={LINK_CLASSES}>
@@ -93,10 +93,10 @@ export function ResetPasswordPage() {
             </Link>
           </>
         ) : tokenQuery.isPending ? (
-          <p className="text-sm text-ink-muted">Verificando tu enlace…</p>
+          <p className="text-body-sm text-ink-muted">Verificando tu enlace…</p>
         ) : (
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5" noValidate>
-            {errors.root ? <p className="text-sm font-bold text-error-text">{errors.root.message}</p> : null}
+            {errors.root ? <p className="text-body-sm font-bold text-error-text">{errors.root.message}</p> : null}
 
             <PasswordRequirements />
             <Input
@@ -118,7 +118,7 @@ export function ResetPasswordPage() {
           </form>
         )}
 
-        <p className="text-center text-sm text-ink-muted">
+        <p className="text-center text-body-sm text-ink-muted">
           <Link to="/iniciar-sesion" className={LINK_CLASSES}>
             Volver a iniciar sesión
           </Link>

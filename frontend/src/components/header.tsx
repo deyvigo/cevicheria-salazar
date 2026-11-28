@@ -54,12 +54,12 @@ export function Header() {
   return (
     <header className="grid grid-cols-[1fr_minmax(0,32rem)_1fr] items-center gap-6 border-b border-border bg-surface px-6 py-3">
       <div className="flex items-center gap-4 justify-self-start">
-        <Link to="/" className="font-display text-ink text-[24px] leading-[30px] font-semibold">
+        <Link to="/" className="font-display text-ink text-title-md">
           Salazar SAC
         </Link>
         <Link
           to="/menu"
-          className="inline-flex min-h-12 items-center rounded-md px-4 text-base font-bold text-ink hover:bg-surface-celeste focus-visible:shadow-focus focus-visible:outline-none"
+          className="inline-flex min-h-12 items-center rounded-md px-4 text-button text-ink hover:bg-surface-celeste focus-visible:shadow-focus focus-visible:outline-none"
         >
           Carta
         </Link>
@@ -78,7 +78,7 @@ export function Header() {
               aria-haspopup="menu"
               aria-expanded={menuOpen}
               onClick={() => setMenuOpen((open) => !open)}
-              className="inline-flex min-h-12 items-center gap-2 rounded-md px-4 text-base font-bold text-ink hover:bg-surface-celeste focus-visible:shadow-focus focus-visible:outline-none"
+              className="inline-flex min-h-12 items-center gap-2 rounded-md px-4 text-button text-ink hover:bg-surface-celeste focus-visible:shadow-focus focus-visible:outline-none"
             >
               {user.firstName}
               <span aria-hidden="true">▾</span>
@@ -93,7 +93,7 @@ export function Header() {
                     to="/admin"
                     role="menuitem"
                     onClick={() => setMenuOpen(false)}
-                    className="flex min-h-12 w-full items-center rounded-md px-4 text-left text-base text-ink hover:bg-surface-celeste focus-visible:shadow-focus focus-visible:outline-none"
+                    className="flex min-h-12 w-full items-center rounded-md px-4 text-left text-body text-ink hover:bg-surface-celeste focus-visible:shadow-focus focus-visible:outline-none"
                   >
                     Panel de administración
                   </Link>
@@ -103,7 +103,7 @@ export function Header() {
                     to="/perfil"
                     role="menuitem"
                     onClick={() => setMenuOpen(false)}
-                    className="flex min-h-12 w-full items-center rounded-md px-4 text-left text-base text-ink hover:bg-surface-celeste focus-visible:shadow-focus focus-visible:outline-none"
+                    className="flex min-h-12 w-full items-center rounded-md px-4 text-left text-body text-ink hover:bg-surface-celeste focus-visible:shadow-focus focus-visible:outline-none"
                   >
                     Mi perfil
                   </Link>
@@ -113,7 +113,7 @@ export function Header() {
                     to="/perfil/mis-pedidos"
                     role="menuitem"
                     onClick={() => setMenuOpen(false)}
-                    className="flex min-h-12 w-full items-center rounded-md px-4 text-left text-base text-ink hover:bg-surface-celeste focus-visible:shadow-focus focus-visible:outline-none"
+                    className="flex min-h-12 w-full items-center rounded-md px-4 text-left text-body text-ink hover:bg-surface-celeste focus-visible:shadow-focus focus-visible:outline-none"
                   >
                     Mis pedidos
                   </Link>
@@ -122,7 +122,7 @@ export function Header() {
                   type="button"
                   role="menuitem"
                   onClick={handleLogout}
-                  className="flex min-h-12 w-full items-center rounded-md px-4 text-left text-base text-ink hover:bg-surface-celeste focus-visible:shadow-focus focus-visible:outline-none"
+                  className="flex min-h-12 w-full items-center rounded-md px-4 text-left text-body text-ink hover:bg-surface-celeste focus-visible:shadow-focus focus-visible:outline-none"
                 >
                   Cerrar sesión
                 </button>

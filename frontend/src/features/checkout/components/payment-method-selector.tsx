@@ -39,8 +39,8 @@ export function PaymentMethodSelector({ value, deliveryType, onChange }: Payment
               selected ? 'border-action ring-2 ring-action' : 'hover:border-ink/60'
             }`}
           >
-            <p className="font-display text-ink text-[18px] leading-6 font-semibold">{option.title}</p>
-            <p className="text-base text-ink-muted">{option.description}</p>
+            <p className="font-display text-ink text-title-sm">{option.title}</p>
+            <p className="text-body text-ink-muted">{option.description}</p>
           </Card>
         );
       })}

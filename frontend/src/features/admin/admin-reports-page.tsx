@@ -21,7 +21,7 @@ const NO_SALES = 'No hay ventas en este periodo';
 function Section({ title, className, children }: { title: string; className?: string; children: ReactNode }) {
   return (
     <Card className={`flex flex-col gap-4 p-6 ${className ?? ''}`}>
-      <h2 className="font-display text-[22px] leading-7 font-semibold text-ink">{title}</h2>
+      <h2 className="font-display text-title-md text-ink">{title}</h2>
       {children}
     </Card>
   );
@@ -42,7 +42,7 @@ export function AdminReportsPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center gap-4">
-        <h1 className="font-display text-ink text-[32px] leading-[40px] font-semibold">Reportes</h1>
+        <h1 className="font-display text-ink text-title-lg">Reportes</h1>
         <Button variant="outline" onClick={() => refetch()} disabled={query === null || isFetching}>
           Actualizar
         </Button>
@@ -51,16 +51,16 @@ export function AdminReportsPage() {
       <ReportFilters view={view} onChange={change} onClear={() => setParams(reportViewToParams(DEFAULT_REPORT_VIEW))} />
 
       {query === null ? (
-        <p role="status" className="text-base text-ink-muted">
+        <p role="status" className="text-body text-ink-muted">
           Elige las fechas del periodo.
         </p>
       ) : null}
 
-      {query !== null && isPending ? <p className="text-base text-ink-muted">Cargando el reporte...</p> : null}
+      {query !== null && isPending ? <p className="text-body text-ink-muted">Cargando el reporte...</p> : null}
 
       {isError ? (
         <div role="alert" className="flex flex-col items-start gap-3">
-          <p className="text-base font-bold text-error-text">No pudimos cargar el reporte.</p>
+          <p className="text-body font-bold text-error-text">No pudimos cargar el reporte.</p>
           <Button variant="outline" onClick={() => refetch()}>
             Reintentar
           </Button>
@@ -80,7 +80,7 @@ export function AdminReportsPage() {
                 to={query?.to ?? data.series[data.series.length - 1].date}
               />
               ) : (
-                <p role="status" className="text-base text-ink-muted">{NO_SALES}</p>
+                <p role="status" className="text-body text-ink-muted">{NO_SALES}</p>
               )}
             </Section>
             {/* The sales chart sets the height of the row; the ranking fills it and scrolls when it has more rows */}
@@ -90,7 +90,7 @@ export function AdminReportsPage() {
                   <TopDishesTable dishes={data.topDishes} />
                 </div>
               ) : (
-                <p role="status" className="text-base text-ink-muted">{NO_SALES}</p>
+                <p role="status" className="text-body text-ink-muted">{NO_SALES}</p>
               )}
             </Section>
           </div>
@@ -98,7 +98,7 @@ export function AdminReportsPage() {
             {hasSales ? (
               <PaymentDonut shares={data.byPayment} />
             ) : (
-              <p role="status" className="text-base text-ink-muted">{NO_SALES}</p>
+              <p role="status" className="text-body text-ink-muted">{NO_SALES}</p>
             )}
           </Section>
         </>

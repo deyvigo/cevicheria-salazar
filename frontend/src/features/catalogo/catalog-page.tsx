@@ -77,14 +77,14 @@ export function CatalogPage() {
       </aside>
       <section className="min-w-0 flex-1">
         {products.isError ? (
-          <p role="alert" className="py-12 text-center text-base text-ink-muted">
+          <p role="alert" className="py-12 text-center text-body text-ink-muted">
             No pudimos cargar los productos. Intenta de nuevo.
           </p>
         ) : (
           <>
             {data && data.totalItems > 0 ? (
               <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                <p className="text-base text-ink-muted">
+                <p className="text-body text-ink-muted">
                   Mostrando {from}-{to} de {data.totalItems} elementos
                 </p>
                 <SortSelect value={sort} onChange={(next) => updateParams(1, next)} />

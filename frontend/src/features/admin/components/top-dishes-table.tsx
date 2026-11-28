@@ -3,9 +3,9 @@ import { formatPrice } from '@/features/catalogo/format';
 
 export function TopDishesTable({ dishes }: { dishes: TopDish[] }) {
   return (
-    <table className="w-full text-left text-base">
+    <table className="w-full text-left text-body">
       <thead className="sticky top-0 bg-surface">
-        <tr className="border-b border-border text-sm text-ink-muted">
+        <tr className="border-b border-border text-body-sm text-ink-muted">
           <th scope="col" className="w-10 py-2 pr-4 font-bold">#</th>
           <th scope="col" className="py-2 pr-4 font-bold">Plato</th>
           <th scope="col" className="py-2 pr-4 text-right font-bold">Unidades</th>

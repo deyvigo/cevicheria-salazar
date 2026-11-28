@@ -8,7 +8,7 @@ export function GoogleLoginButton() {
     <a
       href={googleLoginUrl}
       onClick={() => rememberReturnPath(returnPath)}
-      className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-border-strong bg-surface px-6 text-base font-bold text-ink hover:bg-surface-celeste focus-visible:shadow-focus focus-visible:outline-none"
+      className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-border-strong bg-surface px-6 text-button text-ink hover:bg-surface-celeste focus-visible:shadow-focus focus-visible:outline-none"
     >
       <svg aria-hidden="true" viewBox="0 0 48 48" className="h-5 w-5 flex-none">
         <path

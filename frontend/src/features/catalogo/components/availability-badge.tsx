@@ -3,7 +3,7 @@ export function AvailabilityBadge({ available }: { available: boolean | null }) 
 
   return (
     <span
-      className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm leading-5 font-bold ${
+      className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-caption ${
         available ? 'bg-success-surface text-success-text' : 'bg-error-surface text-error-text'
       }`}
     >

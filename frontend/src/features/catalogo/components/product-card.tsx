@@ -36,19 +36,19 @@ export function ProductCard({ product }: { product: Product }) {
           <div className="flex flex-col gap-1">
             <h3
               style={sharedName('name', transitioning)}
-              className="w-fit font-display text-[18px] leading-6 font-semibold text-ink"
+              className="w-fit font-display text-title-sm text-ink"
             >
               {product.name}
             </h3>
             <div className="flex items-center justify-between">
               <span
                 style={sharedName('price', transitioning)}
-                className="font-display text-[20px] leading-6 font-semibold text-ink"
+                className="font-display text-price text-ink"
               >
                 {formatPrice(product.price)}
               </span>
               {product.rating !== null ? (
-                <span className="flex items-center gap-1 text-[13px] leading-none text-ink-muted">
+                <span className="flex items-center gap-1 text-body-sm leading-none text-ink-muted">
                   <StarIcon className="h-4 w-4" />
                   {/* Trim to cap height so the digits are optically centered against the star, not the line box */}
                   <span

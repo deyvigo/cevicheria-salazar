@@ -41,8 +41,8 @@ export function Notification({ variant, title, message, onClose, action }: Notif
     >
       <img src={VARIANT_ICON[variant]} alt="" className="h-10 w-10 flex-none" />
       <div className="min-w-0 flex-1">
-        <p className="font-display text-base font-semibold text-ink">{title}</p>
-        {message ? <p className="mt-0.5 text-sm text-ink-muted">{message}</p> : null}
+        <p className="font-display text-title-sm text-ink">{title}</p>
+        {message ? <p className="mt-0.5 text-body-sm text-ink-muted">{message}</p> : null}
         {action ? <div className="mt-1">{action}</div> : null}
       </div>
       {onClose ? (

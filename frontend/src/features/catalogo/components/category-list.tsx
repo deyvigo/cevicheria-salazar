@@ -33,7 +33,7 @@ export function CategoryList({ categories, activeSlug, searchTerm }: CategoryLis
             <Link
               to={item.to}
               aria-current={item.active ? 'page' : undefined}
-              className={`flex min-h-12 items-center rounded-md px-4 text-base focus-visible:shadow-focus focus-visible:outline-none ${
+              className={`flex min-h-12 items-center rounded-md px-4 text-body focus-visible:shadow-focus focus-visible:outline-none ${
                 item.active ? 'bg-action-secondary font-bold text-ink' : 'text-ink hover:bg-surface-celeste'
               }`}
             >

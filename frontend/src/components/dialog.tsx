@@ -72,7 +72,7 @@ export function Dialog({ open, title, onClose, children, wide }: DialogProps) {
       >
         <div className="overflow-y-auto p-6">
           <div className="flex items-center justify-between gap-4">
-            <h2 id={titleId} className="font-display text-ink text-left text-[22px] leading-7 font-semibold">
+            <h2 id={titleId} className="font-display text-ink text-left text-title-md">
               {title}
             </h2>
             <button

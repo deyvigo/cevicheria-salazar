@@ -71,17 +71,17 @@ export function CartItemRow({
         <Link
           {...linkProps}
           style={sharedName('name', transitioning)}
-          className="w-fit rounded-sm font-display text-[18px] leading-6 font-semibold text-ink hover:underline focus-visible:shadow-focus focus-visible:outline-none"
+          className="w-fit rounded-sm font-display text-title-sm text-ink hover:underline focus-visible:shadow-focus focus-visible:outline-none"
         >
           {product.name}
         </Link>
-        <span style={sharedName('price', transitioning)} className="w-fit text-base text-ink-muted">
+        <span style={sharedName('price', transitioning)} className="w-fit text-body text-ink-muted">
           {formatPrice(product.price)}
         </span>
         {!product.available ? (
           <div className="flex flex-wrap items-center gap-2">
             <AvailabilityBadge available={false} />
-            <span className="text-sm text-error-text">Este plato está agotado. Quítalo o elige otro de la carta.</span>
+            <span className="text-body-sm text-error-text">Este plato está agotado. Quítalo o elige otro de la carta.</span>
           </div>
         ) : null}
       </div>

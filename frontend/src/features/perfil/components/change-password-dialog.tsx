@@ -82,7 +82,7 @@ export function ChangePasswordDialog({ open, hasPassword, onClose, onSaved }: Ch
     <Dialog open={open} title={hasPassword ? 'Cambiar contraseña' : 'Crear contraseña'} onClose={onClose}>
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5" noValidate>
         {errors.root ? (
-          <p role="alert" className="text-sm font-bold text-error-text">
+          <p role="alert" className="text-body-sm font-bold text-error-text">
             {errors.root.message}
           </p>
         ) : null}

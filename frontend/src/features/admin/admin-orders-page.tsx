@@ -171,9 +171,9 @@ export function AdminOrdersPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center gap-4">
-        <h1 className="font-display text-ink text-[32px] leading-[40px] font-semibold">Pedidos</h1>
+        <h1 className="font-display text-ink text-title-lg">Pedidos</h1>
         {data ? (
-          <p className="text-base text-ink-muted">{data.totalItems === 1 ? '1 pedido' : `${data.totalItems} pedidos`}</p>
+          <p className="text-body text-ink-muted">{data.totalItems === 1 ? '1 pedido' : `${data.totalItems} pedidos`}</p>
         ) : null}
       </div>
 
@@ -186,7 +186,7 @@ export function AdminOrdersPage() {
 
       {!connected ? (
         <div role="status" className="flex flex-wrap items-center gap-3">
-          <p className="text-base text-ink-muted">Sin conexión en tiempo real. Actualiza la lista manualmente.</p>
+          <p className="text-body text-ink-muted">Sin conexión en tiempo real. Actualiza la lista manualmente.</p>
           <Button variant="outline" onClick={() => refetch()}>
             Actualizar
           </Button>
@@ -195,7 +195,7 @@ export function AdminOrdersPage() {
 
       {showNotice ? (
         <div role="status" className="flex flex-wrap items-center gap-3 rounded-lg bg-info-surface px-4 py-3">
-          <p className="text-base font-bold text-info-text">
+          <p className="text-body font-bold text-info-text">
             {newOrders === 1 ? '1 pedido nuevo' : `${newOrders} pedidos nuevos`}
           </p>
           <Button variant="outline" onClick={showNewOrders}>
@@ -204,11 +204,11 @@ export function AdminOrdersPage() {
         </div>
       ) : null}
 
-      {isPending ? <p className="text-base text-ink-muted">Cargando los pedidos...</p> : null}
+      {isPending ? <p className="text-body text-ink-muted">Cargando los pedidos...</p> : null}
 
       {isError ? (
         <div role="alert" className="flex flex-col items-start gap-3">
-          <p className="text-base font-bold text-error-text">No pudimos cargar los pedidos.</p>
+          <p className="text-body font-bold text-error-text">No pudimos cargar los pedidos.</p>
           <Button variant="outline" onClick={() => refetch()}>
             Reintentar
           </Button>
@@ -216,14 +216,14 @@ export function AdminOrdersPage() {
       ) : null}
 
       {data && data.totalItems === 0 ? (
-        <p role="status" className="text-base text-ink-muted">
+        <p role="status" className="text-body text-ink-muted">
           {filtered ? 'No hay pedidos con estos filtros' : 'No hay pedidos activos'}
         </p>
       ) : null}
 
       {highlighted > 0 ? (
         <div className="flex flex-wrap items-center gap-3">
-          <p role="status" className="text-base font-bold text-ink">
+          <p role="status" className="text-body font-bold text-ink">
             {highlighted === 1 ? '1 pedido nuevo sin revisar' : `${highlighted} pedidos nuevos sin revisar`}
           </p>
           <Button variant="outline" onClick={markAllSeen}>

@@ -59,7 +59,7 @@ export function ProductImagesField({ value, onChange, error }: ProductImagesFiel
 
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-sm font-bold text-ink">Imágenes</span>
+      <span className="text-label text-ink">Imágenes</span>
       {value.length > 0 ? (
         <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {value.map((image, index) => (
@@ -95,7 +95,7 @@ export function ProductImagesField({ value, onChange, error }: ProductImagesFiel
                 className="aspect-square w-full rounded-md object-cover"
               />
               {index === 0 ? (
-                <span className="absolute top-1 left-1 rounded-full bg-surface px-2 py-0.5 text-xs font-bold text-ink">
+                <span className="absolute top-1 left-1 rounded-full bg-surface px-2 py-0.5 text-caption text-ink">
                   Principal
                 </span>
               ) : null}
@@ -125,9 +125,9 @@ export function ProductImagesField({ value, onChange, error }: ProductImagesFiel
         <Button type="button" variant="outline" disabled={full} onClick={() => inputRef.current?.click()}>
           Agregar imágenes
         </Button>
-        <span className="text-sm text-ink-muted">{full ? 'Máximo 5 imágenes' : `${value.length} de ${MAX_IMAGES}`}</span>
+        <span className="text-body-sm text-ink-muted">{full ? 'Máximo 5 imágenes' : `${value.length} de ${MAX_IMAGES}`}</span>
       </div>
-      {message ? <p className="text-sm font-bold text-error-text">{message}</p> : null}
+      {message ? <p className="text-body-sm font-bold text-error-text">{message}</p> : null}
     </div>
   );
 }

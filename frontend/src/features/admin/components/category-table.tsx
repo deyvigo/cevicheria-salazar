@@ -10,8 +10,8 @@ interface CategoryTableProps {
   onDelete: (category: AdminCategory) => void;
 }
 
-const HEADER = 'px-4 py-3 text-left text-lg font-bold text-ink';
-const CELL = 'px-4 py-3 text-base text-ink align-middle';
+const HEADER = 'px-4 py-3 text-left text-label text-ink';
+const CELL = 'px-4 py-3 text-body text-ink align-middle';
 
 function DeleteAction({ category, onDelete }: { category: AdminCategory; onDelete: () => void }) {
   const reasonId = useId();
@@ -35,7 +35,7 @@ function DeleteAction({ category, onDelete }: { category: AdminCategory; onDelet
       <span
         id={reasonId}
         role="tooltip"
-        className="pointer-events-none invisible absolute right-0 bottom-full z-10 mb-2 w-64 rounded-md bg-ink p-3 text-left text-sm text-bg opacity-0 shadow-md transition-opacity group-focus-visible:visible group-focus-visible:opacity-100 group-hover:visible group-hover:opacity-100"
+        className="pointer-events-none invisible absolute right-0 bottom-full z-10 mb-2 w-64 rounded-md bg-ink p-3 text-left text-body-sm text-bg opacity-0 shadow-md transition-opacity group-focus-visible:visible group-focus-visible:opacity-100 group-hover:visible group-hover:opacity-100"
       >
         Tiene {category.productCount} {category.productCount === 1 ? 'plato asociado' : 'platos asociados'}: muévelos a
         otra categoría antes de eliminarla.

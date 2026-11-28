@@ -92,7 +92,7 @@ export function CartPage() {
         <h1
           ref={titleRef}
           tabIndex={-1}
-          className="font-display text-[32px] leading-10 font-semibold text-ink focus:outline-none"
+          className="font-display text-title-lg text-ink focus:outline-none"
         >
           Tu carrito
         </h1>
@@ -101,17 +101,17 @@ export function CartPage() {
 
       {items.length === 0 ? (
         <div className="flex flex-col items-center gap-4 py-12">
-          <p className="text-base text-ink-muted">Tu carrito está vacío.</p>
+          <p className="text-body text-ink-muted">Tu carrito está vacío.</p>
           <Link
             to="/menu"
-            className="text-base font-bold text-ink underline focus-visible:shadow-focus focus-visible:outline-none"
+            className="text-button text-ink underline focus-visible:shadow-focus focus-visible:outline-none"
           >
             Ver la carta
           </Link>
         </div>
       ) : query.isError ? (
         <div role="alert" className="flex flex-col items-center gap-4 py-12">
-          <p className="text-base text-ink-muted">No pudimos cargar tu carrito.</p>
+          <p className="text-body text-ink-muted">No pudimos cargar tu carrito.</p>
           <Button variant="secondary" onClick={() => void query.refetch()}>
             Reintentar
           </Button>
@@ -121,7 +121,7 @@ export function CartPage() {
           {isAuthLoading ? null : <CheckoutStepper currentStep="cart" isAuthenticated={user !== null} />}
           <div className="grid items-start gap-6 md:grid-cols-[1fr_20rem]">
             <div className="flex flex-col gap-4">
-              <h2 className="font-display text-[24px] leading-8 font-semibold text-ink">Productos</h2>
+              <h2 className="font-display text-title-md text-ink">Productos</h2>
               <ul aria-busy={query.isPending} className="flex flex-col gap-3">
                 {items.map((item) => {
                   const product = productsById.get(item.productId);
