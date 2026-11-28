@@ -51,6 +51,14 @@ const SECTION_ICONS: Record<(typeof ADMIN_SECTIONS)[number]['path'] | typeof ADM
       <path d="M9 4h6v3H9zM9 12h6M9 16h6" />
     </>
   ),
+  cupones: (
+    <>
+      <path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4Z" />
+      <path d="m9.5 14.5 5-5" />
+      <circle cx="9.5" cy="9.5" r=".5" />
+      <circle cx="14.5" cy="14.5" r=".5" />
+    </>
+  ),
   reportes: <path d="M4 20V10M10 20V4M16 20v-8M22 20H2" />,
   'mi-informacion': PERSON_ICON_PATHS,
 };

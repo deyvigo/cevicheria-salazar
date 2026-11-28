@@ -108,3 +108,4 @@ El carrito no requiere cuenta. El inicio de sesión se exige recién al realizar
 | HU-34 | Como administrador, quiero ver un reporte de ventas por día y por método de pago para controlar los ingresos.                    | Baja      |
 | HU-36 | Como administrador, quiero ver y editar mis datos personales y cambiar mi contraseña desde el panel para mantener mi cuenta actualizada y segura. | Media     |
 | HU-37 | Como administrador, quiero gestionar las zonas de precio del delivery sobre un mapa (crear, editar y eliminar polígonos con su tarifa) para cobrar el envío según el destino del cliente. | Media     |
+| HU-43 | Como administrador, quiero crear, editar y activar o desactivar los códigos de descuento desde el panel, con sus usos por persona y su cantidad de cupos, para gestionar las promociones sin tocar la base de datos. | Media     |

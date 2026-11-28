@@ -96,7 +96,7 @@ Por ahora modela el dominio de **autenticación y registro** (épica [E1](epicas
   - `discount_type` (`PERCENTAGE` o `FIXED`) y `discount_value`: porcentaje (hasta 100) sobre el subtotal de los platos, o monto fijo en soles. El descuento nunca supera el subtotal ni toca el delivery.
   - `min_subtotal`, `starts_at`, `ends_at`, `max_uses`, `max_uses_per_customer`: condiciones opcionales; `is_active` desactiva el cupón sin borrarlo.
   - Los usos no se guardan en un contador: son los pedidos con ese `coupon_id` en estado `PENDIENTE_PAGO`, `PENDIENTE_COBRO` o `PAGADO` (índice parcial `idx_orders_coupon_usage`). Un pago en línea vencido o reemplazado pasa a `CANCELADO` y libera su uso; un pedido comprado que luego se rechaza o cancela conserva su estado de pago y su uso.
-  - En desarrollo se cargan cupones de ejemplo (`db/dev/R__sample_coupons.sql`); la gestión desde el panel llega en una historia posterior de E6.
+  - En desarrollo se cargan cupones de ejemplo (`db/dev/R__sample_coupons.sql`); el Administrador los gestiona desde la sección Cupones del panel (HU-43), que fija el código en cuanto un pedido lo referencia y solo elimina cupones sin pedidos. El panel trabaja con días de Lima: `starts_at` es las 00:00 del día de inicio y `ends_at` las 00:00 del día siguiente al de fin.
 
 - **order_items**: platos de un pedido, con copia de `product_name`, `unit_price`, `quantity` y `line_total`, de modo que cambiar el catálogo no altera pedidos pasados. Se borran en cascada con el pedido; `product_id` referencia `products` sin cascada.
 

@@ -3,6 +3,7 @@ export const ADMIN_SECTIONS = [
   { path: 'platos', label: 'Platos' },
   { path: 'zonas-delivery', label: 'Zonas de delivery' },
   { path: 'pedidos', label: 'Pedidos' },
+  { path: 'cupones', label: 'Cupones' },
   { path: 'reportes', label: 'Reportes' },
 ] as const;
 
